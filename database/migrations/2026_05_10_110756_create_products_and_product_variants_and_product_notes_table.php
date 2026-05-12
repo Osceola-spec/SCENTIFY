@@ -15,7 +15,7 @@ return new class extends Migration
             $table->enum('category', ['Designer', 'Niche', 'Local']);
             $table->enum('gender_type', ['Men', 'Women', 'Unisex']);
             $table->text('description')->nullable();
-            $table->string('image_url');
+            $table->string('image_url')->nullable();
             $table->boolean('is_new_arrival')->default(false);
             $table->integer('discount_percent')->default(0);
             $table->timestamps();

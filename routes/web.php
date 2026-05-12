@@ -13,6 +13,7 @@ Route::get('/', function () {
 Route::get('/shop', [ShopController::class, 'show'])->name('shop');
 
 // Rute CRUD Produk (Sementara dibuka tanpa Auth untuk testing Frontend)
+// Route::get('/products', [ShopController::class, 'show'])->name('products.index');
 Route::get('/products/insert-product', [ShopController::class, 'insert_product'])->name('products.insert');
 Route::post('/products', [ShopController::class, 'store'])->name('products.store');
 Route::get('/products/{product}/edit-product', [ShopController::class, 'edit_product'])->name('products.edit');

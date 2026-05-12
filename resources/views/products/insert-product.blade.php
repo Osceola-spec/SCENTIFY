@@ -50,8 +50,11 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-muted">Gambar Produk (URL Sementara)</label>
-                                <input type="url" name="image_url" class="form-control" required placeholder="https://contoh.com/gambar.jpg">
+                                {{-- <label class="form-label text-muted">Gambar Produk (URL Sementara)</label>
+                                <input type="url" name="image_url" class="form-control" required    placeholder="https://contoh.com/gambar.jpg"> --}}
+                                <label for="image" class="form-label text-muted">Product Image (jpg, jpeg, png)</label>
+                                <input type="file" class="form-control" id="image" name="image" accept=".jpg,.jpeg,.png">
+           
                             </div>
                         </div>
 
@@ -70,31 +73,43 @@
                             <textarea name="description" class="form-control" rows="4" required></textarea>
                         </div>
 
-                        <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5">Varian & Harga</h5>
-                        <!-- Varian 50ml -->
-                        <div class="row mb-3 bg-light p-3 rounded mx-0">
-                            <p class="fw-bold mb-2">Ukuran 50ml</p>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted">Harga (Rp)</label>
-                                <input type="number" name="price_50ml" class="form-control" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted">Stok</label>
-                                <input type="number" name="stock_50ml" class="form-control" required>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+                            <h5 class="fw-bold mb-0 border-bottom pb-2" style="flex: 1;">Varian & Harga</h5>
+                            <button type="button" class="btn btn-sm btn-outline-dark ms-2" id="addVariantBtn">
+                                <i class="bi bi-plus-lg"></i> Add Variant
+                            </button>
                         </div>
-                        <!-- Varian 100ml -->
-                        <div class="row mb-4 bg-light p-3 rounded mx-0">
-                            <p class="fw-bold mb-2">Ukuran 100ml</p>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted">Harga (Rp)</label>
-                                <input type="number" name="price_100ml" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label small text-muted">Stok</label>
-                                <input type="number" name="stock_100ml" class="form-control">
-                            </div>
+
+                        <!-- Container untuk variant items -->
+                        <div id="variantsContainer">
+                            <!-- Variant items akan ditambahkan di sini dengan JavaScript -->
                         </div>
+
+                        <!-- Template untuk variant baru (hidden) -->
+                        <template id="variantTemplate">
+                            <div class="variant-item mb-3 bg-light p-3 rounded mx-0 position-relative">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <p class="fw-bold mb-0">Varian <span class="variantNumber">1</span></p>
+                                    <button type="button" class="btn btn-sm btn-outline-danger removeVariantBtn" title="Hapus varian ini">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label class="form-label small text-muted">Nama Varian</label>
+                                        <input type="text" name="variants[size][]" class="form-control" placeholder="contoh: 50ml, 100ml, Travel Size" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small text-muted">Harga (Rp)</label>
+                                        <input type="number" name="variants[price][]" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small text-muted">Stok</label>
+                                        <input type="number" name="variants[stock][]" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
 
                         <div class="d-grid mt-5">
                             <button type="submit" class="btn btn-dark btn-lg rounded-pill py-3">Simpan Produk</button>
@@ -105,4 +120,59 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const variantsContainer = document.getElementById('variantsContainer');
+    const variantTemplate = document.getElementById('variantTemplate');
+    const addVariantBtn = document.getElementById('addVariantBtn');
+
+    // Tambahkan 2 varian default (50ml dan 100ml)
+    addDefaultVariants();
+
+    // Event listener untuk tombol Add Variant
+    addVariantBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        addNewVariant();
+    });
+
+    function addDefaultVariants() {
+        addNewVariant('50ml');
+        addNewVariant('100ml');
+    }
+
+    function addNewVariant(defaultSize = '') {
+        const clone = variantTemplate.content.cloneNode(true);
+        const variantNumber = variantsContainer.children.length + 1;
+        
+        clone.querySelector('.variantNumber').textContent = variantNumber;
+        
+        // Set default size jika diberikan
+        if (defaultSize) {
+            clone.querySelector('input[name*="variants[size"]').value = defaultSize;
+        }
+        
+        // Event listener untuk tombol hapus
+        clone.querySelector('.removeVariantBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const items = variantsContainer.querySelectorAll('.variant-item');
+            if (items.length > 1) {
+                this.closest('.variant-item').remove();
+                updateVariantNumbers();
+            } else {
+                alert('Minimal harus ada 1 varian!');
+            }
+        });
+
+        variantsContainer.appendChild(clone);
+    }
+
+    function updateVariantNumbers() {
+        const items = variantsContainer.querySelectorAll('.variant-item');
+        items.forEach((item, index) => {
+            item.querySelector('.variantNumber').textContent = index + 1;
+        });
+    }
+});
+</script>
 @endsection
