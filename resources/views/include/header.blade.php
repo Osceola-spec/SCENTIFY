@@ -26,7 +26,41 @@
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <a href="#" class="text-light"><i class="fas fa-search"></i></a>
-                    <a href="#" class="text-light"><i class="far fa-user"></i></a>
+                    
+                    <!-- User Icon / Dropdown -->
+                    @if(Auth::check())
+                        <div class="nav-item dropdown">
+                            <a class="nav-link text-light dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                @if(Auth::user()->profile_picture)
+                                    <img src="{{ asset('images/' . Auth::user()->profile_picture) }}" 
+                                         alt="{{ Auth::user()->name }}" 
+                                         class="rounded-circle"
+                                         style="width: 30px; height: 30px; object-fit: cover;">
+                                @else
+                                    <i class="fas fa-user-circle"></i>
+                                @endif
+                                {{ Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+                                @if(Auth::user()->role === 'admin')
+                                    <li><a class="dropdown-item" href="{{ route('products.insert') }}"><i class="fas fa-box"></i> Manage Products</a></li>
+                                @endif
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item" style="cursor: pointer;">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="text-light"><i class="fas fa-user"></i></a>
+                    @endif
+                    
                     <a href="#" class="text-light position-relative">
                         <i class="fas fa-shopping-bag"></i>
                         <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
