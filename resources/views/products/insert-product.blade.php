@@ -61,12 +61,47 @@
                         <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5">Aroma & Deskripsi</h5>
                         <div class="mb-3">
                             <label class="form-label text-muted">Scent Notes (Bisa pilih lebih dari satu)</label>
-                            <select name="notes[]" class="form-select" multiple required style="height: 120px;">
-                                @foreach($notes as $note)
-                                    <option value="{{ $note->id }}">{{ $note->name }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-muted">Tahan tombol Ctrl (Windows) atau Cmd (Mac) untuk memilih lebih dari satu.</small>
+                            <div class="mb-3">
+                                <label class="form-label text-muted">
+                                    Scent Notes
+                                </label>
+
+                                <div class="row mt-2">
+
+                                    @foreach($notes as $note)
+
+                                    <div class="col-6 col-md-4">
+
+                                        <div class="form-check mb-2">
+
+                                            <input 
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="notes[]"
+                                                value="{{ $note->id }}"
+                                                id="note{{ $note->id }}"
+                                            >
+
+                                            <label 
+                                                class="form-check-label"
+                                                for="note{{ $note->id }}"
+                                            >
+                                                {{ $note->name }}
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                    @endforeach
+
+                                </div>
+
+                                <small class="text-muted">
+                                    Pilih satu atau lebih scent notes.
+                                </small>
+
+                            </div>
                         </div>
                         <div class="mb-4">
                             <label class="form-label text-muted">Deskripsi Produk</label>
