@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="container py-5 mt-4">
-        <!-- Breadcrumb -->
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-dark text-decoration-none">Home</a></li>
@@ -10,16 +9,10 @@
             </ol>
         </nav>
 
-        <!-- Header & Sorting -->
         <div class="row mb-5 align-items-center">
             <div class="col-md-6">
                 <div class="d-flex align-items-center gap-3">
                     <h1 class="fw-light mb-0">Semua Parfum</h1>
-
-                    <!-- Tombol Insert Product (Tampil Langsung) -->
-                    <a href="{{ route('products.insert') }}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
-                        <i class="fas fa-plus"></i> Tambah Produk
-                    </a>
                 </div>
                 <p class="text-muted mt-2 mb-0">Menampilkan {{ $products->firstItem() ?? 0 }} -
                     {{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} produk</p>
@@ -40,7 +33,6 @@
         </div>
 
         <div class="row g-5">
-            <!-- Sidebar Filters -->
             <div class="col-lg-3">
                 <form action="{{ route('shop') }}" method="GET" id="filterForm">
                     <div class="sticky-top" style="top: 100px;">
@@ -70,7 +62,7 @@
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" name="brand[]"
                                         value="{{ $brand->id }}" id="brand{{ $brand->id }}"
-                                        {{ in_array($brand->id, request('brand', [])) ? 'checked' : '' }}>
+                                        {{ in_array($brand->id, (array) request('brand', [])) ? 'checked' : '' }}>
                                     <label class="form-check-label text-muted"
                                         for="brand{{ $brand->id }}">{{ $brand->name }}</label>
                                 </div>
@@ -99,16 +91,40 @@
                 </form>
             </div>
 
-            <!-- Product Grid -->
             <div class="col-lg-9">
+
+                @if (request()->has('brand') && request('brand') != '')
+                    @php
+                        // Ambil ID brand baik berupa string tunggal maupun array dari checkbox
+                        $brandParam = request('brand');
+                        $brandId = is_array($brandParam) ? $brandParam[0] ?? null : $brandParam;
+                        $activeBrand = $brands->firstWhere('id', $brandId);
+                    @endphp
+
+                    @if ($activeBrand)
+                        <div
+                            class="alert alert-light border rounded-4 d-flex align-items-center justify-content-between mb-4 p-3 shadow-sm">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-filter text-muted small"></i>
+                                <span class="text-muted small">Menampilkan koleksi resmi dari brand:</span>
+                                <span
+                                    class="badge bg-dark rounded-pill px-3 py-2 fw-medium fs-7">{{ $activeBrand->name }}</span>
+                            </div>
+                            <a href="{{ route('shop') }}"
+                                class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 30px; height: 30px;" title="Hapus Filter">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        </div>
+                    @endif
+                @endif
+
                 <div class="row g-4" id="product-container">
 
-                    <!-- LOOPING DATA DARI DATABASE -->
                     @forelse($products as $product)
                         <div class="col-6 col-md-4">
                             <div class="card product-card shadow-sm h-100 position-relative">
 
-                                <!-- Tombol Edit & Delete (Tampil Langsung) -->
                                 @if (auth()->check() && auth()->user()->role === 'admin')
                                     <div class="position-absolute top-0 end-0 p-2 z-3 d-flex gap-1">
                                         <a href="{{ route('products.edit', $product->id) }}"
@@ -151,9 +167,17 @@
                                         Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}
                                     </p>
 
-                                    <button class="btn btn-dark w-100 mt-auto rounded-pill" onclick="addToCart()">Tambah
-                                        ke
-                                        Keranjang</button>
+                                    @if ($product->variants->isNotEmpty())
+                                        <form action="{{ route('cart.add', $product->variants->first()->id) }}"
+                                            method="POST" class="w-100 mt-auto">
+                                            @csrf
+                                            <button type="submit" class="btn btn-dark w-100 rounded-pill">Tambah ke
+                                                Keranjang</button>
+                                        </form>
+                                    @else
+                                        <button class="btn btn-secondary w-100 mt-auto rounded-pill" disabled>Stok
+                                            Habis</button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -166,7 +190,6 @@
 
                 </div>
 
-                <!-- Pagination -->
                 <div class="mt-5 pt-4 border-top border-secondary-subtle d-flex justify-content-center custom-pagination">
                     {{ $products->links('pagination::bootstrap-5') }}
                 </div>
@@ -175,7 +198,6 @@
         </div>
     </div>
 
-    <!-- Custom CSS -->
     <style>
         .custom-pagination .page-link {
             color: #212529;
@@ -208,7 +230,6 @@
             position: absolute;
             top: -10px;
             left: 100%;
-            /* Default ke kanan karena value awal 5jt */
             transform: translateX(-50%);
             background: #212529;
             color: white;
@@ -239,7 +260,6 @@
     </style>
 
     <script>
-        // Gunakan fungsi yang langsung dipanggil agar tidak konflik
         (function() {
             const rangeInput = document.getElementById('priceRange');
             const rangeTooltip = document.getElementById('rangeTooltip');
@@ -250,27 +270,22 @@
                 const min = Number(rangeInput.min) || 0;
                 const max = Number(rangeInput.max) || 5000000;
 
-                // 1. Hitung Persentase
                 const percent = ((val - min) / (max - min)) * 100;
 
-                // 2. Format Rupiah
                 const formatted = new Intl.NumberFormat('id-ID', {
                     style: 'currency',
                     currency: 'IDR',
                     maximumFractionDigits: 0
                 }).format(val);
 
-                // 3. Update Konten Teks
                 rangeTooltip.innerText = formatted;
                 priceLabel.innerText = formatted;
 
-                // 4. Update Posisi Balon (PENTING: Rumus sinkronisasi)
                 rangeTooltip.style.left = `calc(${percent}% + (${8 - percent * 0.16}px))`;
             }
 
             if (rangeInput) {
                 rangeInput.addEventListener('input', updateUI);
-                // Panggil saat pertama kali load
                 updateUI();
             }
         })();
@@ -284,7 +299,7 @@
             text: "Produk '" + productName + "' akan disembunyikan dari toko Scentify.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#212529', // Hitam sesuai tema Scentify
+            confirmButtonColor: '#212529',
             cancelButtonColor: '#d33',
             confirmButtonText: '<i class="fas fa-trash me-2"></i>Ya, Hapus!',
             cancelButtonText: 'Batal',
@@ -296,7 +311,6 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Submit form berdasarkan ID unik produk
                 document.getElementById('delete-form-' + productId).submit();
             }
         })

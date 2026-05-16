@@ -25,8 +25,10 @@ class ShopController extends Controller
         }
 
         // 3. Filter Brand
-        if ($request->has('brand')) {
-            $query->whereIn('brand_id', $request->brand);
+        if ($request->has('brand') && $request->brand != '') {
+            $brandFilter = (array) $request->brand;
+
+            $query->whereIn('brand_id', $brandFilter);
         }
 
         // 4. Filter Harga
