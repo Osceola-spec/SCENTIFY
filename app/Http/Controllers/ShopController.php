@@ -12,10 +12,51 @@ use Illuminate\Support\Str;
 
 class ShopController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
         $brands = Brand::all();
-        $products = Product::with(['brand', 'variants'])->latest()->paginate(12);
+
+        // 1. Mulai query dengan eager loading
+        $query = Product::with(['brand', 'variants']);
+
+        // 2. Filter Gender
+        if ($request->has('gender')) {
+            $query->whereIn('gender_type', $request->gender);
+        }
+
+        // 3. Filter Brand
+        if ($request->has('brand')) {
+            $query->whereIn('brand_id', $request->brand);
+        }
+
+        // 4. Filter Harga
+        if ($request->has('max_price')) {
+            $query->whereHas('variants', function ($q) use ($request) {
+                $q->where('price', '<=', $request->max_price);
+            });
+        }
+
+        // 5. Logika Sorting (Satu Blok Saja)
+        if ($request->sort === 'price_asc') {
+            $query->addSelect([
+                'min_price' => ProductVariant::select('price')
+                    ->whereColumn('product_id', 'products.id')
+                    ->orderBy('price', 'asc')
+                    ->limit(1)
+            ])->orderBy('min_price', 'asc');
+        } elseif ($request->sort === 'price_desc') {
+            $query->addSelect([
+                'max_price' => ProductVariant::select('price')
+                    ->whereColumn('product_id', 'products.id')
+                    ->orderBy('price', 'desc')
+                    ->limit(1)
+            ])->orderBy('max_price', 'desc');
+        } else {
+            // Default sorting jika tidak ada pilihan harga
+            $query->latest();
+        }
+
+        $products = $query->paginate(12)->withQueryString();
 
         return view('shop', compact('products', 'brands'));
     }
@@ -24,7 +65,7 @@ class ShopController extends Controller
     {
         $brands = Brand::all();
         $notes = ScentNote::all();
-        
+
         return view('products.insert-product', compact('brands', 'notes'));
     }
 
@@ -33,10 +74,10 @@ class ShopController extends Controller
     {
         $brands = Brand::all();
         $notes = ScentNote::all();
-        
+
         // Load relasi agar data varian dan notes terpilih muncul di form edit
         $product->load(['variants', 'notes']);
-        
+
         return view('products.edit-product', compact('product', 'brands', 'notes'));
     }
     public function store(Request $request)
@@ -172,7 +213,7 @@ class ShopController extends Controller
             if ($product->image_url && file_exists(public_path('product_image/' . $product->image_url))) {
                 unlink(public_path('product_image/' . $product->image_url));
             }
-            
+
             $imageUrl = time() . '-' . $request->file('image')->getClientOriginalName();
             $request->file('image')->move(public_path('product_image'), $imageUrl);
         }
@@ -192,7 +233,7 @@ class ShopController extends Controller
 
         // 2. Hapus semua varian lama dan buat yang baru
         $product->variants()->delete();
-        
+
         $sizes = $request->input('variants.size');
         $prices = $request->input('variants.price');
         $stocks = $request->input('variants.stock');
@@ -211,12 +252,14 @@ class ShopController extends Controller
         return redirect()->route('shop')->with('success', 'Produk berhasil diperbarui!');
     }
 
-    // Memproses Hapus Produk
     public function destroy(Product $product)
     {
-        // Relasi varian dan notes akan otomatis terhapus karena kita menggunakan onDelete('cascade') di file migration
+        if (auth()->user()?->role !== 'admin') {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus produk.');
+        }
+
         $product->delete();
 
-        return redirect()->route('shop')->with('success', 'Produk berhasil dihapus!');
+        return redirect()->route('shop')->with('success', 'Produk berhasil dipindahkan ke tempat sampah!');
     }
 }

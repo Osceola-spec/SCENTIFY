@@ -4,14 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
     use HasFactory;
-
+    use SoftDeletes;
     protected $fillable = [
-        'brand_id', 'name', 'slug', 'category', 'gender_type', 
-        'description', 'image_url', 'is_new_arrival', 'discount_percent'
+        'brand_id',
+        'name',
+        'slug',
+        'category',
+        'gender_type',
+        'description',
+        'image_url',
+        'is_new_arrival',
+        'discount_percent'
     ];
 
     // Relasi: Produk ini milik 1 brand (Kebalikan dari hasMany)

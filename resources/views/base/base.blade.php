@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         /* Custom Styling */
         body {
@@ -25,8 +26,8 @@
 
         /* Hero Section */
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), 
-                        url('https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=1200') center/cover no-repeat;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)),
+                url('https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=1200') center/cover no-repeat;
             height: 95vh;
             display: flex;
             align-items: center;
@@ -51,7 +52,7 @@
 
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .product-img-wrapper {
@@ -97,7 +98,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
             z-index: 2;
         }
 
@@ -121,6 +122,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <!-- 1. MEMANGGIL HEADER -->
@@ -137,27 +139,53 @@
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Custom JavaScript (Data Produk & Add to Cart) -->
     <script>
-        
         // Logika Keranjang Belanja & Notifikasi
         let cartCount = 0;
         const cartBadge = document.getElementById('cart-badge');
-        
+
         // Inisialisasi Bootstrap Toast
         const toastElList = [].slice.call(document.querySelectorAll('.toast'));
         let toastList = [];
-        if(toastElList.length > 0) {
-            toastList = toastElList.map(function (toastEl) {
-                return new bootstrap.Toast(toastEl, { delay: 3000 });
+        if (toastElList.length > 0) {
+            toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl, {
+                    delay: 3000
+                });
             });
         }
 
         function addToCart() {
             cartCount++;
-            if(cartBadge) cartBadge.innerText = cartCount;
-            if(toastList.length > 0) toastList[0].show();
+            if (cartBadge) cartBadge.innerText = cartCount;
+            if (toastList.length > 0) toastList[0].show();
         }
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                timer: 2500,
+                background: '#ffffff',
+                customClass: {
+                    popup: 'rounded-4'
+                }
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Ups!',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#000'
+            });
+        @endif
     </script>
 </body>
+
 </html>
