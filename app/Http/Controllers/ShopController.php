@@ -19,7 +19,28 @@ class ShopController extends Controller
         // 1. Mulai query dengan eager loading
         $query = Product::with(['brand', 'variants']);
 
-        // 2. Filter Gender
+        // LOGIKA PENCARIAN NAVBAR
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+
+            $query->where(function($q) use ($search) {
+                // Cari berdasarkan Nama Parfum
+                $q->where('name', 'LIKE', "%{$search}%")
+                
+                // Atau cari berdasarkan Tipe Gender (Men, Women, Unisex)
+                  ->orWhere('gender_type', 'LIKE', "%{$search}%")
+                  
+                // Atau cari berdasarkan Kategori Jenis (Designer, Niche, Local)
+                  ->orWhere('category', 'LIKE', "%{$search}%")
+                  
+                // Atau cari berdasarkan Nama Brand di tabel relasi brands
+                  ->orWhereHas('brand', function($brandQuery) use ($search) {
+                      $brandQuery->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        } // <-- KURUNG PENUTUP DISINI SEBELUMNYA REYOT / SALAH POSISI
+
+        // 2. Filter Gender (Sekarang aman di luar scope IF Search)
         if ($request->has('gender')) {
             $query->whereIn('gender_type', $request->gender);
         }
@@ -38,7 +59,7 @@ class ShopController extends Controller
             });
         }
 
-        // 5. Logika Sorting (Satu Blok Saja)
+        // 5. Logika Sorting
         if ($request->sort === 'price_asc') {
             $query->addSelect([
                 'min_price' => ProductVariant::select('price')
@@ -54,10 +75,10 @@ class ShopController extends Controller
                     ->limit(1)
             ])->orderBy('max_price', 'desc');
         } else {
-            // Default sorting jika tidak ada pilihan harga
             $query->latest();
         }
 
+        // Eksekusi pagination wajib berjalan di setiap request apa pun
         $products = $query->paginate(12)->withQueryString();
 
         return view('shop', compact('products', 'brands'));

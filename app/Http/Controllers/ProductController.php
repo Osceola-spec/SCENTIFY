@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Brand;
 use App\Models\ScentNote;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -24,19 +25,66 @@ class ProductController extends Controller
     // 2. Memproses Simpan Produk Baru ke Database
     public function store(Request $request)
     {
-        // Simpan data produk ke database
-        $product = Product::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name) . '-' . time(),
-            'brand_id' => $request->brand_id,
-            'category' => $request->category ?? 'Designer', // Default jika kosong
-            'gender_type' => $request->gender_type ?? 'Unisex',
-            'description' => $request->description,
-            'image_url' => $request->image_url,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'brand_id' => 'required|exists:brands,id',
+            'category' => 'required|string|max:50',
+            'gender_type' => 'required|string|max:50',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'notes' => 'nullable|array',
+            'notes.*' => 'exists:scent_notes,id',
+            'variants.size' => 'required|array|min:1',
+            'variants.price' => 'required|array|min:1',
+            'variants.stock' => 'required|array|min:1',
+            'variants.size.*' => 'required|string|max:50',
+            'variants.price.*' => 'required|numeric|min:0',
+            'variants.stock.*' => 'required|integer|min:0',
         ]);
 
-        // Arahkan kembali ke halaman inventori admin setelah menyimpan produk
-        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil ditambahkan!');
+        return DB::transaction(function () use ($request) {
+            $fileName = null;
+            if ($request->hasFile('image')) {
+                if (!file_exists(public_path('images'))) {
+                    mkdir(public_path('images'), 0755, true);
+                }
+                $file = $request->file('image');
+                $fileName = time() . '_' . preg_replace('/[^A-Za-z0-9\-\.]/', '', $file->getClientOriginalName());
+                $file->move(public_path('images'), $fileName);
+            }
+
+            $product = Product::create([
+                'name' => $request->name,
+                'slug' => Str::slug($request->name) . '-' . time(),
+                'brand_id' => $request->brand_id,
+                'category' => $request->category ?? 'Designer',
+                'gender_type' => $request->gender_type ?? 'Unisex',
+                'description' => $request->description,
+                'image_url' => $fileName,
+            ]);
+
+            $product->notes()->sync($request->input('notes', []));
+
+            $variants = $request->input('variants', []);
+            if (is_array($variants['size'] ?? null)) {
+                foreach ($variants['size'] as $index => $size) {
+                    $price = $variants['price'][$index] ?? null;
+                    $stock = $variants['stock'][$index] ?? null;
+
+                    if (!$size || is_null($price) || is_null($stock)) {
+                        continue;
+                    }
+
+                    $product->variants()->create([
+                        'size' => $size,
+                        'price' => $price,
+                        'stock' => $stock,
+                    ]);
+                }
+            }
+
+            return redirect()->route('admin.inventory')->with('success', 'Produk berhasil ditambahkan!');
+        });
     }
 
     // 3. Menampilkan Halaman Edit Produk
@@ -53,16 +101,67 @@ class ProductController extends Controller
     // 4. Memproses Update Data Produk
     public function update(Request $request, Product $product)
     {
-        $product->update([
-            'name' => $request->name,
-            'brand_id' => $request->brand_id,
-            'category' => $request->category,
-            'gender_type' => $request->gender_type,
-            'description' => $request->description,
-            'image_url' => $request->image_url,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'brand_id' => 'required|exists:brands,id',
+            'category' => 'required|string|max:50',
+            'gender_type' => 'required|string|max:50',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'notes' => 'nullable|array',
+            'notes.*' => 'exists:scent_notes,id',
+            'variants.size' => 'required|array|min:1',
+            'variants.price' => 'required|array|min:1',
+            'variants.stock' => 'required|array|min:1',
+            'variants.size.*' => 'required|string|max:50',
+            'variants.price.*' => 'required|numeric|min:0',
+            'variants.stock.*' => 'required|integer|min:0',
         ]);
 
-        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil diperbarui!');
+        return DB::transaction(function () use ($request, $product) {
+            $fileName = $product->image_url;
+            if ($request->hasFile('image')) {
+                if (!file_exists(public_path('images'))) {
+                    mkdir(public_path('images'), 0755, true);
+                }
+                $file = $request->file('image');
+                $fileName = time() . '_' . preg_replace('/[^A-Za-z0-9\-\.]/', '', $file->getClientOriginalName());
+                $file->move(public_path('images'), $fileName);
+            }
+
+            $product->update([
+                'name' => $request->name,
+                'brand_id' => $request->brand_id,
+                'category' => $request->category,
+                'gender_type' => $request->gender_type,
+                'description' => $request->description,
+                'image_url' => $fileName,
+            ]);
+
+            $product->notes()->sync($request->input('notes', []));
+
+            // Hapus semua varian lama dan buat ulang dari input baru
+            $product->variants()->delete();
+            $variants = $request->input('variants', []);
+            if (is_array($variants['size'] ?? null)) {
+                foreach ($variants['size'] as $index => $size) {
+                    $price = $variants['price'][$index] ?? null;
+                    $stock = $variants['stock'][$index] ?? null;
+
+                    if (!$size || is_null($price) || is_null($stock)) {
+                        continue;
+                    }
+
+                    $product->variants()->create([
+                        'size' => $size,
+                        'price' => $price,
+                        'stock' => $stock,
+                    ]);
+                }
+            }
+
+            return redirect()->route('admin.inventory')->with('success', 'Produk berhasil diperbarui!');
+        });
     }
 
     // 5. Menghapus Produk

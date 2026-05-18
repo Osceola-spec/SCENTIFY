@@ -111,9 +111,11 @@
                 <i class="fas fa-tags"></i> Manajemen Brand
             </a>
 
-            <a href="#" class="sidebar-link">
+            <a href="{{ route('admin.orders.index') }}"
+                class="sidebar-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                 <i class="fas fa-shopping-cart"></i> Riwayat Pesanan
             </a>
+            
             <a href="#" class="sidebar-link">
                 <i class="fas fa-users"></i> Pelanggan
             </a>

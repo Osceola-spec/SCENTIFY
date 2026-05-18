@@ -12,4 +12,9 @@ class OrderItem extends Model
         'quantity',
         'price_at_purchase'
     ];
+    public function variant()
+    {
+        // Setiap baris item pesanan merujuk pada 1 Varian Produk
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
 }

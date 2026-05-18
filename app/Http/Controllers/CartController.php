@@ -24,6 +24,9 @@ class CartController extends Controller
     // Memasukkan produk ke keranjang
     public function add(Request $request, $variantId)
     {
+        if (!auth()->check()) {
+        return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu untuk menambah produk ke keranjang.');
+    }
         // Ambil data varian (beserta data produk utamanya)
         $variant = ProductVariant::with('product')->findOrFail($variantId);
 

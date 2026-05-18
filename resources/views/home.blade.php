@@ -7,7 +7,7 @@
         <p class="text-uppercase tracking-wider mb-3 text-warning">Essence of Elegance</p>
         <h1 class="hero-title">Temukan Aura <br> Khas Anda</h1>
         <p class="lead mb-4 mx-auto" style="max-width: 600px;">Kurasi parfum desainer, niche, dan lokal premium untuk mengekspresikan karakter unik Anda.</p>
-        <a href="#produk-terlaris" class="btn btn-warning btn-lg px-5 py-3 rounded-pill">Mulai Belanja</a>
+        <a href="{{ route('shop') }}" class="btn btn-warning btn-lg px-5 py-3 rounded-pill">Mulai Belanja</a>
     </div>
 </section>
 

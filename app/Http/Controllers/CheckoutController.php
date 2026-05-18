@@ -39,6 +39,7 @@ class CheckoutController extends Controller
     }
 
     // 2. Memproses Simpan Pesanan (Place Order)
+    // 2. Memproses Simpan Pesanan (Place Order)
     public function process(Request $request)
     {
         $cart = session()->get('cart', []);
@@ -63,12 +64,12 @@ class CheckoutController extends Controller
         DB::beginTransaction();
         try {
             $order = Order::create([
-                'user_id' => 1, // SEMENTARA hardcode
+                'user_id' => auth()->id() ?? 1, // Bagus jika langsung menggunakan id user login
                 'order_number' => 'ORD-' . strtoupper(Str::random(8)),
                 'subtotal' => $subtotal,
                 'tax_amount' => $taxAmount,
                 'total_amount' => $totalAmount,
-                'status' => 'Pending', // Status masih pending karena belum dibayar
+                'status' => 'Pending',
                 'shipping_address' => $fullAddress,
             ]);
 
@@ -87,7 +88,9 @@ class CheckoutController extends Controller
                 }
             }
 
-            session()->forget('cart');
+            // ❌ HAPUS ATAU KOMENTARI BARIS INI (JANGAN DIHAPUS DULU DI SINI):
+            // session()->forget('cart');
+            
             DB::commit();
 
             // ==========================================
@@ -101,7 +104,7 @@ class CheckoutController extends Controller
             $params = [
                 'transaction_details' => [
                     'order_id' => $order->order_number,
-                    'gross_amount' => (int) $order->total_amount, // Midtrans butuh tipe integer
+                    'gross_amount' => (int) $order->total_amount, 
                 ],
                 'customer_details' => [
                     'first_name' => $request->first_name,
@@ -114,8 +117,12 @@ class CheckoutController extends Controller
             // Minta Snap Token dari Midtrans
             $snapToken = Snap::getSnapToken($params);
 
+            //  PINDAHKAN KE SINI: Keranjang baru dihapus setelah Snap Token sukses dibuat!
+            session()->forget('cart');
+
             // Arahkan ke halaman khusus pembayaran dengan membawa token
             return view('payment', compact('snapToken', 'order'));
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());

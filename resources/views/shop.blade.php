@@ -168,15 +168,41 @@
                                     </p>
 
                                     @if ($product->variants->isNotEmpty())
-                                        <form action="{{ route('cart.add', $product->variants->first()->id) }}"
-                                            method="POST" class="w-100 mt-auto">
-                                            @csrf
-                                            <button type="submit" class="btn btn-dark w-100 rounded-pill">Tambah ke
-                                                Keranjang</button>
-                                        </form>
+                                        @auth
+                                            <form action="{{ route('cart.add', $product->variants->first()->id) }}"
+                                                method="POST" class="w-100 mt-auto">
+                                                @csrf
+                                                <button type="submit" class="btn btn-dark w-100 rounded-pill">
+                                                    Tambah ke Keranjang
+                                                </button>
+                                            </form>
+                                        @else
+                                            <a href="{{ route('login') }}"
+                                                class="btn btn-dark w-100 mt-auto rounded-pill text-center text-decoration-none"
+                                                onclick="event.preventDefault(); Swal.fire({
+               title: 'Opps, Belum Login!',
+               text: 'Silakan login terlebih dahulu untuk mulai memasukkan parfum ke keranjang Scentify.',
+               icon: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#198754',
+               cancelButtonColor: '#6c757d',
+               confirmButtonText: 'Login Sekarang',
+               cancelButtonText: 'Nanti Saja',
+               customClass: {
+                   popup: 'rounded-4'
+               }
+           }).then((result) => {
+               if (result.isConfirmed) {
+                   window.location.href = this.href;
+               }
+           });">
+                                                Tambah ke Keranjang
+                                            </a>
+                                        @endauth
                                     @else
-                                        <button class="btn btn-secondary w-100 mt-auto rounded-pill" disabled>Stok
-                                            Habis</button>
+                                        <button class="btn btn-secondary w-100 mt-auto rounded-pill" disabled>
+                                            Stok Habis
+                                        </button>
                                     @endif
                                 </div>
                             </div>

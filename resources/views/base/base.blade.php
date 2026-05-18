@@ -113,6 +113,10 @@
             font-weight: 300;
         }
 
+        .navbar.sticky-top {
+            z-index: 1060;
+        }
+
         /* Custom Toast Notification */
         .toast-container {
             position: fixed;
