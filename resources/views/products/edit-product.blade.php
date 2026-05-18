@@ -1,13 +1,18 @@
 <!-- resources/views/products/edit.blade.php -->
-@extends('base.base')
+@extends('admin.layout')
+
+@section('title', 'Edit Produk')
 
 @section('content')
-<div class="container py-5 mt-4">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-xl-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-light mb-0">Edit Produk</h2>
-                <a href="{{ route('shop') }}" class="btn btn-outline-secondary rounded-pill px-4">Batal</a>
+                <div>
+                    <h2 class="fw-bold mb-1">Edit Produk</h2>
+                    <p class="text-muted mb-0">Perbarui produk dan kembali ke inventori admin.</p>
+                </div>
+                <a href="{{ route('admin.inventory') }}" class="btn btn-outline-secondary rounded-pill px-4">Batal</a>
             </div>
 
             <div class="card shadow-sm border-0 rounded-4">
@@ -68,14 +73,21 @@
                             <label class="form-label text-muted">Scent Notes</label>
                             <!-- Array dari ID Scent Note yang saat ini dimiliki produk -->
                             @php $selectedNotes = $product->notes->pluck('id')->toArray(); @endphp
-                            
-                            <select name="notes[]" class="form-select" multiple required style="height: 120px;">
+
+                            <div class="row g-2 mt-2">
                                 @foreach($notes as $note)
-                                    <option value="{{ $note->id }}" {{ in_array($note->id, $selectedNotes) ? 'selected' : '' }}>
-                                        {{ $note->name }}
-                                    </option>
+                                    <div class="col-6 col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="notes[]" value="{{ $note->id }}" id="note{{ $note->id }}" {{ in_array($note->id, $selectedNotes) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="note{{ $note->id }}">
+                                                {{ $note->name }}
+                                            </label>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
+                            </div>
+
+                            <small class="text-muted">Pilih satu atau lebih scent notes.</small>
                         </div>
                         <div class="mb-4">
                             <label class="form-label text-muted">Deskripsi Produk</label>

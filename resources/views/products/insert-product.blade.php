@@ -1,12 +1,17 @@
-@extends('base.base')
+@extends('admin.layout')
+
+@section('title', 'Tambah Produk Baru')
 
 @section('content')
-<div class="container py-5 mt-4">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-xl-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-light mb-0">Tambah Produk Baru</h2>
-                <a href="{{ route('shop') }}" class="btn btn-outline-secondary rounded-pill px-4">Batal</a>
+                <div>
+                    <h2 class="fw-bold mb-1">Tambah Produk Baru</h2>
+                    <p class="text-muted mb-0">Tambahkan produk baru ke inventori admin.</p>
+                </div>
+                <a href="{{ route('admin.inventory') }}" class="btn btn-outline-secondary rounded-pill px-4">Batal</a>
             </div>
 
             <div class="card shadow-sm border-0 rounded-4">

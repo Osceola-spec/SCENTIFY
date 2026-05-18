@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Brand;
+use App\Models\ScentNote;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -12,11 +13,12 @@ class ProductController extends Controller
     // 1. Menampilkan Halaman Tambah Produk
     public function create()
     {
-        // Ambil data brand untuk ditampilkan di dropdown form
+        // Ambil data brand dan scent note untuk ditampilkan di form
         $brands = Brand::all();
+        $notes = ScentNote::all();
 
         // Mengarah ke file resources/views/products/insert-product.blade.php
-        return view('products.insert-product', compact('brands'));
+        return view('products.insert-product', compact('brands', 'notes'));
     }
 
     // 2. Memproses Simpan Produk Baru ke Database
@@ -33,17 +35,19 @@ class ProductController extends Controller
             'image_url' => $request->image_url,
         ]);
 
-        // Arahkan kembali ke halaman shop atau inventory
-        return redirect()->route('shop')->with('success', 'Produk berhasil ditambahkan!');
+        // Arahkan kembali ke halaman inventori admin setelah menyimpan produk
+        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil ditambahkan!');
     }
 
     // 3. Menampilkan Halaman Edit Produk
     public function edit(Product $product)
     {
         $brands = Brand::all();
+        $notes = ScentNote::all();
+        $product->load('notes');
 
         // Mengarah ke file resources/views/products/edit-product.blade.php
-        return view('products.edit-product', compact('product', 'brands'));
+        return view('products.edit-product', compact('product', 'brands', 'notes'));
     }
 
     // 4. Memproses Update Data Produk
@@ -58,15 +62,16 @@ class ProductController extends Controller
             'image_url' => $request->image_url,
         ]);
 
-        return redirect()->route('shop')->with('success', 'Produk berhasil diperbarui!');
+        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil diperbarui!');
     }
 
     // 5. Menghapus Produk
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('shop')->with('success', 'Produk berhasil dihapus!');
+        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil dihapus!');
     }
+
     public function index(Request $request)
     {
         // 1. Ambil data produk dasar yang aktif (belum di-soft-delete)

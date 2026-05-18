@@ -8,6 +8,10 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BrandController;
+use App\Models\Brand;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductVariant;
 
 // ==========================================
 // RUTE PUBLIK
@@ -43,10 +47,11 @@ Route::middleware('guest')->group(function () {
 // ==========================================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show_profile'])->name('profile');
-    Route::get('/brands', [BrandController::class, 'publicIndex'])->name('brands.index');
     Route::post('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
     Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
 });
+
+Route::get('/brands', [BrandController::class, 'publicIndex'])->name('brands.index');
 
 // ==========================================
 // RUTE KHUSUS ADMIN PANEL
@@ -56,11 +61,75 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Dashboard & Inventory
     Route::get('/dashboard', function () {
-        return view('admin.dashboard');
+        $totalProducts = Product::count();
+        $totalBrands = Brand::count();
+        $totalVariants = ProductVariant::count();
+        $totalOrders = Order::count();
+        $pendingOrders = Order::where('status', 'Pending')->count();
+        $completedOrders = Order::where('status', 'Completed')->count();
+        $totalRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])->sum('total_amount');
+        $monthlyRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
+            ->whereMonth('created_at', now()->month)
+            ->sum('total_amount');
+        $todayRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
+            ->whereDate('created_at', now())
+            ->sum('total_amount');
+
+        $recentProducts = Product::with('brand')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $upcomingOrders = Order::with('user')
+            ->whereIn('status', ['Pending', 'Paid', 'Shipped'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $lowStockVariants = ProductVariant::with('product')
+            ->where('stock', '<=', 10)
+            ->orderBy('stock')
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'totalProducts',
+            'totalBrands',
+            'totalVariants',
+            'totalOrders',
+            'pendingOrders',
+            'completedOrders',
+            'totalRevenue',
+            'monthlyRevenue',
+            'todayRevenue',
+            'recentProducts',
+            'upcomingOrders',
+            'lowStockVariants'
+        ));
     })->name('admin.dashboard');
 
     Route::get('/inventory', function () {
-        return view('admin.inventory');
+        $search = request('search');
+        $filter = request('filter', 'name');
+
+        $products = Product::with(['brand', 'variants'])
+            ->when($search, function ($query) use ($search, $filter) {
+                if ($filter === 'brand') {
+                    $query->whereHas('brand', function ($query) use ($search) {
+                        $query->where('name', 'like', "%{$search}%");
+                    });
+                } elseif ($filter === 'category') {
+                    $query->where('category', 'like', "%{$search}%");
+                } elseif ($filter === 'gender_type') {
+                    $query->where('gender_type', 'like', "%{$search}%");
+                } else {
+                    $query->where('name', 'like', "%{$search}%");
+                }
+            })
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.inventory', compact('products'));
     })->name('admin.inventory');
 
     // Manajemen Brand

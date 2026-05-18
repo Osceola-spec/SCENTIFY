@@ -1,13 +1,13 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-3">
     <div class="container">
-        <a class="navbar-brand" href="#">Scentify<span class="text-warning">.</span></a>
+        <a class="navbar-brand" href="{{ url('/') }}">Scentify<span class="text-warning">.</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#">Home</a>
+                    <a class="nav-link {{ request()->routeIs('shop') ? 'active' : '' }}" href="{{ route('shop') }}">Shop</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#koleksi">Koleksi</a>
@@ -23,7 +23,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('brands.index') }}">Brand</a>
+                    <a class="nav-link {{ request()->routeIs('brands.index') ? 'active' : '' }}" href="{{ route('brands.index') }}">Brand</a>
                 </li>
             </ul>
             <div class="d-flex align-items-center gap-3">
