@@ -45,12 +45,12 @@ class ProductController extends Controller
         return DB::transaction(function () use ($request) {
             $fileName = null;
             if ($request->hasFile('image')) {
-                if (!file_exists(public_path('images'))) {
-                    mkdir(public_path('images'), 0755, true);
+                if (!file_exists(public_path('product_image'))) {
+                    mkdir(public_path('product_image'), 0755, true);
                 }
                 $file = $request->file('image');
                 $fileName = time() . '_' . preg_replace('/[^A-Za-z0-9\-\.]/', '', $file->getClientOriginalName());
-                $file->move(public_path('images'), $fileName);
+                $file->move(public_path('product_image'), $fileName);
             }
 
             $product = Product::create([
@@ -121,12 +121,12 @@ class ProductController extends Controller
         return DB::transaction(function () use ($request, $product) {
             $fileName = $product->image_url;
             if ($request->hasFile('image')) {
-                if (!file_exists(public_path('images'))) {
-                    mkdir(public_path('images'), 0755, true);
+                if (!file_exists(public_path('product_image'))) {
+                    mkdir(public_path('product_image'), 0755, true);
                 }
                 $file = $request->file('image');
                 $fileName = time() . '_' . preg_replace('/[^A-Za-z0-9\-\.]/', '', $file->getClientOriginalName());
-                $file->move(public_path('images'), $fileName);
+                $file->move(public_path('product_image'), $fileName);
             }
 
             $product->update([

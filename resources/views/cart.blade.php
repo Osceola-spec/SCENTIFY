@@ -35,7 +35,7 @@
                                         <tr>
                                             <td class="ps-4 py-4">
                                                 <div class="d-flex align-items-center">
-                                                    <img src="{{ $item['image_url'] }}" alt="{{ $item['product_name'] }}"
+                                                    <img src="{{ strpos($item['image_url'], 'http') === 0 ? $item['image_url'] : asset('product_image/' . $item['image_url']) }}" alt="{{ $item['product_name'] }}"
                                                         class="rounded bg-light"
                                                         style="width: 70px; height: 70px; object-fit: cover;">
                                                     <div class="ms-3">

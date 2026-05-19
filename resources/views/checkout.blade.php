@@ -60,7 +60,7 @@
                             @foreach ($cart as $item)
                                 <div class="d-flex align-items-center mb-4 pb-2">
                                     <div class="bg-white rounded p-1 border" style="width: 60px; height: 60px;">
-                                        <img src="{{ $item['image_url'] }}" alt="{{ $item['product_name'] }}"
+                                        <img src="{{ strpos($item['image_url'], 'http') === 0 ? $item['image_url'] : asset('product_image/' . $item['image_url']) }}" alt="{{ $item['product_name'] }}"
                                             style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                     <div class="ms-3 flex-grow-1">

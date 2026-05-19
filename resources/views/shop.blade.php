@@ -151,7 +151,7 @@
                                 <div class="product-img-wrapper"
                                     style="height: 250px; overflow: hidden; background-color: #eee;">
                                     <img src="{{ $product->image_url
-                                        ? asset('product_image/' . $product->image_url)
+                                        ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url))
                                         : 'https://placehold.co/200x200?text=No+Image' }}"
                                         alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 </div>

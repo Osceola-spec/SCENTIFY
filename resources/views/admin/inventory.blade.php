@@ -54,7 +54,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td style="width: 90px;">
                                         <img src="{{ $product->image_url
-                                        ? asset('product_image/' . $product->image_url)
+                                        ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url))
                                         : 'https://placehold.co/200x200?text=No+Image' }}" alt="{{ $product->name }}" class="img-fluid rounded" style="max-height: 60px; object-fit: cover;">
                                     </td>
                                     <td>{{ $product->name }}</td>

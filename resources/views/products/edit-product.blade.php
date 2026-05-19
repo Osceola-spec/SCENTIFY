@@ -61,7 +61,7 @@
                             <div class="col-md-6">
                                 {{-- <label class="form-label">Current Image</label> --}}
                                 {{-- <div class="mb-2">
-                                    <img src="{{ $product->image_url ? asset('product_image/' . $product->image_url) : 'https://placehold.co/200x200?text=No+Image' }}" alt="{{ $product->name }}" style="object-fit: cover; height: 200px; width: 200px;" class="img-thumbnail">
+                                    <img src="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/200x200?text=No+Image' }}" alt="{{ $product->name }}" style="object-fit: cover; height: 200px; width: 200px;" class="img-thumbnail">
                                 </div> --}}
                                 <label for="image" class="form-label">Update Product Image (jpg, jpeg, png)</label>
                                 <input type="file" class="form-control" id="image" name="image" accept=".jpg,.jpeg,.png">
