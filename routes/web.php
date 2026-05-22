@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\GoogleAuthController;
 
 // ==========================================
 // RUTE PUBLIK
@@ -48,6 +49,10 @@ Route::middleware('guest')->group(function () {
 // ==========================================
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show_profile'])->name('profile');
+    // Addresses
+    Route::post('/profile/addresses', [\App\Http\Controllers\AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'destroy'])->name('addresses.destroy');
     Route::post('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
     Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
 });
@@ -150,3 +155,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 });
+
+// Rute untuk mengklik tombol Google
+Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google.login');
+
+// Rute tempat Google mengembalikan data (callback)
+Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);

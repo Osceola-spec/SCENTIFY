@@ -56,6 +56,21 @@ class CheckoutController extends Controller
         $taxAmount = $subtotal * 0.11;
         $totalAmount = $subtotal + 50000 + $taxAmount; // + Ongkir 50rb
 
+        // Jika user memilih alamat tersimpan, gunakan data alamat tersebut
+        if ($request->filled('address_id')) {
+            $addr = \App\Models\Address::where('id', $request->address_id)->where('user_id', auth()->id())->first();
+            if ($addr) {
+                $request->merge([
+                    'first_name' => $addr->first_name,
+                    'last_name' => $addr->last_name,
+                    'phone' => $addr->phone,
+                    'address' => $addr->address,
+                    'city' => $addr->city,
+                    'postal_code' => $addr->postal_code,
+                ]);
+            }
+        }
+
         $fullAddress = $request->first_name . ' ' . $request->last_name . " | " .
             $request->phone . " | " .
             $request->address . ", " . $request->city . " " . $request->postal_code;

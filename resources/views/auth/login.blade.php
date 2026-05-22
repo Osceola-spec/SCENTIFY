@@ -72,7 +72,7 @@
 
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <a href="#" class="btn btn-outline-dark w-100 rounded-pill py-2">
+                                    <a href="{{ route('google.login') }}" class="btn btn-outline-dark w-100 rounded-pill py-2">
                                         <i class="fab fa-google text-danger me-2"></i> Google
                                     </a>
                                 </div>

@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Laravel\Socialite\Facades\Socialite;
+use Exception;
+
+class GoogleAuthController extends Controller
+{
+    // 1. Mengirim user ke halaman login Google
+    public function redirect()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    // 2. Menerima data balikan dari Google
+    public function callback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            // Cek apakah user ini sudah pernah login/terdaftar sebelumnya
+            $user = User::where('email', $googleUser->email)->first();
+
+            if ($user) {
+                // Jika email sudah ada, update google_id-nya dan login
+                $user->update([
+                    'google_id' => $googleUser->id,
+                ]);
+                Auth::login($user);
+            } else {
+                // Jika belum ada, buat akun baru secara otomatis
+                $newUser = User::create([
+                    'name' => $googleUser->name,
+                    'email' => $googleUser->email,
+                    'google_id' => $googleUser->id,
+                    'role' => 'user', // Atur role default
+                    // password sengaja dikosongkan karena lewat Google
+                ]);
+                Auth::login($newUser);
+            }
+
+            // Arahkan ke halaman utama toko setelah sukses
+            return redirect()->route('shop')->with('success', 'Berhasil login menggunakan Google!');
+
+        } catch (Exception $e) {
+            Log::error('Google login callback failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return redirect()->route('login')->with('error', 'Gagal login dengan Google. Silakan coba lagi.');
+        }
+    }
+}

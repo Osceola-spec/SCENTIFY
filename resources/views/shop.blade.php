@@ -169,13 +169,15 @@
 
                                     @if ($product->variants->isNotEmpty())
                                         @auth
-                                            <form action="{{ route('cart.add', $product->variants->first()->id) }}"
-                                                method="POST" class="w-100 mt-auto">
-                                                @csrf
-                                                <button type="submit" class="btn btn-dark w-100 rounded-pill">
-                                                    Tambah ke Keranjang
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-dark w-100 rounded-pill mt-auto variant-selector-btn"
+                                                data-product-id="{{ $product->id }}"
+                                                data-product-name="{{ $product->name }}"
+                                                data-product-brand="{{ $product->brand->name ?? 'Unknown Brand' }}"
+                                                data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/200x200?text=No+Image' }}"
+                                                data-product-description="{{ $product->description ?? '' }}"
+                                                data-variants="{{ json_encode($product->variants) }}">
+                                                Tambah ke Keranjang
+                                            </button>
                                         @else
                                             <a href="{{ route('login') }}"
                                                 class="btn btn-dark w-100 mt-auto rounded-pill text-center text-decoration-none"
@@ -315,6 +317,197 @@
                 updateUI();
             }
         })();
+    </script>
+
+    <style>
+        .variant-modal-img {
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .variant-option {
+            display: inline-block;
+            padding: 8px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            background-color: #fff;
+        }
+
+        .variant-option:hover {
+            border-color: #212529;
+            background-color: #f8f9fa;
+        }
+
+        .variant-option.selected {
+            border-color: #212529;
+            background-color: #212529;
+            color: white;
+        }
+
+        .product-price-display {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #212529;
+            margin: 15px 0;
+        }
+
+        .product-description {
+            font-size: 0.95rem;
+            color: #6c757d;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+    </style>
+
+    <!-- Modal untuk Memilih Varian Produk -->
+    <div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <img id="modalProductImage" src="" alt="Product" class="variant-modal-img w-100">
+                        </div>
+                        <div class="col-md-7">
+                            <small id="modalProductBrand" class="text-muted text-uppercase"
+                                style="font-size: 0.7rem; letter-spacing: 1px;"></small>
+                            <h4 id="modalProductName" class="fw-light mt-2 mb-0"></h4>
+                            <div id="modalProductPrice" class="product-price-display">Rp 0</div>
+
+                            <p id="modalProductDescription" class="product-description"></p>
+
+                            <h6 class="fw-bold mb-2">Ukuran:</h6>
+                            <div id="variantsList" style="margin-bottom: 15px;"></div>
+
+                            <div id="variantNotice" class="alert alert-danger mt-3" style="display: none;">
+                                <small>Pilih varian terlebih dahulu.</small>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="button" id="addToCartBtn" class="btn btn-dark rounded-pill py-2"
+                                    onclick="submitVariantSelection()" disabled>
+                                    Tambah ke Keranjang
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary rounded-pill py-2"
+                                    data-bs-dismiss="modal">
+                                    Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Hidden untuk Submit -->
+    <form id="hiddenCartForm" action="" method="POST" style="display: none;">
+        @csrf
+    </form>
+
+    <script>
+        let selectedVariant = null;
+        let variantsMap = {};
+
+        // Event listener untuk tombol variant selector
+        document.querySelectorAll('.variant-selector-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                const productName = this.dataset.productName;
+                const productBrand = this.dataset.productBrand;
+                const productImage = this.dataset.productImage;
+                const productDescription = this.dataset.productDescription;
+                const variants = JSON.parse(this.dataset.variants);
+
+                openVariantModal(productId, productName, productBrand, productImage, productDescription, variants);
+            });
+        });
+
+        function openVariantModal(productId, productName, productBrand, productImage, productDescription, variants) {
+            selectedVariant = null;
+            variantsMap = {};
+            
+            // Update modal content
+            document.getElementById('modalProductImage').src = productImage;
+            document.getElementById('modalProductName').textContent = productName;
+            document.getElementById('modalProductBrand').textContent = productBrand;
+            document.getElementById('modalProductDescription').textContent = productDescription;
+
+            // Create map of variants for quick lookup
+            variants.forEach(variant => {
+                variantsMap[variant.id] = variant;
+            });
+
+            // Generate variant options - only show size name
+            let variantsList = '';
+            variants.forEach(variant => {
+                const stock = variant.stock || 0;
+                const isOutOfStock = stock === 0 || stock < 0;
+
+                variantsList += `
+                    <div class="variant-option ${isOutOfStock ? 'opacity-50' : ''}" 
+                         onclick="${!isOutOfStock ? `selectVariant(${variant.id})` : ''}"
+                         style="${isOutOfStock ? 'pointer-events: none;' : ''}">
+                        ${variant.size}
+                    </div>
+                `;
+            });
+
+            document.getElementById('variantsList').innerHTML = variantsList;
+            document.getElementById('variantNotice').style.display = 'none';
+            document.getElementById('addToCartBtn').disabled = true;
+            document.getElementById('modalProductPrice').textContent = 'Rp 0';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('variantModal'));
+            modal.show();
+        }
+
+        function selectVariant(variantId) {
+            // Remove previous selection
+            document.querySelectorAll('.variant-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            // Find and select the clicked element
+            document.querySelectorAll('.variant-option').forEach(opt => {
+                if (opt.textContent.trim() === variantsMap[variantId].size) {
+                    opt.classList.add('selected');
+                }
+            });
+
+            selectedVariant = variantId;
+            document.getElementById('addToCartBtn').disabled = false;
+            document.getElementById('variantNotice').style.display = 'none';
+
+            // Update price
+            const priceFormatted = new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                maximumFractionDigits: 0
+            }).format(variantsMap[variantId].price);
+
+            document.getElementById('modalProductPrice').textContent = priceFormatted;
+        }
+
+        function submitVariantSelection() {
+            if (!selectedVariant) {
+                document.getElementById('variantNotice').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('hiddenCartForm').action = `/cart/add/${selectedVariant}`;
+            document.getElementById('hiddenCartForm').submit();
+        }
     </script>
 @endsection
 

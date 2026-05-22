@@ -29,4 +29,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Relasi: User memiliki banyak alamat
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
 }

@@ -12,17 +12,31 @@
 
         <h2 class="fw-light mb-4">Checkout</h2>
 
-        <form action="{{ route('checkout.process') }}" method="POST">
+        <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm">
             @csrf
             <div class="row g-5">
 
                 <div class="col-md-7">
                     <h5 class="fw-bold mb-4 pb-2 border-bottom">1. Informasi Pengiriman</h5>
 
+                    <div class="row g-3 mb-3">
+                        @auth
+                        <div class="col-12 mb-3">
+                            <label class="form-label text-muted small">Pilih Alamat Tersimpan</label>
+                            <select id="savedAddressSelect" class="form-select">
+                                <option value="new" selected>Tambah alamat baru...</option>
+                                @foreach(auth()->user()->addresses as $addr)
+                                    <option value="{{ $addr->id }}">{{ $addr->label ? $addr->label . ' - ' : '' }}{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endauth
+
                     <div class="row g-3 mb-5">
+                        <input type="hidden" name="address_id" id="address_id" value="">
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Nama Depan</label>
-                            <input type="text" name="first_name" class="form-control" required>
+                            <input type="text" name="first_name" id="first_name" class="form-control" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Nama Belakang</label>
@@ -39,16 +53,16 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label text-muted small">Alamat Lengkap</label>
-                            <textarea name="address" class="form-control" rows="3" placeholder="Nama Jalan, Gedung, No. Rumah, RT/RW"
+                            <textarea name="address" id="address" class="form-control" rows="3" placeholder="Nama Jalan, Gedung, No. Rumah, RT/RW"
                                 required></textarea>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Kota / Kabupaten</label>
-                            <input type="text" name="city" class="form-control" required>
+                            <input type="text" name="city" id="city" class="form-control" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-muted small">Kode Pos</label>
-                            <input type="text" name="postal_code" class="form-control" required>
+                            <input type="text" name="postal_code" id="postal_code" class="form-control" required>
                         </div>
                     </div>
                 </div>
@@ -105,3 +119,60 @@
         </form>
     </div>
 @endsection
+
+        @section('scripts')
+        <script>
+            (function(){
+                const savedSelect = document.getElementById('savedAddressSelect');
+                if (!savedSelect) return;
+
+                const addresses = {
+                    @foreach(auth()->user()->addresses as $addr)
+                        '{{ $addr->id }}': {
+                            id: '{{ $addr->id }}',
+                            first_name: '{{ addslashes($addr->first_name) }}',
+                            last_name: '{{ addslashes($addr->last_name) }}',
+                            phone: '{{ addslashes($addr->phone) }}',
+                            address: '{{ addslashes($addr->address) }}',
+                            city: '{{ addslashes($addr->city) }}',
+                            postal_code: '{{ addslashes($addr->postal_code) }}'
+                        },
+                    @endforeach
+                };
+
+                function fillAddress(addr) {
+                    document.getElementById('address_id').value = addr ? addr.id : '';
+                    document.getElementById('first_name').value = addr ? addr.first_name : '';
+                    document.getElementById('last_name').value = addr ? addr.last_name : '';
+                    document.getElementById('phone').value = addr ? addr.phone : '';
+                    document.getElementById('address').value = addr ? addr.address : '';
+                    document.getElementById('city').value = addr ? addr.city : '';
+                    document.getElementById('postal_code').value = addr ? addr.postal_code : '';
+
+                    // If using saved address, disable fields to avoid accidental edits
+                    const disabled = !!addr;
+                    ['first_name','last_name','phone','address','city','postal_code'].forEach(id => {
+                        document.getElementById(id).readOnly = disabled;
+                    });
+                }
+
+                savedSelect.addEventListener('change', function(){
+                    const val = this.value;
+                    if (val === 'new') {
+                        fillAddress(null);
+                    } else if (addresses[val]) {
+                        fillAddress(addresses[val]);
+                    }
+                });
+
+                // Initialize: if there's a default address, preselect it
+                (function(){
+                    @php $default = auth()->user()->addresses->firstWhere('is_default', true); @endphp
+                    @if($default)
+                        const opt = Array.from(savedSelect.options).find(o => o.value == '{{ $default->id }}');
+                        if (opt) { savedSelect.value = '{{ $default->id }}'; savedSelect.dispatchEvent(new Event('change')); }
+                    @endif
+                })();
+            })();
+        </script>
+        @endsection

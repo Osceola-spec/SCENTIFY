@@ -1,32 +1,8 @@
-<footer class="bg-dark text-light border-top border-secondary py-5">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <h4 class="fw-light mb-3">Scentify<span class="text-warning">.</span></h4>
-                <p class="text-muted small">Destinasi utama untuk menemukan aroma signature Anda. Belanja parfum original
-                    100% dengan mudah dan aman.</p>
-            </div>
-            <div class="col-md-2 offset-md-2">
-                <h6 class="text-uppercase mb-3">Belanja</h6>
-                <ul class="list-unstyled text-muted small">
-                    <li><a href="#" class="text-muted text-decoration-none">Pria</a></li>
-                    <li><a href="#" class="text-muted text-decoration-none">Wanita</a></li>
-                    <li><a href="#" class="text-muted text-decoration-none">Unisex</a></li>
-                    <li><a href="#" class="text-muted text-decoration-none">Diskon</a></li>
-                </ul>
-            </div>
-            <div class="col-md-2">
-                <h6 class="text-uppercase mb-3">Bantuan</h6>
-                <ul class="list-unstyled text-muted small">
-                    <li><a href="#" class="text-muted text-decoration-none">FAQ</a></li>
-                    <li><a href="#" class="text-muted text-decoration-none">Pengiriman</a></li>
-                    <li><a href="#" class="text-muted text-decoration-none">Pengembalian</a></li>
-                    <li><a href="#" class="text-muted text-decoration-none">Hubungi Kami</a></li>
-                </ul>
-            </div>
+<footer class="border-t border-slate-200 dark:border-white/5 py-12 text-center text-slate-500 dark:text-zinc-400 text-sm bg-white dark:bg-darkbg transition-colors duration-500">
+        <div class="flex justify-center gap-6 mb-6">
+            <a href="#" class="text-xl hover:text-amber-500 transition-colors transform hover:-translate-y-1 duration-300"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="text-xl hover:text-amber-500 transition-colors transform hover:-translate-y-1 duration-300"><i class="fab fa-tiktok"></i></a>
+            <a href="#" class="text-xl hover:text-amber-500 transition-colors transform hover:-translate-y-1 duration-300"><i class="fab fa-pinterest"></i></a>
         </div>
-        <div class="text-center text-muted small mt-5 pt-4 border-top border-secondary">
-            &copy; 2026 Scentify. Hak Cipta Dilindungi.
-        </div>
-    </div>
-</footer>
+        <p>&copy; 2026 Scentify. Hak Cipta Dilindungi. Dirancang dengan keindahan.</p>
+    </footer>

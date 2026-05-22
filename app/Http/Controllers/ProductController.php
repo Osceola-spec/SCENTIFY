@@ -37,9 +37,14 @@ class ProductController extends Controller
             'variants.size' => 'required|array|min:1',
             'variants.price' => 'required|array|min:1',
             'variants.stock' => 'required|array|min:1',
-            'variants.size.*' => 'required|string|max:50',
+            'variants.size.*' => 'required|numeric|min:1|max:5000|distinct',
             'variants.price.*' => 'required|numeric|min:0',
             'variants.stock.*' => 'required|integer|min:0',
+        ], [
+            'variants.size.*.distinct' => 'Ukuran varian tidak boleh sama. Setiap varian harus memiliki ukuran yang unik.',
+            'variants.size.*.numeric' => 'Ukuran varian hanya boleh berupa angka (contoh: 50, 100, 250).',
+            'variants.size.*.min' => 'Ukuran varian minimal harus 1 ml.',
+            'variants.size.*.max' => 'Ukuran varian maksimal 5000 ml.',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -113,9 +118,14 @@ class ProductController extends Controller
             'variants.size' => 'required|array|min:1',
             'variants.price' => 'required|array|min:1',
             'variants.stock' => 'required|array|min:1',
-            'variants.size.*' => 'required|string|max:50',
+            'variants.size.*' => 'required|numeric|min:1|max:5000|distinct',
             'variants.price.*' => 'required|numeric|min:0',
             'variants.stock.*' => 'required|integer|min:0',
+        ], [
+            'variants.size.*.distinct' => 'Ukuran varian tidak boleh sama. Setiap varian harus memiliki ukuran yang unik.',
+            'variants.size.*.numeric' => 'Ukuran varian hanya boleh berupa angka (contoh: 50, 100, 250).',
+            'variants.size.*.min' => 'Ukuran varian minimal harus 1 ml.',
+            'variants.size.*.max' => 'Ukuran varian maksimal 5000 ml.',
         ]);
 
         return DB::transaction(function () use ($request, $product) {
