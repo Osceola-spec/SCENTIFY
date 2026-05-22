@@ -1,15 +1,16 @@
 @extends('admin.layout')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">Inventory Produk</h1>
-            <p class="text-muted mb-0">Kelola semua produk yang tersedia di toko.</p>
+    <div style="position: sticky; top: 0; background-color: white; z-index: 100; padding-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">Inventory Produk</h1>
+                <p class="text-muted mb-0">Kelola semua produk yang tersedia di toko.</p>
+            </div>
+            <a href="{{ route('products.create') }}" class="btn btn-primary">Tambah Product Baru</a>
         </div>
-        <a href="{{ route('products.create') }}" class="btn btn-primary">Tambah Product Baru</a>
-    </div>
 
-    <form action="{{ route('admin.inventory') }}" method="GET" class="row g-2 align-items-center mb-4">
+        <form action="{{ route('admin.inventory') }}" method="GET" class="row g-2 align-items-center mb-4">
         <div class="col-md-5">
             <input type="search" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari produk...">
         </div>
@@ -26,6 +27,7 @@
             <a href="{{ route('admin.inventory') }}" class="btn btn-outline-secondary w-100">Reset</a>
         </div>
     </form>
+    </div>
 
     <div class="card shadow-sm border-0">
         <div class="card-body p-4">

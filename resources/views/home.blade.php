@@ -1,17 +1,5 @@
 @extends("base.base")
 
-<body class="antialiased selection:bg-amber-500 selection:text-black flex flex-col min-h-screen transition-colors duration-500 overflow-x-hidden">
-
-    <!-- Dual Cursor (Hanya Desktop) -->
-    <div class="cursor-dot hidden lg:block"></div>
-    <div class="cursor-outline hidden lg:block"></div>
-
-    <!-- Background Canvas Efek Partikel Ringan -->
-    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40"></canvas>
-
-    <!-- Progress Scroll Bar Modern -->
-    <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 z-50 transition-all duration-100 w-0"></div>
-
     <!-- Header / Navigasi -->
 @section("content")
     <!-- Hero Section -->
@@ -77,8 +65,8 @@
     </section>
 
     <!-- NEW INTERACTIVE MODULE: Interactive Scent Wheel & Finder Quiz -->
-    <section id="scent-explorer" class="py-32 bg-slate-50 dark:bg-[#08080a] transition-colors duration-500 relative">
-        <div class="max-w-5xl mx-auto px-6">
+    <section id="scent-explorer" class="py-32 bg-slate-50 dark:bg-[#08080a] transition-colors duration-500 relative" style="position: relative; z-index: auto;">
+        <div class="max-w-5xl mx-auto px-6" style="position: relative; z-index: auto;">
             <div class="text-center mb-20">
                 <span class="text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Interactive Scent Finder</span>
                 <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Temukan <span class="italic text-amber-500 font-normal">Karakter Aroma</span> Anda</h2>
@@ -118,9 +106,9 @@
 
                 <!-- Dynamic Results Area (GSAP Interchanged) -->
                 <div class="lg:col-span-7">
-                    <div id="scent-result-card" class="glass-card p-8 rounded-3xl h-full flex flex-col justify-between border border-amber-500/20 shadow-xl shadow-amber-500/5 relative overflow-hidden">
+                    <div id="scent-result-card" class="glass-card p-8 rounded-3xl h-full flex flex-col justify-between border border-amber-500/20 shadow-xl shadow-amber-500/5 relative overflow-hidden" style="z-index: 1;">
                         <!-- Sparkles Ambient Background inside card -->
-                        <div id="scent-card-ambient" class="absolute -top-10 -right-10 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none transition-all duration-500"></div>
+                        <div id="scent-card-ambient" class="absolute -top-10 -right-10 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none transition-all duration-500" style="z-index: 0;"></div>
                         
                         <div>
                             <div class="flex items-center justify-between mb-6">

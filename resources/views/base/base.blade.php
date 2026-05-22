@@ -91,7 +91,7 @@
                 top: 0; left: 0;
                 border-radius: 50%;
                 pointer-events: none;
-                z-index: 9999;
+                z-index: 1000;
                 transform: translate(-50%, -50%);
                 box-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
                 transition: background-color 0.3s ease;
@@ -105,7 +105,7 @@
                 top: 0; left: 0;
                 border-radius: 50%;
                 pointer-events: none;
-                z-index: 9998;
+                z-index: 999;
                 transform: translate(-50%, -50%);
                 transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.25s, border-color 0.3s;
             }
@@ -118,6 +118,27 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: border-color 0.4s, box-shadow 0.4s, background-color 0.4s;
+        }
+
+        /* Ensure scent explorer stays below fixed header */
+        #scent-explorer {
+            position: relative;
+            z-index: 1;
+        }
+
+        #scent-result-card {
+            position: relative;
+            z-index: 1;
+        }
+
+        #scent-card-ambient {
+            position: absolute;
+            z-index: 0;
+        }
+
+        /* Ensure navbar always stays on top */
+        #navbar {
+            z-index: 99999 !important;
         }
         .light .glass-card {
             background: rgba(255, 255, 255, 0.7);
