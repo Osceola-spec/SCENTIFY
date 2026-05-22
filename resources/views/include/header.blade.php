@@ -192,19 +192,7 @@
         outline: none !important;
     }
 </style> --}}
-<body class="antialiased selection:bg-amber-500 selection:text-black flex flex-col min-h-screen transition-colors duration-500 overflow-x-hidden">
-
-    <!-- Dual Cursor (Hanya Desktop) -->
-    <div class="cursor-dot hidden lg:block"></div>
-    <div class="cursor-outline hidden lg:block"></div>
-
-    <!-- Background Canvas Efek Partikel Ringan -->
-    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40"></canvas>
-
-    <!-- Progress Scroll Bar Modern -->
-    <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 z-50 transition-all duration-100 w-0"></div>
-
- <header id="navbar" class="sticky w-full z-[99999] top-0 transition-all duration-300 py-6 px-4 sm:px-8" style="z-index: 99999; pointer-events: auto;">
+<header id="navbar" class="fixed w-full z-[99999] top-0 transition-all duration-300 py-6 px-4 sm:px-8" style="z-index: 99999; pointer-events: auto;">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <a href="{{ route('home') }}" class="text-2xl font-serif tracking-widest uppercase hover:scale-105 transition-transform duration-300">
                 Scentify

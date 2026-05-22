@@ -91,7 +91,7 @@
                 top: 0; left: 0;
                 border-radius: 50%;
                 pointer-events: none;
-                z-index: 1000;
+                z-index: 999999;
                 transform: translate(-50%, -50%);
                 box-shadow: 0 0 10px var(--accent-primary), 0 0 20px var(--accent-primary);
                 transition: background-color 0.3s ease;
@@ -105,7 +105,7 @@
                 top: 0; left: 0;
                 border-radius: 50%;
                 pointer-events: none;
-                z-index: 999;
+                z-index: 999998;
                 transform: translate(-50%, -50%);
                 transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1), height 0.25s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.25s, border-color 0.3s;
             }
@@ -203,6 +203,16 @@
 
 <body class="bg-slate-50 text-slate-900 dark:bg-darkbg dark:text-zinc-50 antialiased selection:bg-amber-500 selection:text-black flex flex-col min-h-screen transition-colors duration-500 interactive-cursor-area overflow-x-hidden">
 
+    <!-- Dual Cursor (Hanya Desktop) -->
+    <div class="cursor-dot hidden lg:block"></div>
+    <div class="cursor-outline hidden lg:block"></div>
+
+    <!-- Background Canvas Efek Partikel Ringan -->
+    <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40"></canvas>
+
+    <!-- Progress Scroll Bar Modern -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 z-50 transition-all duration-100 w-0"></div>
+
     <!-- Glowing Cursor (Hanya Desktop) -->
     <div id="cursor-glow" class="fixed top-0 left-0 w-80 h-80 bg-amber-500/20 dark:bg-amber-500/30 rounded-full blur-[80px] pointer-events-none z-0 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block mix-blend-multiply dark:mix-blend-screen transition-opacity duration-300"></div>
 
@@ -215,19 +225,15 @@
     </button>
 
     <!-- 1. MEMANGGIL HEADER -->
-    <div class="relative z-10">
-        @include('include.header')
-    </div>
+    @include('include.header')
 
     <!-- 2. MEMANGGIL KONTEN HALAMAN -->
-    <main class="flex-grow relative z-10">
+    <main class="flex-grow">
         @yield('content')
     </main>
 
     <!-- 3. MEMANGGIL FOOTER -->
-    <div class="relative z-10">
-        @include('include.footer')
-    </div>
+    @include('include.footer')
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
