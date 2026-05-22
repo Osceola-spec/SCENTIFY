@@ -455,7 +455,7 @@
                 <button type="button" class="variant-btn px-4 py-2 text-xs font-mono font-bold border-2 border-slate-200 dark:border-white/10 rounded-xl hover:border-amber-500 dark:hover:border-amber-400 transition-all ${isOutOfStock ? 'opacity-40 cursor-not-allowed' : ''}"
                         onclick="${!isOutOfStock ? `selectVariant(this, ${variant.id})` : ''}"
                         ${isOutOfStock ? 'disabled' : ''}>
-                    ${variant.size}
+                    ${variant.size}ml
                 </button>
             `;
         });

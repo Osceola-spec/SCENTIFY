@@ -128,43 +128,42 @@
     </div>
 
     <!-- NEW SECTION: Analisis Grafikal & Charts (Diletakkan di Tengah) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Chart 1: Tren Penjualan Bulanan (Line Chart) -->
-        <div class="lg:col-span-2 bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                <div>
-                    <h5 class="font-bold text-slate-800 text-base">Analisis Grafik Pendapatan</h5>
-                    <p class="text-xs text-slate-400 mt-0.5">Statistik pertumbuhan pendapatan kotor Scentify tahun ini.</p>
-                </div>
-                <span class="text-xs text-amber-500 font-bold bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
-                    <i class="fas fa-sync-alt mr-1"></i> Real-time
-                </span>
-            </div>
-            <div class="w-full h-80 relative">
-                <canvas id="revenueTrendChart"></canvas>
-            </div>
-        </div>
+    <!-- Charts Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Line Chart -->
+                    <div class="lg:col-span-2 bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                            <div>
+                                <h5 class="font-bold text-slate-800 text-base">Analisis Grafik Pendapatan</h5>
+                                <p class="text-xs text-slate-400 mt-0.5">Statistik pertumbuhan pendapatan kotor Scentify tahun ini.</p>
+                            </div>
+                            <span class="text-xs text-amber-500 font-bold bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+                                <i class="fas fa-sync-alt mr-1"></i> Real-time
+                            </span>
+                        </div>
+                        <div class="w-full h-80 relative">
+                            <canvas id="revenueTrendChart"></canvas>
+                        </div>
+                    </div>
 
-        <!-- Chart 2: Segmentasi Kategori Terlaris (Doughnut Chart) -->
-        <div class="bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                <div>
-                    <h5 class="font-bold text-slate-800 text-base">Segmentasi Gender</h5>
-                    <p class="text-xs text-slate-400 mt-0.5">Proporsi penjualan parfum berdasarkan segmentasi target.</p>
+                    <!-- Doughnut Chart -->
+                    <div class="bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                            <div>
+                                <h5 class="font-bold text-slate-800 text-base">Segmentasi Gender</h5>
+                                <p class="text-xs text-slate-400 mt-0.5">Proporsi penjualan berdasarkan target parfum.</p>
+                            </div>
+                        </div>
+                        <div class="w-full h-64 relative flex items-center justify-center">
+                            <canvas id="scentCategoryChart"></canvas>
+                        </div>
+                        <div class="flex justify-around items-center text-xs font-semibold pt-4 border-t border-slate-50 mt-4">
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Pria</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Wanita</span>
+                            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Unisex</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="w-full h-64 relative flex items-center justify-center">
-                <canvas id="scentCategoryChart"></canvas>
-            </div>
-            <div class="flex justify-around items-center text-xs font-semibold pt-4 border-t border-slate-50 mt-4">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Pria</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Wanita</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Unisex</span>
-            </div>
-        </div>
-
-    </div>
 
     <!-- Main Tables Section -->
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">

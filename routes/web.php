@@ -14,6 +14,7 @@ use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\CustomerOrderController;
 
 // ==========================================
 // RUTE PUBLIK
@@ -23,6 +24,18 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/shop', [ShopController::class, 'show'])->name('shop');
+
+Route::middleware(['auth'])->group(function () {
+    
+    // Tampilan halaman utama riwayat pesanan saya
+    Route::get('/my-orders', [CustomerOrderController::class, 'index'])
+        ->name('orders.index');
+        
+    // Tampilan halaman detail pesanan kustomer
+    Route::get('/my-orders/{id}', [CustomerOrderController::class, 'show'])
+        ->name('orders.show');
+        
+});
 
 // ==========================================
 // RUTE KERANJANG & CHECKOUT

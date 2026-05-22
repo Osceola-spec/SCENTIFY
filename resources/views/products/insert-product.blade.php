@@ -3,181 +3,210 @@
 @section('title', 'Tambah Produk Baru')
 
 @section('content')
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-xl-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="fw-bold mb-1">Tambah Produk Baru</h2>
-                    <p class="text-muted mb-0">Tambahkan produk baru ke inventori admin.</p>
-                </div>
-                <a href="{{ route('admin.inventory') }}" class="btn btn-outline-secondary rounded-pill px-4">Batal</a>
+<div class="space-y-6 fade-in pb-12 max-w-5xl mx-auto">
+    
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200/50 pb-6 mb-2">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Tambah Produk Baru</h1>
+            <p class="text-sm text-slate-500 mt-1">Tambahkan informasi parfum baru beserta varian ukurannya ke inventori.</p>
+        </div>
+        <a href="{{ route('admin.inventory') }}" class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-5 py-2.5 rounded-xl font-medium hover:bg-slate-50 hover:text-slate-900 transition-colors shadow-sm shrink-0">
+            <i class="fas fa-times text-sm"></i> Batal
+        </a>
+    </div>
+
+    <!-- Alert Kesalahan Validasi Utama (Laravel Validation) -->
+    @if ($errors->any())
+        <div class="p-5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-4 text-rose-600 shadow-sm relative overflow-hidden mb-6" id="mainErrorAlert">
+            <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+                <i class="fas fa-exclamation-triangle text-rose-500"></i>
             </div>
+            <div class="flex-1 pt-0.5">
+                <h5 class="font-bold text-sm mb-2 text-rose-700">Oops! Ada kesalahan dalam form:</h5>
+                <ul class="list-disc pl-4 space-y-1 text-xs text-rose-600/80 font-medium">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button type="button" onclick="document.getElementById('mainErrorAlert').remove()" class="text-rose-400 hover:text-rose-600 transition-colors focus:outline-none">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    @endif
 
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body p-4 p-md-5">
-                    {{-- Tampilkan Validation Errors --}}
-                    @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-4" role="alert">
-                            <div class="d-flex align-items-start">
-                                <i class="fas fa-exclamation-circle me-3 mt-1" style="font-size: 1.2rem;"></i>
-                                <div>
-                                    <h5 class="alert-heading mb-2">Oops! Ada kesalahan dalam form</h5>
-                                    <ul class="mb-0">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Form Utama -->
+    <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div class="p-6 sm:p-10">
+            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" id="productForm" class="space-y-10">
+                @csrf
+
+                <!-- BAGIAN 1: INFORMASI DASAR -->
+                <div>
+                    <h5 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                        <i class="fas fa-info-circle text-amber-500"></i> Informasi Dasar
+                    </h5>
+                    
+                    <div class="space-y-6">
+                        <!-- Nama Parfum -->
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">Nama Parfum <span class="text-rose-500">*</span></label>
+                            <input type="text" name="name" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all placeholder-slate-300" required placeholder="Contoh: Bleu Ethereal">
                         </div>
-                    @endif
 
-                    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" id="productForm">
-                        @csrf
-
-                        <h5 class="fw-bold mb-4 border-bottom pb-2">Informasi Dasar</h5>
-                        <div class="mb-3">
-                            <label class="form-label text-muted">Nama Parfum</label>
-                            <input type="text" name="name" class="form-control" required placeholder="Contoh: Bleu Ethereal">
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label text-muted">Brand</label>
-                                <select name="brand_id" class="form-select" required>
-                                    <option value="" disabled selected>Pilih Brand...</option>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Brand -->
+                            <div class="relative">
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">Brand Mitra <span class="text-rose-500">*</span></label>
+                                <select name="brand_id" class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all cursor-pointer" required>
+                                    <option value="" disabled selected>Pilih Brand Produk...</option>
                                     @foreach($brands as $brand)
                                         <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                                     @endforeach
                                 </select>
+                                <div class="pointer-events-none absolute bottom-0 right-0 top-6 flex items-center pr-4 text-slate-400">
+                                    <i class="fas fa-chevron-down text-[10px]"></i>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label text-muted">Kategori</label>
-                                <select name="category" class="form-select" required>
+
+                            <!-- Kategori -->
+                            <div class="relative">
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">Kategori Kelas <span class="text-rose-500">*</span></label>
+                                <select name="category" class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all cursor-pointer" required>
                                     <option value="Designer">Designer</option>
                                     <option value="Niche">Niche</option>
                                     <option value="Local">Local Premium</option>
                                 </select>
+                                <div class="pointer-events-none absolute bottom-0 right-0 top-6 flex items-center pr-4 text-slate-400">
+                                    <i class="fas fa-chevron-down text-[10px]"></i>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label text-muted">Gender</label>
-                                <select name="gender_type" class="form-select" required>
-                                    <option value="Men">Men</option>
-                                    <option value="Women">Women</option>
-                                    <option value="Unisex">Unisex</option>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Gender -->
+                            <div class="relative">
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">Gender Type <span class="text-rose-500">*</span></label>
+                                <select name="gender_type" class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all cursor-pointer" required>
+                                    <option value="Men">Men (Pria)</option>
+                                    <option value="Women">Women (Wanita)</option>
+                                    <option value="Unisex">Unisex (Keduanya)</option>
                                 </select>
-                            </div>
-                            <div class="col-md-6">
-                                {{-- <label class="form-label text-muted">Gambar Produk (URL Sementara)</label>
-                                <input type="url" name="image_url" class="form-control" required    placeholder="https://contoh.com/gambar.jpg"> --}}
-                                <label for="image" class="form-label text-muted">Product Image (jpg, jpeg, png)</label>
-                                <input type="file" class="form-control" id="image" name="image" accept=".jpg,.jpeg,.png">
-           
-                            </div>
-                        </div>
-
-                        <h5 class="fw-bold mb-4 border-bottom pb-2 mt-5">Aroma & Deskripsi</h5>
-                        <div class="mb-3">
-                            {{-- <label class="form-label text-muted">Scent Notes (Bisa pilih lebih dari satu)</label> --}}
-                            <div class="mb-3">
-                                <label class="form-label text-muted">
-                                    Scent Notes
-                                </label>
-
-                                <div class="row mt-2">
-
-                                    @foreach($notes as $note)
-
-                                    <div class="col-6 col-md-4">
-
-                                        <div class="form-check mb-2">
-
-                                            <input 
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                name="notes[]"
-                                                value="{{ $note->id }}"
-                                                id="note{{ $note->id }}"
-                                            >
-
-                                            <label 
-                                                class="form-check-label"
-                                                for="note{{ $note->id }}"
-                                            >
-                                                {{ $note->name }}
-                                            </label>
-
-                                        </div>
-
-                                    </div>
-
-                                    @endforeach
-
-                                </div>
-
-                                <small class="text-muted">
-                                    Pilih satu atau lebih scent notes.
-                                </small>
-
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label text-muted">Deskripsi Produk</label>
-                            <textarea name="description" class="form-control" rows="4" required></textarea>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
-                            <h5 class="fw-bold mb-0 border-bottom pb-2" style="flex: 1;">Varian & Harga</h5>
-                            <button type="button" class="btn btn-sm btn-outline-dark ms-2" id="addVariantBtn">
-                                <i class="bi bi-plus-lg"></i> Add Variant
-                            </button>
-                        </div>
-
-                        <!-- Container untuk variant items -->
-                        <div id="variantsContainer">
-                            <!-- Variant items akan ditambahkan di sini dengan JavaScript -->
-                        </div>
-
-                        <!-- Template untuk variant baru (hidden) -->
-                        <template id="variantTemplate">
-                            <div class="variant-item mb-3 bg-light p-3 rounded mx-0 position-relative">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <p class="fw-bold mb-0">Varian <span class="variantNumber">1</span></p>
-                                    <button type="button" class="btn btn-sm btn-outline-danger removeVariantBtn" title="Hapus varian ini">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label class="form-label small text-muted">Ukuran (Volume)</label>
-                                        <div class="input-group">
-                                            <input type="number" name="variants[size][]" class="form-control" placeholder="contoh: 50, 100, 250" min="1" max="5000" required>
-                                            <span class="input-group-text bg-light border-start-0">ml</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small text-muted">Harga (Rp)</label>
-                                        <input type="number" name="variants[price][]" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label small text-muted">Stok</label>
-                                        <input type="number" name="variants[stock][]" class="form-control" required>
-                                    </div>
+                                <div class="pointer-events-none absolute bottom-0 right-0 top-6 flex items-center pr-4 text-slate-400">
+                                    <i class="fas fa-chevron-down text-[10px]"></i>
                                 </div>
                             </div>
-                        </template>
 
-                        <div class="d-grid mt-5">
-                            <button type="submit" class="btn btn-dark btn-lg rounded-pill py-3">Simpan Produk</button>
+                            <!-- Gambar Produk -->
+                            <div>
+                                <label for="image" class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">Visual Produk <span class="text-rose-500">*</span></label>
+                                <input type="file" id="image" name="image" accept=".jpg,.jpeg,.png" required
+                                       class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200 transition-all cursor-pointer">
+                                <p class="text-[10px] text-slate-400 mt-1">Format: JPG, JPEG, PNG.</p>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- BAGIAN 2: AROMA & DESKRIPSI -->
+                <div>
+                    <h5 class="text-lg font-bold text-slate-800 flex items-center gap-2 mb-6 pb-4 border-b border-slate-100 mt-8">
+                        <i class="fas fa-leaf text-amber-500"></i> Karakteristik Aroma & Deskripsi
+                    </h5>
+
+                    <div class="space-y-6">
+                        <!-- Scent Notes -->
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-3 font-bold">Scent Notes (Karakteristik)</label>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 bg-slate-50 border border-slate-200 p-5 rounded-2xl">
+                                @foreach($notes as $note)
+                                    <label class="flex items-center group cursor-pointer text-sm text-slate-700 hover:text-amber-600 transition-colors">
+                                        <input type="checkbox" name="notes[]" value="{{ $note->id }}" id="note{{ $note->id }}"
+                                               class="rounded border-slate-300 text-amber-500 focus:ring-amber-500 bg-white mr-3 w-4 h-4 transition-colors cursor-pointer">
+                                        <span class="font-medium truncate">{{ $note->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            <small class="text-slate-400 text-xs mt-2 block"><i class="fas fa-info-circle mr-1"></i> Pilih satu atau lebih Scent Notes yang menggambarkan produk ini.</small>
+                        </div>
+
+                        <!-- Deskripsi -->
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">Deskripsi Lengkap <span class="text-rose-500">*</span></label>
+                            <textarea name="description" rows="5" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all placeholder-slate-300 resize-none" required placeholder="Tuliskan latar belakang aroma, nuansa, dan cerita di balik parfum ini..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BAGIAN 3: VARIAN & HARGA -->
+                <div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100 mt-8">
+                        <h5 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-tags text-amber-500"></i> Konfigurasi Varian & Stok
+                        </h5>
+                        <button type="button" id="addVariantBtn" class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200 transition-colors flex items-center gap-2 border border-slate-200 shadow-sm active:scale-95">
+                            <i class="fas fa-plus"></i> Tambah Ukuran Baru
+                        </button>
+                    </div>
+
+                    <!-- Container untuk variant items -->
+                    <div id="variantsContainer" class="space-y-4">
+                        <!-- Variant items akan ditambahkan di sini dengan JavaScript -->
+                    </div>
+
+                    <!-- Template untuk variant baru (hidden) -->
+                    <template id="variantTemplate">
+                        <div class="variant-item bg-slate-50/70 border border-slate-200 p-5 rounded-2xl relative group transition-all">
+                            <div class="flex justify-between items-center mb-4">
+                                <p class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-md bg-slate-200 text-slate-600 flex items-center justify-center text-xs variantNumber">1</span>
+                                    Konfigurasi Varian
+                                </p>
+                                <button type="button" class="removeVariantBtn w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-rose-500 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm" title="Hapus varian ini">
+                                    <i class="fas fa-trash-alt text-xs"></i>
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <!-- Ukuran Volume -->
+                                <div>
+                                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2 font-bold">Volume <span class="text-rose-500">*</span></label>
+                                    <div class="flex">
+                                        <input type="number" name="variants[size][]" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-l-xl text-slate-700 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all border-r-0 z-10" placeholder="Cth: 50" min="1" max="5000" required>
+                                        <span class="inline-flex items-center px-4 bg-slate-100 border border-slate-200 rounded-r-xl text-slate-500 text-xs font-bold">ml</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Harga -->
+                                <div>
+                                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2 font-bold">Harga Jual <span class="text-rose-500">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <span class="text-slate-400 text-xs font-bold">Rp</span>
+                                        </div>
+                                        <input type="number" name="variants[price][]" class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" required placeholder="0">
+                                    </div>
+                                </div>
+
+                                <!-- Stok -->
+                                <div>
+                                    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 mb-2 font-bold">Kuantitas Stok <span class="text-rose-500">*</span></label>
+                                    <input type="number" name="variants[stock][]" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" required placeholder="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Main Action Button -->
+                <div class="pt-8 border-t border-slate-100 mt-10">
+                    <button type="submit" class="w-full bg-slate-900 text-white font-bold tracking-widest uppercase py-4 rounded-xl hover:bg-slate-800 active:scale-95 transition-all duration-300 text-sm shadow-xl shadow-slate-900/20 flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle text-amber-400 text-base"></i> Simpan Ke Katalog
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -189,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const addVariantBtn = document.getElementById('addVariantBtn');
     const productForm = document.getElementById('productForm');
 
-    // Tambahkan 2 varian default (50 dan 100)
+    // Tambahkan 2 varian default (50 dan 100 ml)
     addDefaultVariants();
 
     // Event listener untuk tombol Add Variant
@@ -227,11 +256,16 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const items = variantsContainer.querySelectorAll('.variant-item');
             if (items.length > 1) {
-                this.closest('.variant-item').remove();
-                updateVariantNumbers();
-                clearDuplicateError();
+                // Tambahkan animasi fade-out sebelum dihapus
+                const itemToRemove = this.closest('.variant-item');
+                itemToRemove.style.opacity = '0';
+                setTimeout(() => {
+                    itemToRemove.remove();
+                    updateVariantNumbers();
+                    clearDuplicateError();
+                }, 200);
             } else {
-                alert('Minimal harus ada 1 varian!');
+                showToastError('Minimal harus ada 1 varian produk!');
             }
         });
 
@@ -255,8 +289,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (value) {
                 if (sizes.includes(value)) {
                     hasDuplicate = true;
+                    // Tandai input yang error
+                    input.classList.add('border-rose-500', 'bg-rose-50');
                 } else {
                     sizes.push(value);
+                    input.classList.remove('border-rose-500', 'bg-rose-50');
                 }
             }
         });
@@ -265,36 +302,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showDuplicateError() {
-        // Hapus error lama jika ada
-        clearDuplicateError();
+        clearDuplicateError(); // Hapus error lama jika ada
 
         const alertHtml = `
-            <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-4" role="alert" id="duplicateError">
-                <div class="d-flex align-items-start">
-                    <i class="fas fa-exclamation-circle me-3 mt-1" style="font-size: 1.2rem;"></i>
-                    <div>
-                        <h5 class="alert-heading mb-2">Ukuran Varian Duplikat!</h5>
-                        <p class="mb-0">Anda tidak boleh memiliki dua varian dengan ukuran yang sama. Setiap varian harus memiliki ukuran yang unik.</p>
-                    </div>
+            <div class="p-5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-4 text-rose-600 shadow-sm relative overflow-hidden mb-6 fade-in" id="duplicateErrorAlert">
+                <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
+                    <i class="fas fa-exclamation-triangle text-rose-500"></i>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="flex-1 pt-0.5">
+                    <h5 class="font-bold text-sm mb-1 text-rose-700">Duplikasi Volume Terdeteksi</h5>
+                    <p class="text-xs text-rose-600/80 font-medium">Anda tidak boleh memiliki dua varian dengan ukuran (ml) yang sama. Setiap varian harus memiliki ukuran yang unik.</p>
+                </div>
+                <button type="button" onclick="document.getElementById('duplicateErrorAlert').remove()" class="text-rose-400 hover:text-rose-600 transition-colors focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         `;
 
-        // Insert alert sebelum card
-        const card = document.querySelector('.card');
-        card.insertAdjacentHTML('beforebegin', alertHtml);
+        // Insert alert tepat sebelum daftar varian
+        const container = document.getElementById('variantsContainer');
+        container.insertAdjacentHTML('beforebegin', alertHtml);
 
-        // Scroll ke atas untuk melihat error
-        document.querySelector('#duplicateError').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Scroll halus ke arah error
+        document.getElementById('duplicateErrorAlert').scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function clearDuplicateError() {
-        const errorAlert = document.getElementById('duplicateError');
+        const errorAlert = document.getElementById('duplicateErrorAlert');
         if (errorAlert) {
             errorAlert.remove();
+        }
+        
+        // Bersihkan tanda merah di input size
+        const sizeInputs = variantsContainer.querySelectorAll('input[name*="variants[size"]');
+        sizeInputs.forEach(input => {
+            input.classList.remove('border-rose-500', 'bg-rose-50');
+        });
+    }
+
+    // Fungsi tambahan untuk toast error ringan
+    function showToastError(message) {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: { popup: 'rounded-xl shadow-xl' }
+            });
+        } else {
+            alert(message);
         }
     }
 });
 </script>
+
+<style>
+    /* Styling khusus spinner input number untuk form harga & stok */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        opacity: 1;
+    }
+</style>
 @endsection
