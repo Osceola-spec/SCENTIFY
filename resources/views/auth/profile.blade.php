@@ -1,159 +1,219 @@
 @extends('base.base')
 
 @section('content')
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <!-- Profile Card -->
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">My Profile</h3>
-                </div>
-                <div class="card-body">
-                    @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <strong>Error!</strong>
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+<div class="min-h-screen pt-32 pb-16 px-4 sm:px-6 relative overflow-hidden transition-colors duration-500">
+    
+    <!-- Ambient Glow Orbs -->
+    <div class="absolute top-0 right-[10%] w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] bg-amber-500/10 dark:bg-amber-500/5 rounded-full animate-float pointer-events-none filter blur-[80px]"></div>
+    <div class="absolute bottom-10 left-[10%] w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] bg-purple-500/10 dark:bg-purple-900/5 rounded-full animate-float pointer-events-none filter blur-[80px]" style="animation-delay: 2s;"></div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+    <div class="max-w-4xl mx-auto relative z-10 reveal">
+        
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                <li><a href="{{ route('home') }}" class="hover:text-amber-500 transition-colors">Home</a></li>
+                <li><span class="mx-2">/</span></li>
+                <li class="text-amber-500 font-semibold">My Profile</li>
+            </ol>
+        </nav>
 
-                    <div class="row mb-4">
-                        <!-- Profile Picture Section -->
-                        <div class="col-md-4 text-center">
-                            <div class="mb-3">
-                                @if($user->profile_picture)
-                                    <img src="{{ asset('images/' . $user->profile_picture) }}" 
-                                         alt="{{ $user->name }}" 
-                                         class="rounded-circle"
-                                         style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #007bff;">
+        <!-- Flash Messages (Tailwind Styled) -->
+        @if($errors->any())
+            <div class="mb-6 p-4 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 rounded-2xl flex items-start gap-3 text-rose-600 dark:text-rose-400 text-sm">
+                <i class="fas fa-exclamation-circle mt-1"></i>
+                <ul class="list-disc pl-4 space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl flex items-center gap-3 text-emerald-600 dark:text-emerald-400 text-sm font-medium shadow-sm">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        <!-- Premium Profile Card -->
+        <div class="glass-card rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-2xl overflow-hidden bg-white/70 dark:bg-darkcard/70">
+            <!-- Header Banner -->
+            <div class="h-32 sm:h-40 bg-gradient-to-r from-slate-900 to-slate-800 dark:from-zinc-900 dark:to-black relative">
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:20px_20px] opacity-20"></div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="px-6 sm:px-12 pb-12 relative">
+                <div class="flex flex-col md:flex-row items-center md:items-end gap-6 sm:gap-8 -mt-16 sm:-mt-20 mb-8 sm:mb-12">
+                    
+                    <!-- Profile Picture -->
+                    <div class="relative group">
+                        <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white dark:border-darkcard shadow-xl overflow-hidden bg-slate-100 dark:bg-zinc-800 flex items-center justify-center relative z-10">
+                            @if($user->profile_picture)
+                                <img src="{{ asset('images/' . $user->profile_picture) }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                            @else
+                                <i class="fas fa-user text-5xl text-slate-300 dark:text-zinc-600"></i>
+                            @endif
+                        </div>
+                        <!-- Edit Overlay Hover -->
+                        <button onclick="openEditModal()" class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <i class="fas fa-camera text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- User Quick Info -->
+                    <div class="text-center md:text-left flex-grow">
+                        <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-2">
+                            <h2 class="text-3xl sm:text-4xl font-serif font-bold text-slate-950 dark:text-white">{{ $user->name }}</h2>
+                            <div>
+                                @if($user->role === 'admin')
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase tracking-wider border border-rose-200 dark:border-rose-500/20">
+                                        <i class="fas fa-shield-alt text-[10px]"></i> {{ $user->role }}
+                                    </span>
                                 @else
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                         style="width: 150px; height: 150px; background-color: #e9ecef; border: 3px solid #007bff;">
-                                        <i class="fas fa-user fa-5x text-secondary"></i>
-                                    </div>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider border border-emerald-200 dark:border-emerald-500/20">
+                                        <i class="fas fa-gem text-[10px]"></i> VIP Member
+                                    </span>
                                 @endif
                             </div>
                         </div>
-
-                        <!-- User Info Section -->
-                        <div class="col-md-8">
-                            <div class="mb-3">
-                                <h5 class="text-muted">Name</h5>
-                                <p class="fs-5"><strong>{{ $user->name }}</strong></p>
-                            </div>
-                            <div class="mb-3">
-                                <h5 class="text-muted">Email</h5>
-                                <p class="fs-5"><strong>{{ $user->email }}</strong></p>
-                            </div>
-                            <div class="mb-3">
-                                <h5 class="text-muted">Role</h5>
-                                <p class="fs-5">
-                                    @if($user->role === 'admin')
-                                        <span class="badge bg-danger">{{ ucfirst($user->role) }}</span>
-                                    @else
-                                        <span class="badge bg-success">{{ ucfirst($user->role) }}</span>
-                                    @endif
-                                </p>
-                            </div>
-                            @if($user->phone)
-                                <div class="mb-3">
-                                    <h5 class="text-muted">Phone</h5>
-                                    <p class="fs-5"><strong>{{ $user->phone }}</strong></p>
-                                </div>
-                            @endif
-                        </div>
+                        <p class="text-sm font-mono text-slate-500 dark:text-zinc-400">{{ $user->email }}</p>
                     </div>
 
-                    <!-- Bio Section -->
-                    @if($user->bio)
-                        <div class="mb-4">
-                            <h5 class="text-muted">Bio</h5>
-                            <p>{{ $user->bio }}</p>
-                        </div>
-                    @endif
-
-                    <!-- Member Since -->
-                    <div class="mb-4">
-                        <h5 class="text-muted">Member Since</h5>
-                        <p>{{ $user->created_at->format('d F Y') }}</p>
-                    </div>
-
-                    <!-- Edit and Logout Buttons -->
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                            <i class="fas fa-edit"></i> Edit Profile
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                        <button onclick="openEditModal()" class="flex-1 md:flex-none px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all shadow-sm">
+                            Edit Profil
                         </button>
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        <form action="{{ route('logout') }}" method="POST" class="flex-1 md:flex-none">
                             @csrf
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                            <button type="submit" class="w-full px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase bg-rose-500 hover:bg-rose-600 text-white transition-all shadow-md shadow-rose-500/20">
+                                Keluar
                             </button>
                         </form>
                     </div>
                 </div>
+
+                <hr class="border-slate-200 dark:border-white/5 mb-8">
+
+                <!-- Detailed Information Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Contact Info -->
+                    <div class="space-y-6">
+                        <div>
+                            <h5 class="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Nomor Telepon</h5>
+                            <p class="text-base font-medium text-slate-900 dark:text-white">
+                                @if($user->phone)
+                                    {{ $user->phone }}
+                                @else
+                                    <span class="text-slate-400 italic font-normal text-sm">Belum ditambahkan</span>
+                                @endif
+                            </p>
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Bergabung Sejak</h5>
+                            <p class="text-base font-medium text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="far fa-calendar-alt text-amber-500"></i>
+                                {{ $user->created_at->format('d F Y') }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Bio Section -->
+                    <div>
+                        <h5 class="text-xs font-mono uppercase tracking-widest text-slate-400 mb-3">Tentang Saya (Bio)</h5>
+                        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/5 h-[120px] overflow-y-auto">
+                            @if($user->bio)
+                                <p class="text-sm text-slate-700 dark:text-zinc-300 leading-relaxed">{{ $user->bio }}</p>
+                            @else
+                                <p class="text-sm text-slate-400 italic">Tuliskan sesuatu tentang preferensi aroma atau diri Anda di sini...</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Profile Modal -->
-<div class="modal fade" id="editProfileModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
-                    <!-- Name -->
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" 
-                               value="{{ old('name', $user->name) }}" required>
-                    </div>
-
-                    <!-- Phone -->
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="phone" name="phone" 
-                               value="{{ old('phone', $user->phone) }}">
-                    </div>
-
-                    <!-- Bio -->
-                    <div class="mb-3">
-                        <label for="bio" class="form-label">Bio</label>
-                        <textarea class="form-control" id="bio" name="bio" rows="3" 
-                                  placeholder="Tell us about yourself...">{{ old('bio', $user->bio) }}</textarea>
-                    </div>
-
-                    <!-- Profile Picture -->
-                    <div class="mb-3">
-                        <label for="profile_picture" class="form-label">Profile Picture</label>
-                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" 
-                               accept="image/*">
-                        <small class="text-muted">Max size: 2MB. Formats: JPEG, PNG, JPG, GIF</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
+<!-- =========================================================================
+     MODAL EDIT PROFIL (Tailwind Glassmorphic Design)
+     ========================================================================= -->
+<div id="editProfileModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-white/5 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+        
+        <div class="px-6 py-5 border-b border-slate-200 dark:border-white/5 flex items-center justify-between bg-slate-50 dark:bg-zinc-900/50">
+            <h5 class="font-serif font-bold text-lg text-slate-900 dark:text-white">Edit Profil Anda</h5>
+            <button type="button" onclick="closeEditModal()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors focus:outline-none">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+
+        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="flex-grow overflow-y-auto custom-scrollbar">
+            @csrf
+            <div class="p-6 sm:p-8 space-y-5">
+                
+                <!-- Input Name -->
+                <div>
+                    <label for="name" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Nama Lengkap</label>
+                    <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+                </div>
+
+                <!-- Input Phone -->
+                <div>
+                    <label for="phone" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Nomor Telepon</label>
+                    <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                           class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+                </div>
+
+                <!-- Input Bio -->
+                <div>
+                    <label for="bio" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Bio / Tentang Saya</label>
+                    <textarea id="bio" name="bio" rows="3" placeholder="Ceritakan sedikit tentang diri Anda..."
+                              class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none">{{ old('bio', $user->bio) }}</textarea>
+                </div>
+
+                <!-- Input Profile Picture -->
+                <div>
+                    <label class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Foto Profil Baru</label>
+                    <div class="relative">
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*"
+                               class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-500 dark:text-zinc-400 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-all cursor-pointer">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1.5"><i class="fas fa-info-circle"></i> Maks 2MB. Format: JPEG, PNG, JPG.</p>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="px-6 py-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-900/50 flex justify-end gap-3">
+                <button type="button" onclick="closeEditModal()" class="px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-all focus:outline-none">
+                    Batal
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black hover:bg-amber-500 dark:hover:bg-amber-300 shadow-md active:scale-95 transition-all focus:outline-none">
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- Script Modal Logic -->
+<script>
+    function openEditModal() {
+        const modal = document.getElementById('editProfileModal');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.querySelector('.bg-white').classList.remove('scale-95');
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editProfileModal');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.querySelector('.bg-white').classList.add('scale-95');
+    }
+</script>
 @endsection
