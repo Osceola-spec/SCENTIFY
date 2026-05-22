@@ -39,7 +39,10 @@
                 </div>
 
                 <a href="{{ route('shop', ['brand' => $brand->id]) }}"
-                   class="w-full inline-flex justify-center items-center py-2 px-4 border border-slate-900 dark:border-white bg-transparent hover:bg-slate-900 dark:hover:bg-white text-slate-900 dark:text-white dark:hover:text-slate-950 text-xs font-medium rounded-full tracking-wide transition-all duration-200 mt-auto">
+                   class="w-full flex justify-center items-center text-center text-sm font-semibold tracking-wide py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/5 mt-auto
+                          bg-slate-900 dark:bg-amber-400 text-white dark:text-black 
+                          hover:bg-amber-500 dark:hover:bg-amber-300 
+                          active:scale-95 active:bg-amber-600 dark:active:bg-amber-500 active:text-white">
                     Lihat Produk
                 </a>
             </div>
@@ -47,7 +50,7 @@
             <div class="col-span-full py-20 text-center text-slate-400 dark:text-slate-600">
                 <div class="flex flex-col items-center justify-center">
                     <i class="fas fa-tags text-4xl mb-3 text-slate-200 dark:text-slate-800"></i>
-                    <p class="text-sm font-medium">Belum ada resmi yang tersedia saat ini.</p>
+                    <p class="text-sm font-medium">Belum ada brand resmi yang tersedia saat ini.</p>
                 </div>
             </div>
         @endforelse
