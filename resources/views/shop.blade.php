@@ -538,7 +538,7 @@
                 <button type="button" class="variant-btn px-4 py-2 text-xs font-mono font-bold border-2 border-slate-200 dark:border-white/10 rounded-xl hover:border-amber-500 dark:hover:border-amber-400 transition-all ${isOutOfStock ? 'opacity-40 cursor-not-allowed' : ''}"
                         onclick="${!isOutOfStock ? `selectVariant(this, ${variant.id})` : ''}"
                         ${isOutOfStock ? 'disabled' : ''}>
-                    ${variant.size}
+                    ${variant.size}ml
                 </button>
             `;
         });
@@ -569,7 +569,7 @@
         document.getElementById('modalQuantity').value = 1;
         const stockStatus = document.getElementById('modalStockStatus');
         stockStatus.classList.remove('hidden');
-        stockStatus.innerText = `Sisa Stok: ${variantsMap[variantId].stock} item`;
+        // stockStatus.innerText = `Sisa Stok: ${variantsMap[variantId].stock} item`;
 
         const priceFormatted = new Intl.NumberFormat('id-ID', {
             style: 'currency', currency: 'IDR', maximumFractionDigits: 0
@@ -611,9 +611,24 @@
             document.getElementById('variantNotice').classList.remove('hidden');
             return;
         }
+
+        // 1. Tangkap elemen tombol
+        const submitBtn = document.getElementById('addToCartBtn');
+        
+        // 2. Ubah tampilan tombol menjadi Loading Spinner animasi
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-75', 'cursor-wait');
+        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-sm mr-2"></i> Memproses...';
+
+        // 3. Masukkan jumlah kuantitas dari spinner ke dalam form tersembunyi
         document.getElementById('hiddenQuantity').value = document.getElementById('modalQuantity').value;
         document.getElementById('hiddenCartForm').action = `/cart/add/${selectedVariant}`;
+        
+        // 4. Kirim data (submit) ke server
         document.getElementById('hiddenCartForm').submit();
+        
+        // Catatan: Karena form ini melakukan 'Classic Submit' yang akan memuat ulang (refresh) 
+        // halaman, kita tidak perlu repot mengembalikan teks tombol ke kondisi semula.
     }
 
     // 5. Unauthorized Add to Cart Interceptor & Admin Delete
