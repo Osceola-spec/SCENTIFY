@@ -1,17 +1,13 @@
 @extends('base.base')
 
 @section('content')
-    <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center justify-center relative px-4 sm:px-6 overflow-hidden pt-28 lg:pt-16">
-        <!-- Interactive Fluid Glowing Orbs -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative px-4 sm:px-6 overflow-hidden pt-28 lg:pt-16 bg-transparent">
         <div id="glow-orb-1" class="absolute top-[15%] left-[10%] w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] bg-amber-500/20 dark:bg-amber-500/10 rounded-full ambient-glow-orb pointer-events-none"></div>
         <div id="glow-orb-2" class="absolute bottom-[15%] right-[10%] w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] bg-purple-500/10 dark:bg-purple-900/5 rounded-full ambient-glow-orb pointer-events-none"></div>
 
-        <!-- Garis Grid Latar Belakang -->
         <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none opacity-60"></div>
 
         <div class="max-w-7xl w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-16 z-10">
-            <!-- Left Side Text (GSAP Animated) -->
             <div class="flex-1 text-left sm:text-center lg:text-left hero-text-container will-animate w-full">
                 <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 mb-4 sm:mb-6">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 pulse-ring"></span>
@@ -34,26 +30,18 @@
                 </div>
             </div>
             
-            <!-- Right Side Interactive 3D CSS Perfume Bottle Frame -->
             <div class="flex-1 flex justify-center relative hero-bottle-container will-animate w-full">
-                <!-- Ukuran div botol disesuaikan agar tidak meluap di HP -->
                 <div class="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 relative group tilt-container">
                     <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 to-purple-600/20 blur-3xl opacity-40"></div>
                     
                     <div class="tilt-card absolute inset-4 glass-card rounded-[2rem] flex flex-col items-center justify-center border border-white/10 overflow-hidden shadow-2xl p-6 sm:p-8 cursor-pointer">
-                        <!-- Luxury SVG 3D-Bending Bottle -->
                         <div id="perfume-3d-visual" class="relative transition-transform duration-300 ease-out transform group-hover:scale-105 group-hover:rotate-1">
                             <svg class="w-40 h-48 sm:w-48 sm:h-56 text-amber-500/80 transition-all duration-500" viewBox="0 0 100 120" fill="currentColor">
-                                <!-- Cap -->
                                 <rect x="42" y="10" width="16" height="15" rx="3" stroke="currentColor" stroke-width="2" fill="none" class="text-amber-600 dark:text-amber-400"/>
                                 <line x1="50" y1="25" x2="50" y2="35" stroke="currentColor" stroke-width="2" class="opacity-50"/>
-                                <!-- Collar -->
                                 <rect x="36" y="32" width="28" height="6" rx="1.5" fill="currentColor"/>
-                                <!-- Bottle -->
                                 <path d="M22 42 C22 39, 25 36, 29 36 L71 36 C75 36, 78 39, 78 42 L78 105 C78 109, 75 112, 71 112 L29 112 C25 112, 22 109, 22 105 Z" stroke="currentColor" stroke-width="2.5" fill="none" class="text-slate-900 dark:text-white"/>
-                                <!-- Interactive Liquid level -->
                                 <path id="liquid-wave" d="M24 60 Q50 63, 76 60 L75 109 C75 110.5, 73.5 110.5, 71 110.5 L29 110.5 C26.5 110.5, 25 110.5, 25 109 Z" fill="currentColor" class="text-amber-500/40 transition-all duration-1000"/>
-                                <!-- Label Plate -->
                                 <rect x="34" y="62" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-80"/>
                                 <text x="50" y="76" font-size="7" font-family="Playfair Display" font-weight="bold" text-anchor="middle" fill="currentColor" class="text-slate-900 dark:text-white">SCENTIFY</text>
                             </svg>
@@ -64,8 +52,7 @@
         </div>
     </section>
 
-    <!-- NEW INTERACTIVE MODULE: Interactive Scent Wheel & Finder Quiz -->
-    <section id="scent-explorer" class="py-24 sm:py-32 bg-slate-50 dark:bg-[#08080a] transition-colors duration-500 relative overflow-hidden">
+    <section id="scent-explorer" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative overflow-hidden">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
             <div class="text-center mb-12 sm:mb-20">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Interactive Scent Finder</span>
@@ -73,9 +60,7 @@
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
 
-            <!-- Quiz & Interactive Note Selector Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                <!-- Scent Profiler Interactive Options -->
                 <div class="lg:col-span-5 flex flex-col justify-between gap-6">
                     <div class="glass-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl">
                         <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
@@ -104,10 +89,8 @@
                     </div>
                 </div>
 
-                <!-- Dynamic Results Area (GSAP Interchanged) -->
                 <div class="lg:col-span-7">
                     <div id="scent-result-card" class="glass-card p-6 sm:p-8 rounded-2xl sm:rounded-3xl h-full flex flex-col justify-between border border-amber-500/20 shadow-xl shadow-amber-500/5 relative overflow-hidden" style="z-index: 1;">
-                        <!-- Sparkles Ambient Background inside card -->
                         <div id="scent-card-ambient" class="absolute -top-10 -right-10 w-32 h-32 sm:w-48 sm:h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none transition-all duration-500" style="z-index: 0;"></div>
                         
                         <div class="relative z-10">
@@ -121,7 +104,6 @@
                                 Sempurna untuk mereka yang menyukai aroma alam yang dalam. Memancarkan aura kebijaksanaan, kehangatan yang bersahaja, serta impresi ketenangan berkelas berkat racikan cedarwood, vetiver, dan premium amber.
                             </p>
 
-                            <!-- Interactive pyramid chart -->
                             <div class="space-y-3 mb-6 sm:mb-8">
                                 <h4 class="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400">Olfactory Notes Pyramid:</h4>
                                 <div class="space-y-2 text-[10px] sm:text-xs">
@@ -156,8 +138,7 @@
         </div>
     </section>
 
-    <!-- Categories Section -->
-    <section id="koleksi" class="py-24 sm:py-32 bg-white dark:bg-darkbg transition-colors duration-500 relative overflow-hidden">
+    <section id="koleksi" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 sm:mb-20 reveal">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Kategori Premium</span>
@@ -165,9 +146,7 @@
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
             
-            <!-- Grid menyesuaikan agar kartu tidak raksasa di HP -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
-                <!-- Designer Card -->
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-slate-200 dark:border-white/5">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none"></div>
@@ -184,7 +163,6 @@
                     </div>
                 </div>
 
-                <!-- Niche Card -->
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-slate-200 dark:border-white/5">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none"></div>
@@ -201,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- Lokal Premium Card -->
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full sm:col-span-2 lg:col-span-1">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-slate-200 dark:border-white/5">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none"></div>
@@ -221,8 +198,7 @@
         </div>
     </section>
 
-    <!-- Featured Products Section -->
-    <section id="produk-terlaris" class="py-24 sm:py-32 bg-slate-50 dark:bg-darkbg transition-colors duration-500 relative">
+    <section id="produk-terlaris" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 sm:mb-20 reveal">
                 <div>
@@ -235,11 +211,9 @@
                 </a>
             </div>
             
-            <!-- Grid 2-Kolom di HP agar sejalan dengan Halaman Shop -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                <!-- Produk Terlaris 1 -->
                 <div class="tilt-container reveal">
-                    <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
+                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Amber]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             <span class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-amber-500 text-black text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">Terlaris</span>
@@ -260,9 +234,8 @@
                     </div>
                 </div>
 
-                <!-- Produk Terlaris 2 -->
                 <div class="tilt-container reveal">
-                    <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
+                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Royale]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         </div>
@@ -282,9 +255,8 @@
                     </div>
                 </div>
 
-                <!-- Produk Terlaris 3 -->
                 <div class="tilt-container reveal">
-                    <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
+                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             <img src="https://images.unsplash.com/photo-1592914610354-fd354d45e5b0?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Rose]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         </div>
@@ -304,9 +276,8 @@
                     </div>
                 </div>
 
-                <!-- Produk Terlaris 4 -->
                 <div class="tilt-container reveal">
-                    <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
+                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             <img src="https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Ocean]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         </div>
@@ -329,8 +300,7 @@
         </div>
     </section>
 
-    <!-- Hubungi / Chat Section -->
-    <section id="contact" class="py-24 sm:py-32 bg-slate-50 dark:bg-zinc-900/40 transition-colors duration-500">
+    <section id="contact" class="py-24 sm:py-32 bg-transparent transition-colors duration-500">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
             <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Bespoke Consultations</span>
             <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Konsultasikan Aroma <span class="italic text-amber-500 font-normal">Khas Anda</span></h2>
@@ -348,8 +318,7 @@
         </div>
     </section>
 
-    <!-- Newsletter Section -->
-    <section class="relative py-24 sm:py-28 bg-slate-950 dark:bg-[#0c0c0e] text-white overflow-hidden transition-colors duration-500 border-t border-slate-800 dark:border-white/5">
+    <section class="relative py-24 sm:py-28 bg-slate-900/80 dark:bg-transparent backdrop-blur-md text-white overflow-hidden transition-colors duration-500 border-t border-slate-800 dark:border-white/5">
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal">

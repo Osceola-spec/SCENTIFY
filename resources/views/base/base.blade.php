@@ -209,6 +209,8 @@
 
     <!-- Background Canvas Efek Partikel Ringan -->
     <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-40"></canvas>
+    {{-- <canvas id="particle-canvas" class="fixed top-0 left-0 w-full h-full z-[999997] pointer-events-none opacity-50"></canvas> --}}
+
 
     <!-- Progress Scroll Bar Modern -->
     <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 z-50 transition-all duration-100 w-0"></div>
@@ -369,6 +371,7 @@
         // 4. Custom Dual Cursor Dynamics (Desktop Only)
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
+        const cursorGlow = document.getElementById('cursor-glow');
         const hoverables = document.querySelectorAll('a, button, .tilt-card, select, input');
 
         if (window.innerWidth >= 1024) {
@@ -376,13 +379,37 @@
                 const posX = e.clientX;
                 const posY = e.clientY;
 
-                cursorDot.style.left = `${posX}px`;
-                cursorDot.style.top = `${posY}px`;
+                 if (cursorDot) {
+                    cursorDot.style.left = `${posX}px`;
+                    cursorDot.style.top = `${posY}px`;
+                }
 
-                cursorOutline.animate({
-                    left: `${posX}px`,
-                    top: `${posY}px`
-                }, { duration: 400, fill: "forwards" });
+                // Outline Follower (Native CSS Animation)
+                if (cursorOutline) {
+                    cursorOutline.animate({
+                        left: `${posX}px`,
+                        top: `${posY}px`
+                    }, { duration: 400, fill: "forwards" });
+                }
+
+                // Ambient Glow Background Follower (Smooth GSAP)
+                if (cursorGlow) {
+                    gsap.to(cursorGlow, {
+                        x: posX,
+                        y: posY,
+                        xPercent: -50,
+                        yPercent: -50,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                }
+
+                // --- PEMICU EFEK JEJAK (TRACE MIST) ---
+                if (typeof traceParticles !== 'undefined') {
+                    for (let i = 0; i < 2; i++) {
+                        traceParticles.push(new TraceParticle(posX, posY));
+                    }
+                }
             });
 
             hoverables.forEach(item => {
@@ -476,10 +503,11 @@
             });
         }
 
-        // 9. Interactive Background Canvas Particle Simulator (Dioptimalkan untuk HP)
+        // 9. Interactive Background Canvas Particle Simulator & TRACE EFEK
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
-        let particlesArray;
+        let particlesArray = [];
+        let traceParticles = []; // Array khusus untuk efek kabut jejak kursor
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -488,8 +516,8 @@
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.5 + 0.5; // Partikel lebih kecil untuk tampilan elegan
-                this.speedX = Math.random() * 0.4 - 0.2; // Gerakan lebih lambat dan tenang
+                this.size = Math.random() * 1.5 + 0.5; // Partikel kecil elegan
+                this.speedX = Math.random() * 0.4 - 0.2; // Gerakan lambat dan tenang
                 this.speedY = Math.random() * 0.4 - 0.2;
                 this.updateColor();
             }
@@ -516,9 +544,36 @@
             }
         }
 
+        // --- Class Tambahan: Untuk Trace / Jejak Kursor ---
+        class TraceParticle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 4 + 1;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.life = 1;
+                this.decay = Math.random() * 0.03 + 0.02;
+                
+                const isDark = document.documentElement.classList.contains('dark');
+                this.baseColor = isDark ? '245, 158, 11' : '217, 119, 6';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                if (this.size > 0.1) this.size -= 0.1;
+            }
+            draw(ctx) {
+                ctx.fillStyle = `rgba(${this.baseColor}, ${this.life})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
         function initParticles() {
             particlesArray = [];
-            // Deteksi HP: Kurangi jumlah partikel hingga 70% agar hemat daya & ringan
             const isMobile = window.innerWidth < 768;
             const divisor = isMobile ? 35000 : 12000;
             
@@ -530,10 +585,23 @@
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Gambar Partikel Background
             for (let i = 0; i < particlesArray.length; i++) {
                 particlesArray[i].update();
                 particlesArray[i].draw();
             }
+
+            // Gambar Jejak Partikel Kursor (Trace)
+            for (let i = 0; i < traceParticles.length; i++) {
+                traceParticles[i].update();
+                traceParticles[i].draw(ctx);
+                if (traceParticles[i].life <= 0 || traceParticles[i].size <= 0) {
+                    traceParticles.splice(i, 1);
+                    i--;
+                }
+            }
+            
             requestAnimationFrame(animateParticles);
         }
 
