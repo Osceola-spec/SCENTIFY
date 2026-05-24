@@ -25,19 +25,23 @@ class CartController extends Controller
     public function add(Request $request, $variantId)
     {
         if (!auth()->check()) {
-        return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu untuk menambah produk ke keranjang.');
-    }
+            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu untuk menambah produk ke keranjang.');
+        }
+
+        // Tangkap kuantitas dari input form, default 1 jika tidak ada
+        $quantityToAdd = (int) $request->input('quantity', 1);
+
         // Ambil data varian (beserta data produk utamanya)
         $variant = ProductVariant::with('product')->findOrFail($variantId);
 
         // Ambil data keranjang saat ini di session (jika kosong, buat array baru)
         $cart = session()->get('cart', []);
 
-        // Jika produk dengan varian ini sudah ada di keranjang, tambah quantity-nya
+        // Jika produk dengan varian ini sudah ada di keranjang, tambahkan dengan kuantitas baru
         if (isset($cart[$variantId])) {
-            $cart[$variantId]['quantity']++;
+            $cart[$variantId]['quantity'] += $quantityToAdd;
         } else {
-            // Jika belum ada, masukkan sebagai item baru
+            // Jika belum ada, masukkan sebagai item baru dengan kuantitas yang direquest
             $cart[$variantId] = [
                 'variant_id' => $variant->id,
                 'product_name' => $variant->product->name,
@@ -45,7 +49,7 @@ class CartController extends Controller
                 'size' => $variant->size,
                 'price' => $variant->price,
                 'image_url' => $variant->product->image_url,
-                'quantity' => 1
+                'quantity' => $quantityToAdd
             ];
         }
 

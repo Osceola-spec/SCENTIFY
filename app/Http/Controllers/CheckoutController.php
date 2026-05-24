@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductVariant;
+use App\Models\Address; // Pastikan Model Address dipanggil
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -19,27 +20,23 @@ class CheckoutController extends Controller
     {
         $cart = session()->get('cart', []);
 
-        // Jika keranjang kosong, kembalikan ke halaman cart
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
-        // Kalkulasi ulang subtotal
         $subtotal = 0;
         foreach ($cart as $item) {
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        // Contoh perhitungan sederhana
         $shippingCost = 50000;
-        $taxAmount = $subtotal * 0.11; // Pajak 11%
+        $taxAmount = $subtotal * 0.11;
         $totalAmount = $subtotal + $shippingCost + $taxAmount;
 
         return view('checkout', compact('cart', 'subtotal', 'shippingCost', 'taxAmount', 'totalAmount'));
     }
 
-    // 2. Memproses Simpan Pesanan (Place Order)
-    // 2. Memproses Simpan Pesanan (Place Order)
+    // 2. Memproses Simpan Pesanan (Place Order) & Auto-Save Alamat
     public function process(Request $request)
     {
         $cart = session()->get('cart', []);
@@ -48,38 +45,53 @@ class CheckoutController extends Controller
             return redirect()->route('shop')->with('error', 'Keranjang kosong.');
         }
 
-        // 1. Kalkulasi Total
+        // Kalkulasi Total
         $subtotal = 0;
         foreach ($cart as $item) {
             $subtotal += $item['price'] * $item['quantity'];
         }
         $taxAmount = $subtotal * 0.11;
-        $totalAmount = $subtotal + 50000 + $taxAmount; // + Ongkir 50rb
+        $totalAmount = $subtotal + 50000 + $taxAmount;
 
-        // Jika user memilih alamat tersimpan, gunakan data alamat tersebut
-        if ($request->filled('address_id')) {
-            $addr = \App\Models\Address::where('id', $request->address_id)->where('user_id', auth()->id())->first();
-            if ($addr) {
-                $request->merge([
-                    'first_name' => $addr->first_name,
-                    'last_name' => $addr->last_name,
-                    'phone' => $addr->phone,
-                    'address' => $addr->address,
-                    'city' => $addr->city,
-                    'postal_code' => $addr->postal_code,
-                ]);
-            }
-        }
-
-        $fullAddress = $request->first_name . ' ' . $request->last_name . " | " .
-            $request->phone . " | " .
-            $request->address . ", " . $request->city . " " . $request->postal_code;
-
-        // 2. Simpan ke Database
         DB::beginTransaction();
         try {
+            // LOGIKA AUTO-SAVE ALAMAT
+            if ($request->filled('address_id') && $request->address_id !== 'new') {
+                // Jika pakai alamat lama, timpa request dengan data dari DB untuk keamanan
+                $addr = Address::where('id', $request->address_id)->where('user_id', auth()->id())->first();
+                if ($addr) {
+                    $request->merge([
+                        'first_name' => $addr->first_name,
+                        'last_name' => $addr->last_name,
+                        'phone' => $addr->phone,
+                        'address' => $addr->address,
+                        'city' => $addr->city,
+                        'postal_code' => $addr->postal_code,
+                    ]);
+                }
+            } else {
+                // Jika pilih "Tambah alamat baru" ATAU belum punya alamat sama sekali, SIMPAN ke DB
+                Address::create([
+                    'user_id' => auth()->id(),
+                    'label' => 'Alamat ' . now()->format('d M Y'), // Label otomatis
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                    'city' => $request->city,
+                    'postal_code' => $request->postal_code,
+                    'is_default' => auth()->user()->addresses()->count() === 0 ? true : false,
+                ]);
+            }
+
+            // Rangkai alamat lengkap untuk disimpan di riwayat pesanan (Immutable/Tidak bisa diubah)
+            $fullAddress = $request->first_name . ' ' . $request->last_name . " | " .
+                $request->phone . " | " .
+                $request->address . ", " . $request->city . " " . $request->postal_code;
+
+            // Simpan Data Order
             $order = Order::create([
-                'user_id' => auth()->id() ?? 1, // Bagus jika langsung menggunakan id user login
+                'user_id' => auth()->id() ?? 1,
                 'order_number' => 'ORD-' . strtoupper(Str::random(8)),
                 'subtotal' => $subtotal,
                 'tax_amount' => $taxAmount,
@@ -88,6 +100,7 @@ class CheckoutController extends Controller
                 'shipping_address' => $fullAddress,
             ]);
 
+            // Simpan Item & Kurangi Stok
             foreach ($cart as $variantId => $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -96,21 +109,15 @@ class CheckoutController extends Controller
                     'price_at_purchase' => $item['price'],
                 ]);
 
-                // Kurangi stok
                 $variant = ProductVariant::find($item['variant_id']);
                 if ($variant) {
                     $variant->decrement('stock', $item['quantity']);
                 }
             }
 
-            // ❌ HAPUS ATAU KOMENTARI BARIS INI (JANGAN DIHAPUS DULU DI SINI):
-            // session()->forget('cart');
-            
             DB::commit();
 
-            // ==========================================
-            // 3. KONFIGURASI MIDTRANS SNAP
-            // ==========================================
+            // KONFIGURASI MIDTRANS SNAP
             Config::$serverKey = env('MIDTRANS_SERVER_KEY');
             Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
             Config::$isSanitized = true;
@@ -129,13 +136,11 @@ class CheckoutController extends Controller
                 ],
             ];
 
-            // Minta Snap Token dari Midtrans
             $snapToken = Snap::getSnapToken($params);
 
-            //  PINDAHKAN KE SINI: Keranjang baru dihapus setelah Snap Token sukses dibuat!
+            // Bersihkan Keranjang setelah Snap Token tercipta
             session()->forget('cart');
 
-            // Arahkan ke halaman khusus pembayaran dengan membawa token
             return view('payment', compact('snapToken', 'order'));
             
         } catch (\Exception $e) {

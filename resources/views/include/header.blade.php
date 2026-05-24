@@ -27,6 +27,18 @@
 
         <!-- Right Side Icons -->
         <div class="flex items-center space-x-3 sm:space-x-5 pointer-events-auto">
+
+            <a href="{{ route('wishlist.index') }}" class="relative p-2 text-lg sm:text-xl hover:text-rose-500 transition-transform duration-300 hover:scale-110 focus:outline-none">
+                <i class="far fa-heart"></i>
+                @auth
+                    @php $wishlistCount = \App\Models\Wishlist::where('user_id', auth()->id())->count(); @endphp
+                    <span id="wishlist-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[9px] font-bold leading-none text-white bg-rose-500 rounded-full transform translate-x-1/4 -translate-y-1/4 transition-all duration-300 {{ $wishlistCount > 0 ? '' : 'opacity-0' }}">
+                        {{ $wishlistCount }}
+                    </span>
+                @else
+                    <span id="wishlist-badge" class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[9px] font-bold leading-none text-white bg-rose-500 rounded-full transform translate-x-1/4 -translate-y-1/4 transition-all duration-300 opacity-0">0</span>
+                @endauth
+            </a>
             
             <!-- Keranjang Belanja -->
             <a href="{{ route('cart.index') }}" class="relative p-2 text-lg sm:text-xl hover:text-amber-500 transition-transform duration-300 hover:scale-110 focus:outline-none">

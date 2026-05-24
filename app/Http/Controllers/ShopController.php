@@ -79,9 +79,16 @@ class ShopController extends Controller
         }
 
         // Eksekusi pagination wajib berjalan di setiap request apa pun
-        $products = $query->paginate(12)->withQueryString();
+        // $products = $query->paginate(12)->withQueryString();
 
-        return view('shop', compact('products', 'brands'));
+        $wishlistedProductIds = [];
+        if (auth()->check()) {
+            $wishlistedProductIds = \App\Models\Wishlist::where('user_id', auth()->id())->pluck('product_id')->toArray();
+        }
+
+        // PASTIKAN COMPACT-NYA DISESUAIKAN:
+        $products = $query->paginate(12)->withQueryString();
+        return view('shop', compact('products', 'brands', 'wishlistedProductIds'));
     }
 
     public function insert_product()

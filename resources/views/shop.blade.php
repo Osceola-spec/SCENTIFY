@@ -1,11 +1,9 @@
 @extends('base.base')
 
 @section('content')
-<!-- Backdrop Overlay untuk Mobile Filter (Menghindari Redundansi Kode Form) -->
 <div id="filterOverlay" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden" onclick="closeMobileFilter()"></div>
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-    <!-- Breadcrumb -->
     <nav class="mb-8 reveal">
         <ol class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500">
             <li><a href="{{ route('home') }}" class="hover:text-amber-500 transition-colors">Home</a></li>
@@ -14,7 +12,6 @@
         </ol>
     </nav>
 
-    <!-- Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-12 pb-8 border-b border-slate-200 dark:border-white/5 reveal">
         <div>
             <span class="text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Discovery</span>
@@ -24,10 +21,8 @@
             </p>
         </div>
         
-        <!-- Filter, Search & Sorting Widgets (Responsive Grid) -->
         <div class="flex flex-col sm:flex-row items-center justify-between lg:justify-end gap-3 sm:gap-4 w-full lg:w-auto">
             
-            <!-- Search Bar Widget -->
             <div class="relative w-full sm:w-56 md:w-64 order-1 sm:order-none">
                 <input type="text" name="search" form="filterForm" value="{{ request('search') }}" 
                        placeholder="Cari nama parfum..." 
@@ -38,12 +33,10 @@
             </div>
 
             <div class="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-4 order-2 sm:order-none">
-                <!-- Tombol Filter Khusus HP -->
                 <button type="button" onclick="openMobileFilter()" class="lg:hidden flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 text-xs font-mono font-bold uppercase tracking-wider text-slate-800 dark:text-zinc-300 shadow-md focus:outline-none">
                     <i class="fas fa-sliders text-amber-500"></i> Filter
                 </button>
 
-                <!-- Sorting Widget -->
                 <div class="flex items-center gap-3">
                     <label for="sortSelect" class="text-xs font-mono uppercase text-slate-400 hidden sm:inline-block">Urutkan:</label>
                     <div class="relative">
@@ -62,12 +55,9 @@
         </div>
     </div>
 
-    <!-- Main Content Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        <!-- Sidebar Filter (Desktop: Col-3 static dengan lg:w-full, Mobile: Slide-over Drawer) -->
         <aside id="filterSidebar" class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white dark:bg-darkbg lg:bg-transparent lg:dark:bg-transparent p-6 lg:p-0 border-r border-slate-200 dark:border-white/10 lg:border-none shadow-2xl lg:shadow-none transform -translate-x-full lg:translate-x-0 overflow-y-auto lg:overflow-visible lg:static lg:col-span-3 lg:w-full reveal">
-            <!-- Tombol Tutup Filter (Khusus HP) -->
             <div class="flex lg:hidden justify-end mb-6">
                 <button type="button" onclick="closeMobileFilter()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
                     <i class="fas fa-times text-xs"></i>
@@ -76,7 +66,6 @@
 
             <form action="{{ route('shop') }}" method="GET" id="filterForm">
                 <div class="lg:sticky lg:top-28 space-y-8">
-                    <!-- Filter Top Section -->
                     <div class="flex items-center justify-between">
                         <h5 class="font-serif text-lg font-semibold tracking-wide flex items-center gap-2">
                             <i class="fas fa-sliders text-sm text-amber-500"></i> Filter
@@ -84,7 +73,6 @@
                         <a href="{{ route('shop') }}" class="text-xs font-mono uppercase text-slate-400 hover:text-amber-500 transition-colors">Reset</a>
                     </div>
 
-                    <!-- Gender Category Filter -->
                     <div class="pb-6 border-b border-slate-200 dark:border-white/5">
                         <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Kategori</h6>
                         <div class="space-y-3">
@@ -99,7 +87,6 @@
                         </div>
                     </div>
 
-                    <!-- Brand Filter -->
                     <div class="pb-6 border-b border-slate-200 dark:border-white/5">
                         <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Brand</h6>
                         <div class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
@@ -114,7 +101,6 @@
                         </div>
                     </div>
 
-                    <!-- Max Price Filter -->
                     <div>
                         <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Harga Maksimal</h6>
                         <div class="relative pt-4 px-2">
@@ -122,7 +108,6 @@
                                    value="{{ request('max_price', 5000000) }}"
                                    class="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
                             
-                            <!-- Custom Tooltip floating on input slider -->
                             <div id="rangeTooltip" class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-amber-500 text-white dark:text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-lg pointer-events-none hidden group-active:block">
                                 Rp 5.000.000
                             </div>
@@ -141,19 +126,15 @@
             </form>
         </aside>
 
-        <!-- Product Display Area (Right Side) -->
         <main class="lg:col-span-9">
             
-            <!-- Active Overall Filter Notification -->
             @php
                 $activeFilters = [];
 
-                // Check for search query
                 if (request()->filled('search')) {
                     $activeFilters[] = ['type' => 'Pencarian', 'label' => '"' . request('search') . '"'];
                 }
 
-                // Check for active genders
                 $reqGenders = (array) request('gender', []);
                 foreach ($reqGenders as $g) {
                     if (!empty($g)) {
@@ -161,7 +142,6 @@
                     }
                 }
 
-                // Check for active brands
                 $reqBrands = (array) request('brand', []);
                 foreach ($reqBrands as $bId) {
                     if (!empty($bId)) {
@@ -191,45 +171,16 @@
                 </div>
             @endif
 
-            <!-- Product Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6" id="product-container">
                 @forelse($products as $product)
                     <div class="perspective-1000 reveal">
                         <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative">
                             
-                            <!-- Admin Controls -->
-                            @if (auth()->check() && auth()->user()->role === 'admin')
-                                <div class="absolute top-2 right-2 p-1 sm:p-2 z-30 flex gap-2">
-                                    <a href="{{ route('products.edit', $product->id) }}"
-                                       class="w-7 h-7 sm:w-8 sm:h-8 bg-white/90 dark:bg-zinc-800/90 text-blue-500 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                                       title="Edit Produk">
-                                        <i class="fas fa-edit text-[10px] sm:text-xs"></i>
-                                    </a>
-
-                                    <form id="delete-form-{{ $product->id }}" action="{{ route('products.destroy', $product->id) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" onclick="confirmDelete('{{ $product->id }}', '{{ $product->name }}')"
-                                                class="w-7 h-7 sm:w-8 sm:h-8 bg-white/90 dark:bg-zinc-800/90 text-rose-500 rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                                                title="Hapus Produk">
-                                            <i class="fas fa-trash text-[10px] sm:text-xs"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            @endif
-
-                            <!-- Product Image Wrapper & WISHLIST BUTTON -->
                             <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
                                 <img src="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                                      alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                                
-                                <!-- Wishlist Interactive Button (Heart Icon) -->
-                                <button type="button" onclick="toggleWishlist(this, event)" class="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-white/20 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-all shadow-sm z-20 focus:outline-none" title="Tambah ke Wishlist">
-                                    <i class="far fa-heart text-[10px] sm:text-xs transition-transform duration-300"></i>
-                                </button>
                             </div>
 
-                            <!-- Product Information -->
                             <div class="mt-3 flex-grow flex flex-col justify-start">
                                 <div>
                                     <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">
@@ -245,38 +196,56 @@
                                 </p>
                             </div>
 
-                            <!-- Action Buttons (Add to Cart & Share) -->
-                            <div class="mt-3 flex items-center gap-2">
-                                <!-- Buy Button with Cart Icon -->
-                                @if ($product->variants->isNotEmpty())
-                                    @auth
-                                        <button type="button" class="variant-selector-btn flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-50 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
-                                                data-product-id="{{ $product->id }}"
-                                                data-product-name="{{ $product->name }}"
-                                                data-product-brand="{{ $product->brand->name ?? 'Unknown Brand' }}"
-                                                data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
-                                                data-product-description="{{ $product->description ?? '' }}"
-                                                data-variants="{{ json_encode($product->variants) }}">
-                                            <i class="fas fa-cart-plus"></i> Beli
+                            <div class="mt-3 flex items-center gap-2 w-full">
+                                @if (auth()->check() && auth()->user()->role === 'admin')
+                                    <a href="{{ route('products.edit', $product->id) }}"
+                                       class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
+                                       title="Edit Produk">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+
+                                    <form id="delete-form-{{ $product->id }}" action="{{ route('products.destroy', $product->id) }}" method="POST" class="flex-grow flex">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" onclick="confirmDelete('{{ $product->id }}', '{{ $product->name }}')"
+                                                class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-rose-500 hover:bg-rose-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
+                                                title="Hapus Produk">
+                                            <i class="fas fa-trash"></i> Hapus
                                         </button>
-                                    @else
-                                        <a href="{{ route('login') }}" class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-50 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
-                                           onclick="event.preventDefault(); showLoginAlert(this.href)">
-                                            <i class="fas fa-cart-plus"></i> Beli
-                                        </a>
-                                    @endauth
+                                    </form>
                                 @else
-                                    <button class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
-                                        <i class="fas fa-times-circle"></i> Habis
+                                    <button type="button" onclick="toggleWishlist(this, event, {{ $product->id }})" class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors shadow-sm focus:outline-none" title="Tambah/Hapus Wishlist">
+                                        <i class="{{ in_array($product->id, $wishlistedProductIds ?? []) ? 'fas text-rose-500' : 'far' }} fa-heart text-[10px] sm:text-xs transition-transform duration-300"></i>
+                                    </button>
+
+                                    @if ($product->variants->isNotEmpty())
+                                        @auth
+                                            <button type="button" class="variant-selector-btn flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-50 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
+                                                    data-product-id="{{ $product->id }}"
+                                                    data-product-name="{{ $product->name }}"
+                                                    data-product-brand="{{ $product->brand->name ?? 'Unknown Brand' }}"
+                                                    data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
+                                                    data-product-description="{{ $product->description ?? '' }}"
+                                                    data-variants="{{ json_encode($product->variants) }}">
+                                                <i class="fas fa-cart-plus"></i> Beli
+                                            </button>
+                                        @else
+                                            <a href="{{ route('login') }}" class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-50 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
+                                               onclick="event.preventDefault(); showLoginAlert(this.href)">
+                                                <i class="fas fa-cart-plus"></i> Beli
+                                            </a>
+                                        @endauth
+                                    @else
+                                        <button class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+                                            <i class="fas fa-times-circle"></i> Habis
+                                        </button>
+                                    @endif
+
+                                    <button type="button" onclick="shareProduct('{{ addslashes($product->name) }}', event)" class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm focus:outline-none" title="Bagikan Produk">
+                                        <i class="fas fa-share-nodes text-[10px] sm:text-xs"></i>
                                     </button>
                                 @endif
-
-                                <!-- Share Interactive Button -->
-                                <button type="button" onclick="shareProduct('{{ addslashes($product->name) }}', event)" class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm focus:outline-none" title="Bagikan Produk">
-                                    <i class="fas fa-share-nodes text-[10px] sm:text-xs"></i>
-                                </button>
                             </div>
-
                         </div>
                     </div>
                 @empty
@@ -290,7 +259,6 @@
                 @endforelse
             </div>
 
-            <!-- Custom Pagination -->
             <div class="mt-16 pt-8 border-t border-slate-200 dark:border-white/5 flex justify-center custom-pagination reveal">
                 {{ $products->links('pagination::bootstrap-5') }}
             </div>
@@ -299,9 +267,6 @@
     </div>
 </div>
 
-<!-- =========================================================================
-     MODAL SELEKSI VARIAN PREMIUM DENGAN QUANTITY (Tailwind Design)
-     ========================================================================= -->
 <div id="variantModal" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
     <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-white/5 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
         <div class="p-6 md:p-8">
@@ -312,14 +277,12 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                <!-- Modal Image -->
                 <div class="md:col-span-5">
                     <div class="w-full h-64 md:h-80 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900">
                         <img id="modalProductImage" src="" alt="Product" class="w-full h-full object-cover">
                     </div>
                 </div>
 
-                <!-- Modal Info -->
                 <div class="md:col-span-7 flex flex-col justify-between h-full">
                     <div>
                         <small id="modalProductBrand" class="text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block"></small>
@@ -327,11 +290,9 @@
                         <div id="modalProductPrice" class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-3">Rp 0</div>
                         <p id="modalProductDescription" class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed mt-4 line-clamp-3"></p>
 
-                        <!-- Variant Size Selector Options -->
                         <h6 class="text-xs font-mono uppercase text-slate-400 tracking-wider mt-6 mb-3 font-semibold">Ukuran Tersedia:</h6>
                         <div id="variantsList" class="flex flex-wrap gap-2"></div>
 
-                        <!-- Quantity Selector Spinner -->
                         <h6 class="text-xs font-mono uppercase text-slate-400 tracking-wider mt-5 mb-3 font-semibold">Kuantitas:</h6>
                         <div class="flex items-center gap-4">
                             <div class="flex items-center bg-slate-100 dark:bg-zinc-800/50 rounded-xl p-1 border border-slate-200 dark:border-white/5">
@@ -368,13 +329,11 @@
     </div>
 </div>
 
-<!-- Hidden Laravel Cart Submission Form -->
 <form id="hiddenCartForm" action="" method="POST" class="hidden">
     @csrf
     <input type="hidden" name="quantity" id="hiddenQuantity" value="1">
 </form>
 
-<!-- Styling Kustom -->
 <style>
     .custom-pagination .page-link { color: inherit; border: none; background: transparent; }
     .custom-pagination .page-item.active .page-link {
@@ -389,9 +348,6 @@
     input[type=number] { -moz-appearance: textfield; }
 </style>
 
-<!-- =========================================================================
-     SCRIPTS & EVENT HANDLERS
-     ========================================================================= -->
 <script>
     // 1. MOBILE FILTER DRAWER
     function openMobileFilter() {
@@ -430,36 +386,62 @@
         }
     })();
 
-    // 3. INTERAKTIF TOMBOL WISHLIST & SHARE (BARU)
-    function toggleWishlist(btn, event) {
+    // 3. INTERAKTIF TOMBOL WISHLIST & SHARE
+    function toggleWishlist(btn, event, productId) {
         event.preventDefault();
         event.stopPropagation();
         
+        const isAuth = {{ auth()->check() ? 'true' : 'false' }};
+        if (!isAuth) {
+            showLoginAlert('{{ route('login') }}');
+            return;
+        }
+
         const icon = btn.querySelector('i');
         const isDark = document.documentElement.classList.contains('dark');
         
-        if (icon.classList.contains('far')) {
-            // Animasi tambah wishlist
-            icon.classList.remove('far');
-            icon.classList.add('fas', 'text-rose-500', 'scale-125');
-            setTimeout(() => icon.classList.remove('scale-125'), 200);
+        const originalClass = icon.className;
+        icon.className = 'fas fa-circle-notch fa-spin text-slate-400 text-[10px] sm:text-xs';
+
+        fetch(`/wishlist/toggle/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Terjadi kesalahan jaringan');
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'added') {
+                icon.className = 'fas fa-heart text-rose-500 text-[10px] sm:text-xs transition-transform duration-300 scale-125';
+                setTimeout(() => icon.classList.remove('scale-125'), 200);
+                
+                Swal.fire({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000, icon: 'success', title: 'Disimpan ke Wishlist!', customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }});
+            } else if (data.status === 'removed') {
+                icon.className = 'far fa-heart text-[10px] sm:text-xs transition-transform duration-300';
+                
+                Swal.fire({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000, icon: 'info', title: 'Dihapus dari Wishlist.', customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }});
+            }
             
-            Swal.fire({
-                toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000,
-                icon: 'success', title: 'Disimpan ke Wishlist!',
-                customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
-            });
-        } else {
-            // Animasi hapus wishlist
-            icon.classList.remove('fas', 'text-rose-500');
-            icon.classList.add('far');
-            
-            Swal.fire({
-                toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000,
-                icon: 'info', title: 'Dihapus dari Wishlist.',
-                customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
-            });
-        }
+            const badge = document.getElementById('wishlist-badge');
+            if (badge) {
+                badge.innerText = data.count;
+                if (data.count > 0) {
+                    badge.classList.remove('opacity-0');
+                } else {
+                    badge.classList.add('opacity-0');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Wishlist Error:', error);
+            icon.className = originalClass;
+            Swal.fire({ toast: true, position: 'bottom-end', icon: 'error', title: 'Gagal memproses data.', showConfirmButton: false, timer: 2000 });
+        });
     }
 
     function shareProduct(productName, event) {
@@ -486,7 +468,6 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Menyalin URL halaman saat ini ke clipboard
                 navigator.clipboard.writeText(window.location.href);
                 Swal.fire({
                     toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2500,
@@ -612,23 +593,14 @@
             return;
         }
 
-        // 1. Tangkap elemen tombol
         const submitBtn = document.getElementById('addToCartBtn');
-        
-        // 2. Ubah tampilan tombol menjadi Loading Spinner animasi
         submitBtn.disabled = true;
         submitBtn.classList.add('opacity-75', 'cursor-wait');
         submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-sm mr-2"></i> Memproses...';
 
-        // 3. Masukkan jumlah kuantitas dari spinner ke dalam form tersembunyi
         document.getElementById('hiddenQuantity').value = document.getElementById('modalQuantity').value;
         document.getElementById('hiddenCartForm').action = `/cart/add/${selectedVariant}`;
-        
-        // 4. Kirim data (submit) ke server
         document.getElementById('hiddenCartForm').submit();
-        
-        // Catatan: Karena form ini melakukan 'Classic Submit' yang akan memuat ulang (refresh) 
-        // halaman, kita tidak perlu repot mengembalikan teks tombol ke kondisi semula.
     }
 
     // 5. Unauthorized Add to Cart Interceptor & Admin Delete

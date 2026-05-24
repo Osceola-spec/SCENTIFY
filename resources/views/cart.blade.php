@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-    <!-- Breadcrumb -->
     <nav class="mb-8 reveal">
         <ol class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500">
             <li><a href="{{ route('home') }}" class="hover:text-amber-500 transition-colors">Home</a></li>
@@ -17,9 +16,7 @@
 
     @if (count($cart) > 0)
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <!-- Daftar Item Keranjang (Col 8) -->
             <div class="lg:col-span-8 space-y-6 reveal">
-                <!-- Checkbox Pilih Semua -->
                 <div class="glass-card p-4 rounded-2xl flex items-center justify-between border border-slate-200 dark:border-white/5">
                     <label class="flex items-center group cursor-pointer text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" checked
@@ -31,74 +28,73 @@
                     </button>
                 </div>
 
-                <!-- List Produk Keranjang -->
-                <div class="space-y-4">
-                    @foreach ($cart as $id => $item)
-                        <div class="glass-card p-4 sm:p-6 rounded-3xl border border-slate-200 dark:border-white/5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative group hover:border-amber-500/30 transition-all duration-300">
-                            
-                            <div class="flex items-center w-full sm:w-auto">
-                                <!-- Checkbox Samping Produk -->
-                                <input type="checkbox" name="selected_items[]" value="{{ $id }}" checked
-                                       data-base-price="{{ $item['price'] }}"
-                                       data-price="{{ $item['price'] * $item['quantity'] }}"
-                                       onchange="updateOrderSummary()"
-                                       class="item-checkbox rounded border-slate-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-500 bg-transparent w-5 h-5 transition-colors cursor-pointer mr-3 sm:mr-4 flex-shrink-0">
+                <div class="glass-card rounded-3xl border border-slate-200 dark:border-white/5 shadow-lg overflow-hidden">
+                    
+                    <div class="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 bg-slate-50 dark:bg-zinc-800/50 border-b border-slate-200 dark:border-white/5 text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 font-bold items-center">
+                        <div class="col-span-5 pl-2">Produk</div>
+                        <div class="col-span-2 text-center">Harga Satuan</div>
+                        <div class="col-span-2 text-center">Kuantitas</div>
+                        <div class="col-span-2 text-right">Total</div>
+                        <div class="col-span-1 text-right">Aksi</div>
+                    </div>
 
-                                <!-- Detail Produk -->
-                                <div class="flex-grow flex items-center gap-4">
-                                    <div class="w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900 flex-shrink-0">
-                                        <img src="{{ strpos($item['image_url'], 'http') === 0 ? $item['image_url'] : asset('product_image/' . $item['image_url']) }}" 
-                                             alt="{{ $item['product_name'] }}" class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">
-                                            {{ $item['brand_name'] }}
-                                        </small>
-                                        <h4 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 line-clamp-1">
-                                            {{ $item['product_name'] }}
-                                        </h4>
-                                        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Ukuran: <span class="font-semibold">{{ $item['size'] }}</span></p>
-                                        
-                                        <!-- Mobile Price and Qty Spinner -->
-                                        <div class="flex sm:hidden items-center justify-between gap-4 mt-3">
-                                            <span class="text-xs font-bold text-slate-900 dark:text-white" id="price-mobile-{{ $id }}">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
-                                            
-                                            <!-- Spinner Kuantitas Mobile -->
-                                            <div class="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-lg p-0.5 border border-slate-200 dark:border-white/5">
-                                                <button type="button" onclick="updateCartQuantity('{{ $id }}', -1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-zinc-700 rounded transition-all focus:outline-none">
-                                                    <i class="fas fa-minus text-[8px]"></i>
-                                                </button>
-                                                <input type="number" id="qty-mobile-{{ $id }}" value="{{ $item['quantity'] }}" min="1" readonly class="w-8 text-center bg-transparent text-xs font-bold text-slate-900 dark:text-white focus:outline-none appearance-none">
-                                                <button type="button" onclick="updateCartQuantity('{{ $id }}', 1)" class="w-6 h-6 flex items-center justify-center text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-zinc-700 rounded transition-all focus:outline-none">
-                                                    <i class="fas fa-plus text-[8px]"></i>
-                                                </button>
-                                            </div>
+                    <div class="divide-y divide-slate-200 dark:divide-white/5">
+                        @foreach ($cart as $id => $item)
+                            <div class="p-4 sm:px-6 sm:py-5 flex flex-col sm:grid sm:grid-cols-12 sm:gap-4 sm:items-center relative hover:bg-slate-50/50 dark:hover:bg-zinc-800/30 transition-colors duration-300">
+                                
+                                <div class="col-span-5 flex items-center w-full">
+                                    <input type="checkbox" name="selected_items[]" value="{{ $id }}" checked
+                                           data-base-price="{{ $item['price'] }}"
+                                           data-price="{{ $item['price'] * $item['quantity'] }}"
+                                           onchange="updateOrderSummary()"
+                                           class="item-checkbox rounded border-slate-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-500 bg-transparent w-5 h-5 transition-colors cursor-pointer mr-4 flex-shrink-0">
+
+                                    <div class="flex items-center gap-4 w-full">
+                                        <div class="w-16 h-16 sm:w-20 sm:h-20 overflow-hidden rounded-xl bg-slate-100 dark:bg-zinc-900 flex-shrink-0 border border-slate-200 dark:border-white/5">
+                                            <img src="{{ strpos($item['image_url'], 'http') === 0 ? $item['image_url'] : asset('product_image/' . $item['image_url']) }}" 
+                                                 alt="{{ $item['product_name'] }}" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <small class="text-[9px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block truncate">
+                                                {{ $item['brand_name'] }}
+                                            </small>
+                                            <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white mt-0.5 truncate">
+                                                {{ $item['product_name'] }}
+                                            </h4>
+                                            <p class="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">Ukuran: <span class="font-semibold">{{ $item['size'] }}</span></p>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <!-- Remove Button Mobile -->
-                                <form id="delete-form-mobile-{{ $id }}" action="{{ route('cart.remove', $id) }}" method="POST" class="sm:hidden ml-auto flex-shrink-0">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button" onclick="confirmItemDelete('{{ $id }}', '{{ $item['product_name'] }}')"
-                                            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors flex items-center justify-center" 
-                                            title="Hapus dari Keranjang">
-                                        <i class="fas fa-trash text-xs"></i>
-                                    </button>
-                                </form>
-                            </div>
+                                <div class="flex sm:hidden items-center justify-between mt-4 pl-9">
+                                    <div class="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-lg p-0.5 border border-slate-200 dark:border-white/5">
+                                        <button type="button" onclick="updateCartQuantity('{{ $id }}', -1)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-zinc-700 rounded transition-all focus:outline-none">
+                                            <i class="fas fa-minus text-[10px]"></i>
+                                        </button>
+                                        <input type="number" id="qty-mobile-{{ $id }}" value="{{ $item['quantity'] }}" min="1" readonly class="w-8 text-center bg-transparent text-xs font-bold text-slate-900 dark:text-white focus:outline-none appearance-none">
+                                        <button type="button" onclick="updateCartQuantity('{{ $id }}', 1)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-zinc-700 rounded transition-all focus:outline-none">
+                                            <i class="fas fa-plus text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="text-right flex-1 px-4">
+                                        <span class="text-sm font-bold text-slate-900 dark:text-white" id="price-mobile-{{ $id }}">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
+                                    </div>
 
-                            <!-- Desktop Price, Qty, Total -->
-                            <div class="hidden sm:flex items-center justify-end flex-grow gap-8 text-right pl-4">
-                                <div>
-                                    <span class="text-[10px] font-mono text-slate-400 uppercase block mb-1">Harga</span>
-                                    <span class="text-sm font-medium text-slate-600 dark:text-zinc-400">Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                                    <form id="delete-form-mobile-{{ $id }}" action="{{ route('cart.remove', $id) }}" method="POST" class="flex-shrink-0">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" onclick="confirmItemDelete('{{ $id }}', '{{ $item['product_name'] }}')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors flex items-center justify-center focus:outline-none">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </form>
                                 </div>
-                                
-                                <!-- Spinner Kuantitas Desktop -->
-                                <div>
-                                    <span class="text-[10px] font-mono text-slate-400 uppercase block mb-1">Kuantitas</span>
+
+                                <div class="col-span-2 hidden sm:block text-center text-sm font-medium text-slate-600 dark:text-zinc-400">
+                                    Rp {{ number_format($item['price'], 0, ',', '.') }}
+                                </div>
+
+                                <div class="col-span-2 hidden sm:flex justify-center">
                                     <div class="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-lg p-1 border border-slate-200 dark:border-white/5">
                                         <button type="button" onclick="updateCartQuantity('{{ $id }}', -1)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-zinc-700 rounded-md transition-all focus:outline-none">
                                             <i class="fas fa-minus text-[10px]"></i>
@@ -110,39 +106,36 @@
                                     </div>
                                 </div>
 
-                                <div class="w-28">
-                                    <span class="text-[10px] font-mono text-slate-400 uppercase block mb-1">Total</span>
-                                    <span class="text-base font-bold text-slate-900 dark:text-white" id="total-desktop-{{ $id }}">Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</span>
+                                <div class="col-span-2 hidden sm:block text-right">
+                                    <span class="text-sm font-bold text-slate-900 dark:text-white" id="total-desktop-{{ $id }}">
+                                        Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                    </span>
                                 </div>
 
-                                <!-- Remove Button Desktop -->
-                                <div class="pl-2">
+                                <div class="col-span-1 hidden sm:flex justify-end">
                                     <form id="delete-form-desktop-{{ $id }}" action="{{ route('cart.remove', $id) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" onclick="confirmItemDelete('{{ $id }}', '{{ $item['product_name'] }}')"
-                                                class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors flex items-center justify-center" 
-                                                title="Hapus dari Keranjang">
+                                        <button type="button" onclick="confirmItemDelete('{{ $id }}', '{{ $item['product_name'] }}')" class="w-8 h-8 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center justify-center focus:outline-none">
                                             <i class="fas fa-trash text-xs"></i>
                                         </button>
                                     </form>
                                 </div>
+                                
                             </div>
-
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
-            <!-- Ringkasan Belanja (Col 4) -->
             <div class="lg:col-span-4 reveal">
                 <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-white/5 shadow-2xl lg:sticky lg:top-28">
                     <h3 class="font-serif text-xl font-semibold tracking-wide mb-6 pb-4 border-b border-slate-200 dark:border-white/10">Ringkasan Belanja</h3>
 
                     <div class="space-y-4">
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-500 dark:text-zinc-400">Terpilih (<span id="selected-count">{{ count($cart) }}</span> unit)</span>
-                            <span id="selected-subtotal" class="font-bold text-slate-900 dark:text-white">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                            <span class="text-slate-500 dark:text-zinc-400">Terpilih (<span id="selected-count">0</span> unit)</span>
+                            <span id="selected-subtotal" class="font-bold text-slate-900 dark:text-white">Rp 0</span>
                         </div>
 
                         <div class="text-[11px] text-slate-400 dark:text-zinc-500 italic pb-6 border-b border-slate-200 dark:border-white/10 leading-relaxed">
@@ -151,11 +144,10 @@
 
                         <div class="flex justify-between items-center pt-4">
                             <h5 class="font-serif text-lg font-bold text-slate-900 dark:text-white">Estimasi Total</h5>
-                            <h4 id="estimated-total" class="text-2xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($total, 0, ',', '.') }}</h4>
+                            <h4 id="estimated-total" class="text-2xl font-black text-amber-600 dark:text-amber-400">Rp 0</h4>
                         </div>
                     </div>
 
-                    <!-- Action Buttons -->
                     <div class="mt-8 space-y-3">
                         <button type="button" id="checkoutBtn" onclick="submitCheckout()"
                            class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 shadow-lg active:scale-95 transition-all">
@@ -170,7 +162,6 @@
             </div>
         </div>
     @else
-        <!-- Tampilan jika keranjang kosong -->
         <div class="text-center py-24 reveal">
             <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-6 text-slate-400 shadow-inner">
                 <i class="fas fa-shopping-bag text-2xl"></i>
@@ -184,17 +175,14 @@
     @endif
 </div>
 
-<!-- Form Hidden untuk Bulk / Multi Delete -->
 <form id="hiddenBulkDeleteForm" action="" method="POST" class="hidden">
     @csrf
     @method('DELETE')
     <input type="hidden" name="cart_ids" id="hiddenCartIds">
 </form>
 
-<!-- Form Hidden untuk Proses Checkout Item Terpilih Beserta Qty Terbarunya -->
 <form id="hiddenCheckoutForm" action="{{ route('checkout') }}" method="GET" class="hidden">
-    <!-- Input item akan diinjeksi via JS sebelum disubmit -->
-</form>
+    </form>
 
 <style>
     /* Menghilangkan panah spinner bawaan browser pada input type number */
@@ -208,9 +196,6 @@
     }
 </style>
 
-<!-- =========================================================================
-     SCRIPTS (Cart Dynamic Calculations & Spinner Logic)
-     ========================================================================= -->
 <script>
     // 1. Update order summary calculations dynamically
     function updateOrderSummary() {
@@ -306,12 +291,6 @@
             
             // Paksa pembaruan keranjang agar jika dicentang, ringkasan berubah otomatis
             updateOrderSummary();
-            
-            /* Catatan Integrasi:
-               Dalam project asli, sebaiknya Anda meletakkan Axios/Fetch AJAX di sini
-               untuk memperbarui Session Cart di Laravel agar data tersimpan di backend:
-               axios.post(`/cart/update/${id}`, { quantity: newQty });
-            */
         }
     }
 

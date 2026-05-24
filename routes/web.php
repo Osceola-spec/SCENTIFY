@@ -15,6 +15,7 @@ use App\Models\ProductVariant;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\CustomerOrderController;
+use App\Http\Controllers\WishlistController;
 
 // ==========================================
 // RUTE PUBLIK
@@ -174,3 +175,11 @@ Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('goog
 
 // Rute tempat Google mengembalikan data (callback)
 Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);
+
+Route::middleware('auth')->group(function () {
+    // ... rute profile & addresses yang sudah ada ...
+    
+    // Rute Wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+});
