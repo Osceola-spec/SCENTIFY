@@ -120,27 +120,38 @@
                 </h3>
 
                 <div class="divide-y divide-slate-100 dark:divide-white/5 space-y-4">
-                    @foreach($order->items as $item)
+                   @foreach($order->items as $item)
+                        @php
+                            $variant     = $item->variant;
+                            $product     = $variant?->product;
+                            $productName = $product?->name ?? 'Produk Tidak Tersedia';
+                            $brandName   = $product?->brand?->name ?? 'Unknown Brand';
+                            $imgRaw      = $product?->image_url;
+                            $imgSrc      = $imgRaw
+                                ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
+                                : 'https://placehold.co/200x200?text=Scentify';
+                        @endphp
                         <div class="flex items-center gap-4 sm:gap-6 pt-4 first:pt-0">
                             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200 dark:border-white/5">
-                                <img src="{{ $item->variant->product->image_url ? (strpos($item->variant->product->image_url, 'http') === 0 ? $item->variant->product->image_url : asset('product_image/' . $item->variant->product->image_url)) : 'https://placehold.co/200x200?text=Scentify' }}" 
-                                     alt="{{ $item->variant->product->name ?? 'Produk' }}" 
-                                     class="w-full h-full object-cover">
+                                <img src="{{ $imgSrc }}" alt="{{ $productName }}" class="w-full h-full object-cover">
                             </div>
                             <div class="flex-grow">
                                 <small class="text-[9px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">
-                                    {{ $item->variant->product->brand->name ?? 'Unknown Brand' }}
+                                    {{ $brandName }}
                                 </small>
                                 <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-0.5 line-clamp-1">
-                                    {{ $item->variant->product->name ?? 'Produk Tidak Tersedia' }}
+                                    {{ $productName }}
                                 </h4>
                                 <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1">
-                                    Ukuran: <span class="font-semibold">{{ $item->variant->size ?? '-' }}</span> | Kuantitas: <span class="font-semibold">{{ $item->quantity }}x</span>
+                                    Ukuran: <span class="font-semibold">{{ $variant?->size ?? '-' }}</span> 
+                                    | Kuantitas: <span class="font-semibold">{{ $item->quantity }}x</span>
                                 </p>
                             </div>
-                            <div class="text-right">
+                            <div class="text-right shrink-0">
                                 <p class="text-xs text-slate-400 dark:text-zinc-500 font-mono">Satuan</p>
-                                <p class="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">Rp {{ number_format($item->price_at_purchase, 0, ',', '.') }}</p>
+                                <p class="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
+                                    Rp {{ number_format($item->price_at_purchase, 0, ',', '.') }}
+                                </p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-white mt-1">
                                     Rp {{ number_format($item->price_at_purchase * $item->quantity, 0, ',', '.') }}
                                 </p>
@@ -181,29 +192,51 @@
         <!-- RIGHT COLUMN: Billing summary & Shipping Info (Col 4) -->
         <div class="lg:col-span-4 space-y-6 reveal">
             <!-- Card: Ringkasan Biaya -->
+            <!-- Card: Ringkasan Biaya -->
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                 <h3 class="text-base font-serif font-bold text-slate-950 dark:text-white mb-6 border-b border-slate-100 dark:border-white/5 pb-4">Rincian Pembayaran</h3>
-                
+
+                @php
+                    $subtotal = $order->items->sum(fn($item) => $item->price_at_purchase * $item->quantity);
+                    $shipping = 50000;
+                    $tax      = round($subtotal * 0.11);
+                    $total    = $subtotal + $shipping + $tax;
+                @endphp
+
                 <div class="space-y-4 text-xs sm:text-sm">
                     <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
                         <span>Subtotal Item</span>
-                        <span class="font-medium text-slate-800 dark:text-zinc-200">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        <span class="font-medium text-slate-800 dark:text-zinc-200">
+                            Rp {{ number_format($subtotal, 0, ',', '.') }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
+                        <span>Ongkos Pengiriman</span>
+                        <span class="font-medium text-slate-800 dark:text-zinc-200">
+                            Rp {{ number_format($shipping, 0, ',', '.') }}
+                        </span>
                     </div>
 
                     <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400 border-b border-slate-100 dark:border-white/5 pb-4">
-                        <span>Ongkos Pengiriman</span>
-                        <span class="font-medium text-slate-800 dark:text-zinc-200">Gratis (Promo)</span>
+                        <span>Pajak (PPN 11%)</span>
+                        <span class="font-medium text-slate-800 dark:text-zinc-200">
+                            Rp {{ number_format($tax, 0, ',', '.') }}
+                        </span>
                     </div>
 
                     <div class="flex justify-between items-center pt-2">
                         <span class="font-serif text-sm sm:text-base font-bold text-slate-950 dark:text-white">Total Akhir</span>
-                        <span class="text-lg sm:text-xl font-black text-amber-500">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        <span class="text-lg sm:text-xl font-black text-amber-500">
+                            Rp {{ number_format($total, 0, ',', '.') }}
+                        </span>
                     </div>
                 </div>
 
                 @if($order->status === 'Pending')
                     <div class="mt-6 pt-6 border-t border-slate-100 dark:border-white/5">
-                        <button onclick="payNow('{{ $order->order_number }}')" class="w-full text-center py-3.5 font-semibold text-xs tracking-widest uppercase bg-amber-400 hover:bg-amber-300 text-black rounded-xl shadow-lg shadow-amber-500/10 active:scale-95 transition-all">
+                        <button onclick="payNow('{{ $order->order_number }}')" 
+                                class="w-full text-center py-3.5 font-semibold text-xs tracking-widest uppercase bg-amber-400 hover:bg-amber-300 text-black rounded-xl shadow-lg shadow-amber-500/10 active:scale-95 transition-all">
                             Bayar Sekarang
                         </button>
                     </div>
@@ -246,81 +279,79 @@
 </div>
 
 <script>
-    // 1. Integrasi Sistem Salin Clipboard
-    function copyToClipboard(text) {
-        // Melakukan salin data teks resi menggunakan document.execCommand('copy') untuk iFrame guardrails
-        const el = document.createElement('textarea');
-        el.value = text;
-        document.body.appendChild(el);
-        el.select();
-        document.execCommand('copy');
-        document.body.removeChild(el);
+    function handleStatusChange(val) {
+        const trackingField = document.getElementById('trackingField');
+        const cancelWarning = document.getElementById('cancelWarning');
+        const submitBtn     = document.getElementById('submitBtn');
 
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'bottom-end',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-xl' : 'rounded-xl' }
-        });
+        trackingField.classList.add('hidden');
+        cancelWarning.classList.add('hidden');
 
-        Toast.fire({
-            icon: 'success',
-            title: 'Nomor resi berhasil disalin!'
-        });
+        if (val === 'Shipped') {
+            trackingField.classList.remove('hidden');
+        }
+
+        if (val === 'Cancelled') {
+            cancelWarning.classList.remove('hidden');
+        }
+
+        submitBtn.disabled = (val === '');
     }
 
-    // 2. Integrasi Pembayaran (Demo Alert)
-    function payNow(orderNumber) {
+    function confirmUpdate() {
+        const statusSelect  = document.getElementById('statusSelect');
+        const trackingField = document.getElementById('trackingField');
+        const trackingInput = document.getElementById('trackingInput');
+        const status        = statusSelect ? statusSelect.value : '';
+
+        if (!status) {
+            return;
+        }
+
+        // Validasi client-side: resi wajib untuk Shipped
+        if (status === 'Shipped') {
+            if (!trackingInput || !trackingInput.value.trim()) {
+                if (trackingInput) {
+                    trackingInput.focus();
+                    trackingInput.style.borderColor = '#f87171';
+                    setTimeout(() => { trackingInput.style.borderColor = ''; }, 2000);
+                }
+                return;
+            }
+        }
+
+        const labelMap = {
+            'Processing': 'Processing — Sedang Diproses',
+            'Shipped':    'Shipped — Dalam Pengiriman',
+            'Completed':  'Completed — Selesai',
+            'Cancelled':  'Cancelled — Batalkan Pesanan',
+        };
+
+        const isCancelled = status === 'Cancelled';
+
+        // Cek apakah SweetAlert2 tersedia
+        if (typeof Swal === 'undefined') {
+            // Fallback: langsung submit tanpa konfirmasi
+            document.getElementById('statusForm').submit();
+            return;
+        }
+
         Swal.fire({
-            title: 'Lanjutkan Pembayaran?',
-            text: `Anda akan diarahkan ke gerbang pembayaran kustom untuk tagihan #${orderNumber}.`,
-            icon: 'info',
+            title: isCancelled ? 'Batalkan Pesanan?' : 'Konfirmasi Perubahan Status',
+            html: isCancelled
+                ? `<p class="text-sm text-slate-500">Pesanan ini akan dibatalkan secara permanen dan <strong>tidak dapat dipulihkan</strong>.</p>`
+                : `<p class="text-sm text-slate-500">Ubah status pesanan menjadi <strong>${labelMap[status] ?? status}</strong>?</p>`,
+            icon: isCancelled ? 'warning' : 'question',
             showCancelButton: true,
-            confirmButtonColor: '#f59e0b',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'Bayar Sekarang',
+            confirmButtonText: isCancelled ? 'Ya, Batalkan' : 'Ya, Perbarui',
             cancelButtonText: 'Batal',
+            confirmButtonColor: isCancelled ? '#f43f5e' : '#f59e0b',
+            cancelButtonColor: '#64748b',
             reverseButtons: true,
-            customClass: {
-                popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
-                confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
-                cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
-            }
-        }).then((result) => {
+            customClass: { popup: 'rounded-2xl' }
+        }).then(result => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Membuka gerbang pembayaran Scentify Gateway...',
-                    icon: 'success',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]' }
-                });
-            }
-        });
-    }
-
-    // 3. Integrasi Pelacakan Ekspedisi Jasa Kurir
-    function trackOrder(resi) {
-        Swal.fire({
-            title: 'Lacak Pengiriman',
-            html: `
-                <div class="text-left mt-4 mb-2">
-                    <p class="text-sm text-slate-500 dark:text-zinc-400 mb-1">Nomor Resi Terdaftar:</p>
-                    <div class="bg-slate-100 dark:bg-zinc-800 p-3 rounded-xl font-mono text-lg font-bold text-center tracking-widest text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 select-all">
-                        ${resi}
-                    </div>
-                </div>
-            `,
-            icon: 'truck',
-            iconHtml: '<i class="fas fa-shipping-fast text-indigo-500"></i>',
-            confirmButtonColor: '#6366f1',
-            confirmButtonText: 'Tutup',
-            customClass: {
-                popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
-                confirmButton: 'rounded-xl px-5 py-2.5 font-bold w-full'
+                document.getElementById('statusForm').submit();
             }
         });
     }

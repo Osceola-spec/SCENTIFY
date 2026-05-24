@@ -7,55 +7,133 @@ use App\Models\Order;
 
 class AdminOrderController extends Controller
 {
+    // Urutan status yang valid — disesuaikan dengan skema Database (Paid menggantikan Processing)
+    const STATUS_ORDER = [
+        'Pending'   => 0,
+        'Paid'      => 1, // Database Scentify menggunakan 'Paid'
+        'Shipped'   => 2,
+        'Completed' => 3,
+        'Cancelled' => 4,
+    ];
+
     public function index(Request $request)
-{
-    // Kita panggil data user dan items dasar saja dulu untuk memutus rantai loop
-    $query = Order::with(['user', 'items']);
-
-    // Fitur Filter Status (Bawaan)
-    if ($request->has('status') && $request->status != '') {
-        $query->where('status', $request->status);
-    }
-
-    // Fitur Pencarian (Bawaan)
-    if ($request->has('search') && $request->search != '') {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('order_number', 'LIKE', "%{$search}%")
-              ->orWhere('customer_name', 'LIKE', "%{$search}%");
-        });
-    }
-
-    $orders = $query->latest()->paginate(10)->withQueryString();
-    
-    return view('admin.orders.index', compact('orders'));
-}
-public function show($id)
     {
-        // Ambil data order berdasarkan ID beserta relasi item, varian, dan data user pembelinya
-        $order = Order::with(['items.variant.product', 'user'])->findOrFail($id);
+        $query = Order::with(['user', 'items']);
 
-        // Arahkan ke file Blade detail yang berada di resources/views/admin/orders/show.blade.php
-        return view('admin.orders.show', compact('order'));
+        if ($request->filled('status')) {
+            // Jika filter dari view bernilai 'Processing', kita query menggunakan 'Paid'
+            $searchStatus = $request->status === 'Processing' ? 'Paid' : $request->status;
+            $query->where('status', $searchStatus);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('order_number', 'LIKE', "%{$search}%")
+                  ->orWhereHas('user', function ($q2) use ($search) {
+                      $q2->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        }
+
+        $orders = $query->latest()->paginate(10)->withQueryString();
+
+        // Modifikasi status 'Paid' menjadi 'Processing' saat dikirim ke View agar seragam dengan UI
+        $orders->getCollection()->transform(function ($order) {
+            if ($order->status === 'Paid') {
+                $order->status = 'Processing';
+            }
+            return $order;
+        });
+
+        return view('admin.orders.index', compact('orders'));
     }
+
+    public function show($id)
+    {
+        $order = Order::with(['items.variant.product', 'user'])->findOrFail($id);
+        
+        // Memetakan 'Paid' ke 'Processing' saat me-render view agar select option terpilih dengan benar
+        if ($order->status === 'Paid') {
+            $order->status = 'Processing';
+        }
+
+        // Tentukan status apa saja yang boleh dipilih (hanya yang lebih tinggi)
+        // Gunakan nama status sementara 'Processing' untuk menghitung level
+        $mappedStatus = $order->status === 'Processing' ? 'Paid' : $order->status;
+        $currentLevel  = self::STATUS_ORDER[$mappedStatus] ?? 0;
+        $allowedStatuses = [];
+
+        // Cancelled hanya bisa dari Pending atau Processing (Paid)
+        foreach (self::STATUS_ORDER as $status => $level) {
+            if ($status === 'Cancelled') {
+                if ($currentLevel <= 1) { // Pending atau Processing(Paid)
+                    $allowedStatuses[] = $status;
+                }
+                continue;
+            }
+            if ($level > $currentLevel) {
+                // Kembalikan ke format Processing agar view mendeteksinya
+                $allowedStatuses[] = $status === 'Paid' ? 'Processing' : $status;
+            }
+        }
+
+        return view('admin.orders.show', compact('order', 'allowedStatuses'));
+    }
+
     public function updateStatus(Request $request, $id)
     {
-        // 1. Validasi input agar data status dan resi yang masuk sesuai aturan
-        $request->validate([
-            'status' => 'required|in:Pending,Processing,Shipped,Completed,Cancelled',
-            'tracking_number' => 'nullable|string|max:100',
-        ]);
-
-        // 2. Cari data pesanan berdasarkan ID
         $order = Order::findOrFail($id);
+        $currentLevel = self::STATUS_ORDER[$order->status] ?? 0;
+        
+        // Konversi 'Processing' dari View menjadi 'Paid' untuk disimpan di Database
+        $newStatus    = $request->status === 'Processing' ? 'Paid' : $request->status;
+        $newLevel     = self::STATUS_ORDER[$newStatus] ?? -1;
 
-        // 3. Update data ke database
-        $order->update([
-            'status' => $request->status,
-            'tracking_number' => $request->tracking_number,
+        // 1. Validasi input
+        $request->validate([
+            // Tetap izinkan 'Processing' karena dikirim oleh form UI
+            'status' => 'required|in:Pending,Processing,Paid,Shipped,Completed,Cancelled',
+            'tracking_number' => $newStatus === 'Shipped'
+                ? 'required|string|max:100'
+                : 'nullable|string|max:100',
+        ], [
+            'status.required'           => 'Status wajib dipilih.',
+            'status.in'                 => 'Status tidak valid.',
+            'tracking_number.required'  => 'Nomor resi wajib diisi ketika status diubah menjadi Shipped.',
         ]);
 
-        // 4. Kembalikan ke halaman detail dengan pesan sukses
-        return redirect()->back()->with('success', 'Status operasional pesanan berhasil diperbarui!');
+        // 2. Status tidak boleh sama
+        if ($newStatus === $order->status) {
+            $uiStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
+            return redirect()->back()->with('error', 'Status pesanan sudah ' . $uiStatus . '.');
+        }
+
+        // 3. Tidak boleh mundur (reverse)
+        $isCancelAllowed = $newStatus === 'Cancelled' && $currentLevel <= 1;
+
+        if (!$isCancelAllowed && $newLevel <= $currentLevel) {
+            $uiStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
+            return redirect()->back()->with('error',
+                'Status tidak dapat dikembalikan. Pesanan sudah berada di tahap ' . $uiStatus . '.'
+            );
+        }
+
+        // 4. Cancelled tidak boleh dari Shipped/Completed
+        if ($newStatus === 'Cancelled' && $currentLevel >= 2) {
+            return redirect()->back()->with('error',
+                'Pesanan yang sudah dikirim atau selesai tidak dapat dibatalkan.'
+            );
+        }
+
+        // 5. Update Database (Akan menyimpan 'Paid', bukan 'Processing')
+        $order->update([
+            'status'          => $newStatus,
+            'tracking_number' => $request->tracking_number ?? $order->tracking_number,
+        ]);
+
+        // Feedback ke user menggunakan nama 'Processing' agar selaras dengan Front End
+        $feedbackStatus = $request->status === 'Processing' ? 'Processing' : $newStatus;
+        return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui menjadi ' . $feedbackStatus . '.');
     }
 }

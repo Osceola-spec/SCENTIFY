@@ -168,6 +168,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+
+    // Di dalam group middleware admin
+    Route::get('/customers', [App\Http\Controllers\AdminCustomerController::class, 'index'])
+        ->name('admin.customers.index');
+    Route::get('/customers/{user}', [App\Http\Controllers\AdminCustomerController::class, 'show'])
+        ->name('admin.customers.show');
 });
 
 // Rute untuk mengklik tombol Google

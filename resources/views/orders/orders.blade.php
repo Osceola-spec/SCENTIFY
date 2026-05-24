@@ -89,16 +89,26 @@
                     <div class="space-y-4">
                         <!-- Tampilkan max 2 item pertama agar card tidak terlalu panjang -->
                         @foreach($order->items->take(2) as $item)
+                            @php
+                                $variant     = $item->variant;
+                                $product     = $variant?->product;
+                                $productName = $product?->name ?? 'Produk Tidak Tersedia';
+                                $imgRaw      = $product?->image_url;
+                                $imgSrc      = $imgRaw
+                                    ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
+                                    : 'https://placehold.co/200x200?text=Scentify';
+                            @endphp
                             <div class="flex items-center gap-4 sm:gap-6">
                                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200 dark:border-white/5">
-                                    <img src="{{ $item->variant->product->image_url ? (strpos($item->variant->product->image_url, 'http') === 0 ? $item->variant->product->image_url : asset('product_image/' . $item->variant->product->image_url)) : 'https://placehold.co/200x200?text=Scentify' }}" 
-                                         alt="{{ $item->variant->product->name ?? 'Produk' }}" 
-                                         class="w-full h-full object-cover">
+                                    <img src="{{ $imgSrc }}" alt="{{ $productName }}" class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex-grow">
-                                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-1">{{ $item->variant->product->name ?? 'Produk Tidak Tersedia' }}</h4>
+                                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-1">
+                                        {{ $productName }}
+                                    </h4>
                                     <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
-                                        Ukuran: <span class="font-semibold">{{ $item->variant->size ?? '-' }}</span> | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
+                                        Ukuran: <span class="font-semibold">{{ $variant?->size ?? '-' }}</span>
+                                        | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
                                     </p>
                                     <p class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-300 mt-1 sm:mt-2">
                                         Rp {{ number_format($item->price_at_purchase, 0, ',', '.') }}

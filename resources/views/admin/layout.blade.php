@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scentify Admin Panel</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -91,9 +93,9 @@
                 <span class="font-medium text-sm">Riwayat Pesanan</span>
             </a>
 
-            <a href="#" 
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group hover:bg-slate-800 hover:text-white">
-                <i class="fas fa-users w-5 text-center text-slate-500 group-hover:text-slate-300"></i> 
+            <a href="{{ route('admin.customers.index') }}"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.customers.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fas fa-users w-5 text-center {{ request()->routeIs('admin.customers.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i>
                 <span class="font-medium text-sm">Pelanggan</span>
             </a>
         </nav>
