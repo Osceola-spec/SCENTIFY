@@ -824,6 +824,7 @@ function drawBgAnimation() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json', // <--- BARIS INI WAJIB ADA AGAR LARAVEL TIDAK MENGIRIM HTML
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({ message: messageText })
@@ -832,7 +833,8 @@ function drawBgAnimation() {
                 const data = await response.json();
                 
                 // Hapus bubble loading
-                document.getElementById(loadingId).remove();
+                const loadingEl = document.getElementById(loadingId);
+                if (loadingEl) loadingEl.remove();
 
                 if (data.status === 'success') {
                     // 4. Render jawaban asli dari AI
@@ -846,19 +848,24 @@ function drawBgAnimation() {
                     `;
                     messageArea.insertAdjacentHTML('beforeend', aiBubble);
                 } else {
+                    // Lempar pesan error dari server agar ditangkap oleh catch block di bawah
                     throw new Error(data.message || 'Gagal memuat respons AI.');
                 }
 
             } catch (error) {
-                console.error(error);
-                document.getElementById(loadingId).remove();
+                // Cetak pesan error yang SEBENARNYA ke console browser (Tekan F12 untuk melihatnya)
+                console.error("ALASAN GAGAL:", error.message);
+                
+                const loadingEl = document.getElementById(loadingId);
+                if (loadingEl) loadingEl.remove();
                 
                 // Beri indikasi error merah kecil di jendela chat
                 const errorBubble = `
                     <div class="flex gap-2 max-w-[85%]">
                         <div class="w-7 h-7 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center text-xs flex-shrink-0"><i class="fas fa-exclamation-triangle"></i></div>
                         <div class="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl rounded-tl-none border border-red-500/10 text-xs">
-                            Sistem sibuk. Silakan coba ajukan pertanyaan beberapa saat lagi.
+                            Sistem sibuk. Silakan coba ajukan pertanyaan beberapa saat lagi.<br>
+                            <span class="text-[9px] opacity-70">(Cek F12 Console untuk detail error)</span>
                         </div>
                     </div>
                 `;

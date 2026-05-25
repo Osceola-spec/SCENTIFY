@@ -66,6 +66,7 @@ class CheckoutController extends Controller
         DB::beginTransaction();
         \Log::info('DB transaction started');
 
+
         try {
             // Address logic
             if ($request->filled('address_id') && $request->address_id !== 'new') {
@@ -75,6 +76,7 @@ class CheckoutController extends Controller
                     ->first();
 
                 \Log::info('Alamat ditemukan', [$addr]);
+        
 
                 if ($addr) {
                     $request->merge([
@@ -107,6 +109,8 @@ class CheckoutController extends Controller
 
             \Log::info('Full address: ' . $fullAddress);
 
+            // dd($subtotal, $taxAmount, $totalAmount, $fullAddress);
+
             $order = Order::create([
                 'user_id'          => auth()->id(),
                 'order_number'     => 'ORD-' . strtoupper(\Str::random(8)),
@@ -116,9 +120,11 @@ class CheckoutController extends Controller
                 'status'           => 'Pending',
                 'shipping_address' => $fullAddress,
             ]);
+            
 
             \Log::info('Order created', [$order->id]);
 
+            
             foreach ($cart as $variantId => $item) {
                 \Log::info('Creating order item', $item);
                 OrderItem::create([
@@ -128,12 +134,14 @@ class CheckoutController extends Controller
                     'price_at_purchase'  => $item['price'],
                 ]);
 
+
                 $variant = ProductVariant::find($item['variant_id']);
                 if ($variant) {
                     $variant->decrement('stock', $item['quantity']);
                     \Log::info('Stock decremented for variant ' . $variant->id);
                 }
             }
+            
 
             DB::commit();
             \Log::info('DB committed');
@@ -168,6 +176,7 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            dd($e->getMessage());
             \Log::error('CHECKOUT ERROR: ' . $e->getMessage());
             \Log::error($e->getTraceAsString());
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());

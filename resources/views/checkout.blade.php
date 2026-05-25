@@ -48,7 +48,7 @@
                                     <option value="new" selected>+ Tambah alamat pengiriman baru...</option>
                                     @foreach(auth()->user()->addresses as $addr)
                                         <option value="{{ $addr->id }}">
-                                            {{ $addr->label ? $addr->label . ' - ' : '' }}{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}
+                                            {{ $addr->first_name }} {{ $addr->last_name ? $addr->last_name . ' - ' : '' }}{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}
                                         </option>
                                     @endforeach
                                 </select>

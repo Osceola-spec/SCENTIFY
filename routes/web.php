@@ -18,6 +18,7 @@ use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ChatbotController;
 
 // ==========================================
 // RUTE PUBLIK
@@ -146,7 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
 
-Route::post('/chatbot', [ChatbotController::class, 'chat']);
+Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
 
 // Di dalam Route::middleware('auth')->group(...)
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
