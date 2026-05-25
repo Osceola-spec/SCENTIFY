@@ -14,29 +14,30 @@ class CustomerOrderController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        $statusQuery = $request->query('status');
-
-        $orders = Order::with(['items.variant.product.brand'])
+        $orders = Order::with([
+                'items.variant.product.brand',
+                'items.variant.product.images',
+            ])
             ->where('user_id', Auth::id())
             ->latest()
-            ->when($statusQuery === 'active', function ($q) {
-                // Ubah 'Processing' menjadi 'Paid' untuk pencarian di database
-                $q->whereIn('status', ['Pending', 'Paid', 'Shipped']);
+            ->when($request->query('status') === 'active', function ($q) {
+                $q->whereIn('status', ['Pending', 'Processing', 'Shipped']);
             })
-            ->when($statusQuery && !in_array($statusQuery, ['all', 'active']), function ($q) use ($statusQuery) {
-                // Jika URL memiliki ?status=Processing, kita cari 'Paid' di database
-                $searchStatus = $statusQuery === 'Processing' ? 'Paid' : $statusQuery;
-                $q->where('status', $searchStatus);
-            })
+            ->when(
+                $request->query('status') && !in_array($request->query('status'), ['all', 'active']),
+                function ($q) use ($request) {
+                    $q->where('status', $request->query('status'));
+                }
+            )
             ->paginate(5)
             ->withQueryString();
 
-        // Modifikasi status 'Paid' menjadi 'Processing' sebelum dikirim ke View Customer
-        $orders->getCollection()->transform(function ($order) {
-            if ($order->status === 'Paid') {
-                $order->status = 'Processing';
-            }
-            return $order;
+        // Load review secara terpisah setelah collection terbentuk
+        // agar tidak mengganggu relasi lain
+        $orders->each(function ($order) {
+            $order->items->each(function ($item) {
+                $item->loadMissing('review');
+            });
         });
 
         return view('orders.orders', compact('orders'));
@@ -48,14 +49,18 @@ class CustomerOrderController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        $order = Order::with(['items.variant.product.brand'])
+        $order = Order::with([
+                'items.variant.product.brand',
+                'items.variant.product.images',
+                'user',
+            ])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
-        // Ubah 'Paid' dari database menjadi 'Processing' agar view menampilkannya dengan benar
-        if ($order->status === 'Paid') {
-            $order->status = 'Processing';
-        }
+        // Load review terpisah
+        $order->items->each(function ($item) {
+            $item->loadMissing('review');
+        });
 
         return view('orders.show', compact('order'));
     }

@@ -765,8 +765,158 @@ function drawBgAnimation() {
             });
             event.target.reset();
         }
+
+        // 11. Toggle Chatbot Interface
+        let isChatOpen = false;
+
+        function toggleChatbot() {
+            const chatWindow = document.getElementById('chatbot-window');
+            isChatOpen = !isChatOpen;
+
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden', 'pointer-events-none', 'translate-y-10', 'opacity-0');
+                chatWindow.classList.add('translate-y-0', 'opacity-100');
+                document.getElementById('chat-input').focus();
+            } else {
+                chatWindow.classList.remove('translate-y-0', 'opacity-100');
+                chatWindow.classList.add('translate-y-10', 'opacity-0', 'pointer-events-none');
+            }
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            
+            const inputElement = document.getElementById('chat-input');
+            const messageArea = document.getElementById('chat-messages');
+            const messageText = inputElement.value.trim();
+            
+            if (!messageText) return;
+
+            // 1. Bersihkan input & Tampilkan pesan user ke layar
+            inputElement.value = '';
+            
+            const userBubble = `
+                <div class="flex gap-2 max-w-[85%] self-end flex-row-reverse">
+                    <div class="p-3 bg-amber-500/10 dark:bg-amber-500/20 text-amber-900 dark:text-amber-200 rounded-2xl rounded-tr-none border border-amber-500/10 shadow-sm">
+                        ${messageText}
+                    </div>
+                </div>
+            `;
+            messageArea.insertAdjacentHTML('beforeend', userBubble);
+            messageArea.scrollTop = messageArea.scrollHeight; // Auto-scroll ke bawah
+
+            // 2. Tampilkan Efek Loading Mengetik dari AI
+            const loadingId = 'ai-loading-' + Date.now();
+            const loadingBubble = `
+                <div id="${loadingId}" class="flex gap-2 max-w-[85%]">
+                    <div class="w-7 h-7 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-xs flex-shrink-0"><i class="fas fa-robot"></i></div>
+                    <div class="p-3 bg-white dark:bg-zinc-900 rounded-2xl rounded-tl-none border border-slate-100 dark:border-white/5 shadow-sm text-slate-400 flex items-center gap-1">
+                        <i class="fas fa-circle-notch animate-spin mr-1"></i> Scenty sedang berpikir...
+                    </div>
+                </div>
+            `;
+            messageArea.insertAdjacentHTML('beforeend', loadingBubble);
+            messageArea.scrollTop = messageArea.scrollHeight;
+
+            try {
+                // 3. Kirim data via Fetch API ke backend Laravel Controller kita
+                const response = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const data = await response.json();
+                
+                // Hapus bubble loading
+                document.getElementById(loadingId).remove();
+
+                if (data.status === 'success') {
+                    // 4. Render jawaban asli dari AI
+                    const aiBubble = `
+                        <div class="flex gap-2 max-w-[85%]">
+                            <div class="w-7 h-7 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-xs flex-shrink-0"><i class="fas fa-robot"></i></div>
+                            <div class="p-3 bg-white dark:bg-zinc-900 rounded-2xl rounded-tl-none border border-slate-100 dark:border-white/5 shadow-sm text-slate-700 dark:text-zinc-200 leading-relaxed">
+                                ${data.reply.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                    `;
+                    messageArea.insertAdjacentHTML('beforeend', aiBubble);
+                } else {
+                    throw new Error(data.message || 'Gagal memuat respons AI.');
+                }
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById(loadingId).remove();
+                
+                // Beri indikasi error merah kecil di jendela chat
+                const errorBubble = `
+                    <div class="flex gap-2 max-w-[85%]">
+                        <div class="w-7 h-7 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center text-xs flex-shrink-0"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-2xl rounded-tl-none border border-red-500/10 text-xs">
+                            Sistem sibuk. Silakan coba ajukan pertanyaan beberapa saat lagi.
+                        </div>
+                    </div>
+                `;
+                messageArea.insertAdjacentHTML('beforeend', errorBubble);
+            }
+
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
     </script>
 
     @yield('scripts')
+
+    <div id="chatbot-window" class="fixed bottom-24 right-6 w-[92vw] sm:w-[400px] h-[500px] rounded-2xl glass-card shadow-[0_10px_40px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_40px_rgba(245,158,11,0.05)] z-[99] flex flex-col translate-y-10 opacity-0 pointer-events-none transition-all duration-500 ease-out">
+    
+        <div class="p-4 border-b border-slate-200 dark:border-white/5 flex items-center justify-between bg-white/20 dark:bg-zinc-900/40 rounded-t-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 relative">
+                    <i class="fas fa-robot"></i>
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse"></span>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-sm tracking-wide text-gradient">Scenty AI</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-zinc-400">Asisten Parfum Eksklusif Anda</p>
+                </div>
+            </div>
+            <button onclick="toggleChatbot()" class="text-slate-400 hover:text-amber-500 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div id="chat-messages" class="flex-grow p-4 overflow-y-auto space-y-4 text-sm flex flex-col custom-scrollbar">
+            <div class="flex gap-2 max-w-[85%]">
+                <div class="w-7 h-7 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-xs flex-shrink-0"><i class="fas fa-robot"></i></div>
+                <div class="p-3 bg-white dark:bg-zinc-900 rounded-2xl rounded-tl-none border border-slate-100 dark:border-white/5 shadow-sm text-slate-700 dark:text-zinc-200">
+                    Halo! Selamat datang di Scentify ✨ Ada aroma atau parfum spesifik yang sedang Anda cari hari ini? Saya bisa bantu rekomendasikan yang paling cocok untuk Anda.
+                </div>
+            </div>
+        </div>
+
+        <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 border-t border-slate-200 dark:border-white/5 bg-white/10 dark:bg-zinc-900/20 rounded-b-2xl flex gap-2 items-center">
+            @csrf
+            <input type="text" id="chat-input" placeholder="Ketik aroma impian Anda di sini..." autocomplete="off" class="flex-grow bg-white/50 dark:bg-zinc-900/50 text-slate-800 dark:text-zinc-100 text-sm px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/5 focus:outline-none focus:border-amber-500/50 backdrop-blur-md transition-colors placeholder:text-slate-400 dark:placeholder:text-zinc-500">
+            <button type="submit" class="w-10 py-2.5 bg-gradient-to-tr from-amber-600 to-amber-400 text-white rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center">
+                <i class="fas fa-paper-plane text-xs"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="fixed bottom-6 right-6 z-[90] flex flex-col items-end group">
+        <div class="mb-3 px-4 py-2 bg-white dark:bg-zinc-800 text-sm font-medium text-slate-700 dark:text-zinc-200 rounded-xl shadow-xl border border-slate-200 dark:border-white/10 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
+            Tanya Scenty AI <i class="fas fa-sparkles text-amber-500 ml-1"></i>
+        </div>
+        
+        <button onclick="toggleChatbot()" class="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] hover:scale-110 transition-all duration-300 z-10">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-40 animate-ping"></span>
+            
+            <i class="fas fa-robot text-xl z-20 transition-transform duration-300 group-hover:rotate-12"></i>
+        </button>
+    </div>
 </body>
 </html>

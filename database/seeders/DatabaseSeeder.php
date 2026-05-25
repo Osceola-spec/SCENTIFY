@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             ProductSeeder::class,
+            ReviewAndOrderSeeder::class,
             // Jika ada seeder lain seperti StoreSeeder, masukkan di sini
         ]);
     }

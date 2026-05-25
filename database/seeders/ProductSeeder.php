@@ -110,7 +110,7 @@ class ProductSeeder extends Seeder
             DB::table('product_variants')->insert([
                 [
                     'product_id' => $productId,
-                    'size' => '50ml',
+                    'size' => '50',
                     'price' => $data['price'],
                     'stock' => rand(10, 50),
                     'created_at' => now(),
@@ -118,7 +118,7 @@ class ProductSeeder extends Seeder
                 ],
                 [
                     'product_id' => $productId,
-                    'size' => '100ml',
+                    'size' => '100',
                     'price' => $data['price'] * 1.8, // Ukuran 100ml harganya 1.8x lipat
                     'stock' => rand(5, 20),
                     'created_at' => now(),

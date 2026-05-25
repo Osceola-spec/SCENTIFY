@@ -3,18 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class Order extends Model
 {
     protected $fillable = [
-        'user_id',
-        'order_number',
-        'subtotal',
-        'tax_amount',
-        'total_amount',
-        'status',
-        'shipping_address'
+        'user_id', 'order_number', 'status', 'total_amount',
+        'shipping_address', 'phone_number', 'tracking_number',
     ];
 
     public function user()
@@ -24,6 +18,11 @@ class Order extends Model
 
     public function items()
     {
-        return $this->hasMany(OrderItem::class, 'order_id');
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
     }
 }

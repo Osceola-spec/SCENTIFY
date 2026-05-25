@@ -149,4 +149,67 @@
                                 'Pending'    => 'fa-clock',
                                 'Processing' => 'fa-box-open',
                                 'Shipped'    => 'fa-truck',
-                                'Completed'  => 'fa-che
+                                'Completed'  => 'fa-check-circle',
+                                'Cancelled'  => 'fa-times-circle',
+                                default      => 'fa-circle',
+                            };
+                        @endphp
+                        <div class="px-6 py-4 flex items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors">
+                            <div class="flex items-center gap-4 min-w-0">
+                                {{-- Produk thumbnail --}}
+                                @php $firstItem = $order->items->first(); @endphp
+                                @if ($firstItem?->variant?->product?->image_url)
+                                    @php
+                                        $img = $firstItem->variant->product->image_url;
+                                        $imgSrc = str_starts_with($img, 'http') ? $img : asset('product_image/' . $img);
+                                    @endphp
+                                    <img src="{{ $imgSrc }}" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-slate-100" alt="">
+                                @else
+                                    <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-100 shrink-0 flex items-center justify-center text-slate-300">
+                                        <i class="fas fa-box text-xs"></i>
+                                    </div>
+                                @endif
+                                <div class="min-w-0">
+                                    <p class="font-bold text-slate-900 text-sm font-mono">#{{ $order->order_number }}</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">{{ $order->created_at->format('d M Y') }} · {{ $order->items->count() }} item</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border {{ $stClass }}">
+                                    <i class="fas {{ $stIcon }}"></i> {{ $order->status }}
+                                </span>
+                                <div class="text-right">
+                                    <p class="font-bold text-slate-900 text-sm">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
+                                </div>
+                                <a href="{{ route('admin.orders.show', $order->id) }}"
+                                   class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-amber-500 hover:border-amber-200 transition-colors">
+                                    <i class="fas fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="px-6 py-12 text-center text-slate-400">
+                            <i class="fas fa-receipt text-3xl mb-3 block opacity-30"></i>
+                            <p class="text-sm">Belum ada pesanan dari pelanggan ini.</p>
+                        </div>
+                    @endforelse
+                </div>
+                @if ($orders->hasPages())
+                    <div class="px-6 py-4 border-t border-slate-50 flex justify-center custom-pagination">
+                        {{ $orders->links('pagination::bootstrap-5') }}
+                    </div>
+                @endif
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .custom-pagination .pagination { display: flex; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+    .custom-pagination .page-link { color: #475569; border: 1px solid #e2e8f0; background-color: #fff; border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .custom-pagination .page-item.active .page-link { background-color: #0f172a !important; color: #fff !important; border-color: #0f172a !important; }
+    .custom-pagination .page-link:hover { background-color: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+    .custom-pagination .page-item.disabled .page-link { color: #94a3b8; background-color: #f8fafc; border-color: #f1f5f9; cursor: not-allowed; }
+</style>
+@endsection

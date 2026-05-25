@@ -259,7 +259,7 @@
                                     </div>
                                     <div>
                                         <h6 class="font-bold text-sm text-slate-800 line-clamp-1">{{ $variant->product->name ?? 'Produk tidak tersedia' }}</h6>
-                                        <p class="text-xs text-slate-500 mt-0.5">Ukuran: <span class="font-semibold">{{ $variant->size ?? '-' }}</span></p>
+                                        <p class="text-xs text-slate-500 mt-0.5">Ukuran: <span class="font-semibold">{{ $variant->size ?? '-' }}ml</span></p>
                                     </div>
                                 </div>
                                 <span class="px-3 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold whitespace-nowrap">
@@ -327,12 +327,18 @@
         const gridColor = isDarkTheme ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.05)';
         const textLabelColor = isDarkTheme ? '#94a3b8' : '#64748b';
 
+        // ==========================================
         // 1. Line Chart: Tren Penjualan & Pendapatan Bulanan
+        // ==========================================
         const ctxRevenue = document.getElementById('revenueTrendChart').getContext('2d');
         
-        // Mock data dummy penyesuaian tren pendapatan Scentify
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-        const revenueData = [12000000, 19000000, 15000000, 25000000, 22000000, 30000000, 38000000, 35000000, 42000000, 48000000, 55000000, 72000000];
+        
+        // INJEKSI DATA ASLI DARI DATABASE LARAVEL
+        // KODE BARU (Aman dari error Blade)
+        const revenueData = @json($revenueData);
+
+        // ... 
 
         new Chart(ctxRevenue, {
             type: 'line',
@@ -354,9 +360,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
                         titleColor: '#fff',
@@ -366,9 +370,7 @@
                         callbacks: {
                             label: function(context) {
                                 let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
+                                if (label) label += ': ';
                                 if (context.parsed.y !== null) {
                                     label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(context.parsed.y);
                                 }
@@ -379,25 +381,14 @@
                 },
                 scales: {
                     x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            color: textLabelColor,
-                            font: {
-                                family: 'Jost'
-                            }
-                        }
+                        grid: { display: false },
+                        ticks: { color: textLabelColor, font: { family: 'Jost' } }
                     },
                     y: {
-                        grid: {
-                            color: gridColor
-                        },
+                        grid: { color: gridColor },
                         ticks: {
                             color: textLabelColor,
-                            font: {
-                                family: 'Jost'
-                            },
+                            font: { family: 'Jost' },
                             callback: function(value) {
                                 return 'Rp ' + (value / 1000000) + 'jt';
                             }
@@ -407,19 +398,24 @@
             }
         });
 
+        // ==========================================
         // 2. Doughnut Chart: Segmentasi Gender Kategori
+        // ==========================================
         const ctxCategory = document.getElementById('scentCategoryChart').getContext('2d');
         
+        // INJEKSI DATA PERSENTASE ASLI DARI DATABASE LARAVEL
+         const genderData = @json($genderData);
+
         new Chart(ctxCategory, {
             type: 'doughnut',
             data: {
                 labels: ['Pria', 'Wanita', 'Unisex'],
                 datasets: [{
-                    data: [35, 45, 20], // Proporsi persentase segmen aroma
+                    data: genderData, 
                     backgroundColor: [
-                        '#f59e0b', // Amber
-                        '#fda4af', // Rose
-                        '#6366f1'  // Indigo
+                        '#f59e0b', // Amber (Pria)
+                        '#fda4af', // Rose (Wanita)
+                        '#6366f1'  // Indigo (Unisex)
                     ],
                     borderWidth: 0,
                     hoverOffset: 4
@@ -430,9 +426,7 @@
                 maintainAspectRatio: false,
                 cutout: '75%',
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: '#0f172a',
                         padding: 12,
@@ -449,3 +443,4 @@
     });
 </script>
 @endsection
+{{-- @endsection --}}

@@ -16,6 +16,8 @@ use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReviewController;
 
 // ==========================================
 // RUTE PUBLIK
@@ -80,53 +82,7 @@ Route::get('/brands', [BrandController::class, 'publicIndex'])->name('brands.ind
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Dashboard & Inventory
-    Route::get('/dashboard', function () {
-        $totalProducts = Product::count();
-        $totalBrands = Brand::count();
-        $totalVariants = ProductVariant::count();
-        $totalOrders = Order::count();
-        $pendingOrders = Order::where('status', 'Pending')->count();
-        $completedOrders = Order::where('status', 'Completed')->count();
-        $totalRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])->sum('total_amount');
-        $monthlyRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
-            ->whereMonth('created_at', now()->month)
-            ->sum('total_amount');
-        $todayRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
-            ->whereDate('created_at', now())
-            ->sum('total_amount');
-
-        $recentProducts = Product::with('brand')
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $upcomingOrders = Order::with('user')
-            ->whereIn('status', ['Pending', 'Paid', 'Shipped'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $lowStockVariants = ProductVariant::with('product')
-            ->where('stock', '<=', 10)
-            ->orderBy('stock')
-            ->take(5)
-            ->get();
-
-        return view('admin.dashboard', compact(
-            'totalProducts',
-            'totalBrands',
-            'totalVariants',
-            'totalOrders',
-            'pendingOrders',
-            'completedOrders',
-            'totalRevenue',
-            'monthlyRevenue',
-            'todayRevenue',
-            'recentProducts',
-            'upcomingOrders',
-            'lowStockVariants'
-        ));
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/inventory', function () {
         $search = request('search');
@@ -189,3 +145,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
     Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 });
+
+Route::post('/chatbot', [ChatbotController::class, 'chat']);
+
+// Di dalam Route::middleware('auth')->group(...)
+Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');

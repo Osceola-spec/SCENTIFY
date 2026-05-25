@@ -246,4 +246,4 @@
     })();
 </script>
 @endsection
-{{-- @endsection --}}
+@endsection

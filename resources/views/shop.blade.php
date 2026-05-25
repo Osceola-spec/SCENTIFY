@@ -189,6 +189,26 @@
                                     <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1" title="{{ $product->name }}">
                                         {{ $product->name }}
                                     </h5>
+                                    {{-- Tambahkan setelah tag <h5> nama produk --}}
+                                    @php
+                                        $avgRating   = $product->reviews->avg('rating') ?? 0;
+                                        $reviewCount = $product->reviews->count();
+                                    @endphp
+                                    @if ($reviewCount > 0)
+                                        <div class="flex items-center gap-0.5 mt-1">
+                                            @for ($s = 1; $s <= 5; $s++)
+                                                <i class="fas fa-star text-[9px] {{ $s <= round($avgRating) ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700' }}"></i>
+                                            @endfor
+                                            <span class="text-[9px] text-slate-400 font-mono ml-1">{{ number_format($avgRating, 1) }} ({{ $reviewCount }})</span>
+                                        </div>
+                                    @else
+                                        <div class="flex items-center gap-0.5 mt-1">
+                                            @for ($s = 1; $s <= 5; $s++)
+                                                <i class="far fa-star text-[9px] text-slate-200 dark:text-zinc-700"></i>
+                                            @endfor
+                                            <span class="text-[9px] text-slate-400 font-mono ml-1">Belum ada ulasan</span>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">
@@ -218,20 +238,21 @@
                                         <i class="{{ in_array($product->id, $wishlistedProductIds ?? []) ? 'fas text-rose-500' : 'far' }} fa-heart text-[10px] sm:text-xs transition-transform duration-300"></i>
                                     </button>
 
-                                    @if ($product->variants->isNotEmpty())
+                                   @if ($product->variants->isNotEmpty())
                                         @auth
-                                            <button type="button" class="variant-selector-btn flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-50 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
+                                            <button type="button" class="variant-selector-btn flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
                                                     data-product-id="{{ $product->id }}"
                                                     data-product-name="{{ $product->name }}"
                                                     data-product-brand="{{ $product->brand->name ?? 'Unknown Brand' }}"
                                                     data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                                                     data-product-description="{{ $product->description ?? '' }}"
+                                                    data-product-images="{{ json_encode($product->images->map(fn($img) => $img->url)) }}"
                                                     data-variants="{{ json_encode($product->variants) }}">
                                                 <i class="fas fa-cart-plus"></i> Beli
                                             </button>
                                         @else
-                                            <a href="{{ route('login') }}" class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-50 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
-                                               onclick="event.preventDefault(); showLoginAlert(this.href)">
+                                            <a href="{{ route('login') }}" class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
+                                            onclick="event.preventDefault(); showLoginAlert(this.href)">
                                                 <i class="fas fa-cart-plus"></i> Beli
                                             </a>
                                         @endauth
@@ -278,8 +299,14 @@
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
                 <div class="md:col-span-5">
-                    <div class="w-full h-64 md:h-80 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900">
-                        <img id="modalProductImage" src="" alt="Product" class="w-full h-full object-cover">
+                    {{-- Ganti div gambar tunggal di dalam modal --}}
+                    <div class="md:col-span-5">
+                        {{-- Gambar Utama --}}
+                        <div class="w-full h-64 md:h-72 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900">
+                            <img id="modalProductImage" src="" alt="Product" class="w-full h-full object-cover transition-all duration-300">
+                        </div>
+                        {{-- Thumbnail Gallery --}}
+                        <div id="modalGallery" class="flex gap-2 mt-3 overflow-x-auto pb-1"></div>
                     </div>
                 </div>
 
@@ -485,36 +512,57 @@
     document.querySelectorAll('.variant-selector-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const productId = this.dataset.productId;
-            const productName = this.dataset.productName;
-            const productBrand = this.dataset.productBrand;
-            const productImage = this.dataset.productImage;
-            const productDescription = this.dataset.productDescription;
-            const variants = JSON.parse(this.dataset.variants);
-
-            openVariantModal(productId, productName, productBrand, productImage, productDescription, variants);
+            const productImages = JSON.parse(this.dataset.productImages || '[]');
+            openVariantModal(
+                this.dataset.productId,
+                this.dataset.productName,
+                this.dataset.productBrand,
+                this.dataset.productImage,
+                this.dataset.productDescription,
+                JSON.parse(this.dataset.variants),
+                productImages
+            );
         });
     });
 
-    function openVariantModal(productId, productName, productBrand, productImage, productDescription, variants) {
+    function openVariantModal(productId, productName, productBrand, productImage, productDescription, variants, productImages) {
         selectedVariant = null;
         variantsMap = {};
-        
+
+        // Set gambar utama
         document.getElementById('modalProductImage').src = productImage;
         document.getElementById('modalProductName').textContent = productName;
         document.getElementById('modalProductBrand').textContent = productBrand;
         document.getElementById('modalProductDescription').textContent = productDescription;
-
         document.getElementById('modalQuantity').value = 1;
         document.getElementById('modalStockStatus').classList.add('hidden');
 
+        // Render galeri thumbnail
+        const gallery = document.getElementById('modalGallery');
+        gallery.innerHTML = '';
+
+        const allImages = productImages && productImages.length > 0
+            ? productImages
+            : [productImage];
+
+        if (allImages.length > 1) {
+            allImages.forEach((imgUrl, index) => {
+                const thumb = document.createElement('button');
+                thumb.type = 'button';
+                thumb.className = `shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 focus:outline-none ${index === 0 ? 'border-amber-500' : 'border-slate-200 dark:border-white/10 opacity-60 hover:opacity-100'}`;
+                thumb.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover" alt="Foto ${index + 1}">`;
+                thumb.onclick = () => switchModalImage(imgUrl, thumb);
+                gallery.appendChild(thumb);
+            });
+        }
+
+        // Variants
         variants.forEach(variant => { variantsMap[variant.id] = variant; });
 
         let variantsList = '';
         variants.forEach(variant => {
             const stock = variant.stock || 0;
             const isOutOfStock = stock <= 0;
-
             variantsList += `
                 <button type="button" class="variant-btn px-4 py-2 text-xs font-mono font-bold border-2 border-slate-200 dark:border-white/10 rounded-xl hover:border-amber-500 dark:hover:border-amber-400 transition-all ${isOutOfStock ? 'opacity-40 cursor-not-allowed' : ''}"
                         onclick="${!isOutOfStock ? `selectVariant(this, ${variant.id})` : ''}"
@@ -532,6 +580,18 @@
         const modal = document.getElementById('variantModal');
         modal.classList.remove('opacity-0', 'pointer-events-none');
         modal.querySelector('.bg-white').classList.remove('scale-95');
+    }
+
+    function switchModalImage(imgUrl, thumbEl) {
+        document.getElementById('modalProductImage').src = imgUrl;
+
+        // Update active state thumbnail
+        document.querySelectorAll('#modalGallery button').forEach(btn => {
+            btn.classList.remove('border-amber-500');
+            btn.classList.add('border-slate-200', 'dark:border-white/10', 'opacity-60');
+        });
+        thumbEl.classList.add('border-amber-500');
+        thumbEl.classList.remove('border-slate-200', 'dark:border-white/10', 'opacity-60');
     }
 
     function selectVariant(element, variantId) {

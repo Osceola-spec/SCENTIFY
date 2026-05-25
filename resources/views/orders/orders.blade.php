@@ -92,24 +92,49 @@
                             @php
                                 $variant     = $item->variant;
                                 $product     = $variant?->product;
-                                $productName = $product?->name ?? 'Produk Tidak Tersedia';
-                                $imgRaw      = $product?->image_url;
-                                $imgSrc      = $imgRaw
-                                    ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
-                                    : 'https://placehold.co/200x200?text=Scentify';
+                                $productName = $product?->name ?? null;
+                                $imgRaw      = $product?->image_url ?? null;
+
+                                $imgSrc = $imgRaw
+                                    ? asset('product_image/' . $imgRaw)  // ← sesuaikan folder ini
+                                    : null;
                             @endphp
+
                             <div class="flex items-center gap-4 sm:gap-6">
-                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200 dark:border-white/5">
-                                    <img src="{{ $imgSrc }}" alt="{{ $productName }}" class="w-full h-full object-cover">
+                                {{-- Gambar --}}
+                                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200 dark:border-white/5 flex items-center justify-center">
+                                    @if($imgSrc)
+                                        <img src="{{ $imgSrc }}"
+                                            alt="{{ $productName }}"
+                                            class="w-full h-full object-cover"
+                                            onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-slate-300 dark:text-zinc-600\'><i class=\'fas fa-spray-can text-2xl\'></i></div>'">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-zinc-600">
+                                            <i class="fas fa-spray-can text-2xl"></i>
+                                        </div>
+                                    @endif
                                 </div>
-                                <div class="flex-grow">
-                                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-1">
-                                        {{ $productName }}
-                                    </h4>
-                                    <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
-                                        Ukuran: <span class="font-semibold">{{ $variant?->size ?? '-' }}</span>
-                                        | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
-                                    </p>
+
+                                {{-- Info Produk --}}
+                                <div class="flex-grow min-w-0">
+                                    @if($productName)
+                                        <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-1">
+                                            {{ $productName }}
+                                        </h4>
+                                        <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
+                                            Ukuran: <span class="font-semibold">{{ $variant->size ?? '-' }}</span>
+                                            | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
+                                        </p>
+                                    @else
+                                        {{-- Data lama tanpa referensi produk --}}
+                                        <h4 class="text-sm font-medium text-slate-400 dark:text-zinc-500 italic line-clamp-1">
+                                            Produk tidak tersedia
+                                        </h4>
+                                        <p class="text-[10px] sm:text-xs text-slate-400 dark:text-zinc-600 mt-0.5 sm:mt-1">
+                                            Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
+                                        </p>
+                                    @endif
+
                                     <p class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-zinc-300 mt-1 sm:mt-2">
                                         Rp {{ number_format($item->price_at_purchase, 0, ',', '.') }}
                                     </p>
@@ -128,28 +153,50 @@
                 </div>
 
                 <!-- Card Footer (Total & Actions) -->
-                <div class="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-zinc-900/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Total Pembayaran</p>
-                        <p class="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
-                    </div>
-                    
-                    <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                        @if($order->status === 'Pending')
-                            <button onclick="payNow('{{ $order->order_number }}')" class="flex-1 sm:flex-none px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-center">
-                                Bayar Sekarang
-                            </button>
-                        @elseif($order->status === 'Shipped' && $order->tracking_number)
-                            <button onclick="trackOrder('{{ $order->tracking_number }}')" class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 text-center">
-                                Lacak Resi
-                            </button>
-                        @endif
-                        
-                        <a href="{{ route('orders.show', $order->id ?? 1) }}" class="flex-1 sm:flex-none px-5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-amber-500 dark:hover:text-amber-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all text-center">
-                            Detail
-                        </a>
-                    </div>
+                {{-- Ganti bagian Card Footer --}}
+            <div class="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-zinc-900/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Total Pembayaran</p>
+                    <p class="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                 </div>
+
+                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+
+                    {{-- Badge status review (hanya untuk Completed) --}}
+                    @if ($order->status === 'Completed')
+                        @php
+                            $totalItems    = $order->items->count();
+                            $reviewedItems = $order->items->filter(fn($i) => $i->review)->count();
+                        @endphp
+                        @if ($reviewedItems === $totalItems && $totalItems > 0)
+                            <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                                <i class="fas fa-star"></i> Sudah Diulas
+                            </span>
+                        @else
+                            <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
+                                <i class="far fa-star"></i> {{ $reviewedItems }}/{{ $totalItems }} Diulas
+                            </span>
+                        @endif
+                    @endif
+
+                    @if ($order->status === 'Pending')
+                        <button onclick="payNow('{{ $order->order_number }}')"
+                                class="flex-1 sm:flex-none px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-center">
+                            Bayar Sekarang
+                        </button>
+                    @elseif ($order->status === 'Shipped' && $order->tracking_number)
+                        <button onclick="trackOrder('{{ $order->tracking_number }}')"
+                                class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 text-center">
+                            Lacak Resi
+                        </button>
+                    @endif
+
+                    <a href="{{ route('orders.show', $order->id) }}"
+                    class="flex-1 sm:flex-none px-5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-amber-500 dark:hover:text-amber-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all text-center">
+                        Detail
+                    </a>
+                </div>
+            </div>
 
             </div>
         @empty

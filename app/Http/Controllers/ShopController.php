@@ -17,7 +17,12 @@ class ShopController extends Controller
         $brands = Brand::all();
 
         // 1. Mulai query dengan eager loading
-        $query = Product::with(['brand', 'variants']);
+        $query = Product::with([
+            'brand',
+            'variants',
+            'images',
+            'reviews', // tambahkan
+        ]);
 
         // LOGIKA PENCARIAN NAVBAR
         if ($request->has('search') && $request->search != '') {

@@ -110,7 +110,7 @@
                             <div class="flex-1 min-w-0">
                                 <p class="font-bold text-slate-900 text-sm truncate">{{ $productName }}</p>
                                 <p class="text-xs text-slate-400 mt-0.5">
-                                    Ukuran: <span class="font-semibold text-slate-600">{{ $variant?->size ?? '-' }}</span>
+                                    Ukuran: <span class="font-semibold text-slate-600">{{ $variant?->size ?? '-' }}ml</span>
                                 </p>
                                 <p class="text-xs text-slate-400">
                                     Qty: <span class="font-semibold text-slate-600">{{ $item->quantity }}</span>

@@ -105,6 +105,38 @@
                                        class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-xs file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200 transition-all cursor-pointer">
                                 <p class="text-[10px] text-slate-400 mt-1">Format: JPG, JPEG, PNG.</p>
                             </div>
+                            <!-- Gambar Tambahan -->
+                           {{-- Gambar Tambahan --}}
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2 font-bold">
+                                    Gambar Tambahan <span class="text-slate-300">(Opsional, maks. 5 foto)</span>
+                                </label>
+
+                                {{-- Drop Zone --}}
+                                <div id="dropZone"
+                                    class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center cursor-pointer hover:border-amber-400 hover:bg-amber-50/30 transition-all duration-200 relative"
+                                    onclick="document.getElementById('extraImagesInput').click()"
+                                    ondragover="handleDragOver(event)"
+                                    ondragleave="handleDragLeave(event)"
+                                    ondrop="handleDrop(event)">
+                                    <div id="dropZonePlaceholder">
+                                        <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 mb-3 block"></i>
+                                        <p class="text-sm font-semibold text-slate-400">Klik atau seret foto ke sini</p>
+                                        <p class="text-xs text-slate-300 mt-1">JPG, JPEG, PNG — Maks. 5 foto, 2MB per foto</p>
+                                    </div>
+                                    <input type="file" id="extraImagesInput" name="extra_images[]"
+                                        accept=".jpg,.jpeg,.png" multiple class="hidden"
+                                        onchange="handleFileSelect(this.files)">
+                                </div>
+
+                                {{-- Preview Grid --}}
+                                <div id="imagePreviewGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4 hidden"></div>
+
+                                {{-- Counter --}}
+                                <p id="imageCounter" class="text-[11px] text-slate-400 mt-2 hidden">
+                                    <span id="imageCountNum">0</span> foto dipilih
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -358,6 +390,127 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+// ===== MULTI IMAGE UPLOAD =====
+let selectedFiles = [];
+const MAX_FILES = 5;
+
+function handleFileSelect(files) {
+    const newFiles = Array.from(files);
+    const remaining = MAX_FILES - selectedFiles.length;
+
+    if (newFiles.length > remaining) {
+        showToastError(`Maksimal ${MAX_FILES} foto. Hanya ${remaining} slot tersisa.`);
+        newFiles.splice(remaining);
+    }
+
+    newFiles.forEach(file => {
+        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+            showToastError(`Format file ${file.name} tidak didukung.`);
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            showToastError(`File ${file.name} melebihi 2MB.`);
+            return;
+        }
+        selectedFiles.push(file);
+    });
+
+    syncFilesToInput();
+    renderPreviews();
+}
+
+function syncFilesToInput() {
+    const input = document.getElementById('extraImagesInput');
+    const dt = new DataTransfer();
+    selectedFiles.forEach(f => dt.items.add(f));
+    input.files = dt.files;
+}
+
+function renderPreviews() {
+    const grid = document.getElementById('imagePreviewGrid');
+    const counter = document.getElementById('imageCounter');
+    const countNum = document.getElementById('imageCountNum');
+    const placeholder = document.getElementById('dropZonePlaceholder');
+
+    grid.innerHTML = '';
+
+    if (selectedFiles.length === 0) {
+        grid.classList.add('hidden');
+        counter.classList.add('hidden');
+        placeholder.style.display = '';
+        return;
+    }
+
+    grid.classList.remove('hidden');
+    counter.classList.remove('hidden');
+    countNum.textContent = selectedFiles.length;
+    placeholder.style.display = 'none';
+
+    selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const div = document.createElement('div');
+            div.className = 'relative group rounded-xl overflow-hidden border border-slate-200 bg-slate-50 aspect-square';
+            div.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button"
+                        onclick="removePreviewFile(${index})"
+                        class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md focus:outline-none">
+                    <i class="fas fa-times text-[10px]"></i>
+                </button>
+                <div class="absolute bottom-0 left-0 right-0 bg-black/40 px-2 py-1">
+                    <p class="text-white text-[9px] truncate">${file.name}</p>
+                </div>
+            `;
+            grid.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removePreviewFile(index) {
+    selectedFiles.splice(index, 1);
+    syncFilesToInput();
+    renderPreviews();
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').classList.add('border-amber-400', 'bg-amber-50/30');
+}
+
+function handleDragLeave(e) {
+    document.getElementById('dropZone').classList.remove('border-amber-400', 'bg-amber-50/30');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    handleDragLeave(e);
+    handleFileSelect(e.dataTransfer.files);
+}
+
+// Khusus edit: tandai gambar untuk dihapus
+function markDeleteImage(imgId, btn) {
+    const checkbox = document.getElementById('deleteImg' + imgId);
+    const container = document.getElementById('existingImg' + imgId);
+
+    if (checkbox.checked) {
+        // Batalkan hapus
+        checkbox.checked = false;
+        container.classList.remove('opacity-40', 'ring-2', 'ring-rose-400');
+        btn.innerHTML = '<i class="fas fa-times text-[10px]"></i>';
+        btn.classList.remove('bg-slate-400');
+        btn.classList.add('bg-rose-500');
+    } else {
+        // Tandai hapus
+        checkbox.checked = true;
+        container.classList.add('opacity-40', 'ring-2', 'ring-rose-400');
+        btn.innerHTML = '<i class="fas fa-undo text-[10px]"></i>';
+        btn.classList.remove('bg-rose-500');
+        btn.classList.add('bg-slate-400');
+    }
+}
+// ===== END MULTI IMAGE UPLOAD =====
 </script>
 
 <style>

@@ -161,6 +161,105 @@
                 </div>
             </div>
 
+            {{-- SECTION RATING — hanya tampil jika order Completed --}}
+            @if ($order->status === 'Completed')
+            <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
+                <h3 class="text-lg font-serif font-bold text-slate-950 dark:text-white mb-2 flex items-center gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
+                    <i class="fas fa-star text-amber-500 text-sm"></i> Beri Ulasan Produk
+                </h3>
+                <p class="text-xs text-slate-400 dark:text-zinc-500 mb-6">Bagikan pengalaman Anda untuk membantu pelanggan lain memilih parfum terbaik.</p>
+
+                <div class="space-y-5">
+                    @foreach ($order->items as $item)
+                        @php
+                            $variant     = $item->variant;
+                            $product     = $variant?->product;
+                            if (!$product) continue;
+
+                            $imgRaw  = $product->image_url;
+                            $imgSrc  = $imgRaw
+                                ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
+                                : 'https://placehold.co/80x80?text=Scentify';
+
+                            $reviewed = $item->review;
+                        @endphp
+
+                        <div class="flex flex-col sm:flex-row sm:items-start gap-4 p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-zinc-900/30"
+                            id="reviewCard{{ $product->id }}">
+
+                            {{-- Info Produk --}}
+                            <div class="flex items-center gap-3 sm:w-56 shrink-0">
+                                <img src="{{ $imgSrc }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-white/10 shrink-0" alt="{{ $product->name }}">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{{ $product->name }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $variant?->size ?? '-' }}ml</p>
+                                </div>
+                            </div>
+
+                            {{-- Sudah review --}}
+                            @if ($reviewed)
+                                <div class="flex-1 flex flex-col gap-1">
+                                    <div class="flex items-center gap-1">
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <i class="fas fa-star text-sm {{ $s <= $reviewed->rating ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700' }}"></i>
+                                        @endfor
+                                        <span class="text-xs font-bold text-slate-500 ml-1">{{ $reviewed->rating }}/5</span>
+                                    </div>
+                                    @if ($reviewed->title)
+                                        <p class="text-sm font-semibold text-slate-700 dark:text-zinc-300">{{ $reviewed->title }}</p>
+                                    @endif
+                                    @if ($reviewed->comment)
+                                        <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">{{ $reviewed->comment }}</p>
+                                    @endif
+                                    <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+                                        <i class="fas fa-check-circle"></i> Ulasan terkirim
+                                    </span>
+                                </div>
+                            @else
+                                {{-- Belum review — tampilkan form --}}
+                                <div class="flex-1" id="reviewForm{{ $product->id }}">
+                                    {{-- Bintang --}}
+                                    <div class="flex items-center gap-1 mb-3" id="stars{{ $product->id }}">
+                                        @for ($s = 1; $s <= 5; $s++)
+                                            <button type="button"
+                                                    onclick="setRating({{ $product->id }}, {{ $s }})"
+                                                    onmouseover="hoverRating({{ $product->id }}, {{ $s }})"
+                                                    onmouseout="resetHover({{ $product->id }})"
+                                                    class="star-btn text-2xl transition-transform duration-100 hover:scale-110 focus:outline-none"
+                                                    data-value="{{ $s }}">
+                                                <i class="far fa-star text-slate-300 dark:text-zinc-600 transition-colors duration-150"></i>
+                                            </button>
+                                        @endfor
+                                        <span id="ratingLabel{{ $product->id }}" class="text-xs text-slate-400 ml-2 font-medium">Pilih bintang</span>
+                                    </div>
+
+                                    {{-- Input judul --}}
+                                    <input type="text"
+                                        id="reviewTitle{{ $product->id }}"
+                                        placeholder="Judul ulasan (opsional)"
+                                        maxlength="100"
+                                        class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all mb-2">
+
+                                    {{-- Textarea --}}
+                                    <textarea id="reviewComment{{ $product->id }}"
+                                            placeholder="Ceritakan pengalaman Anda dengan parfum ini..."
+                                            maxlength="1000" rows="2"
+                                            class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none mb-3"></textarea>
+
+                                    <button type="button"
+                                            onclick="submitReview({{ $product->id }}, {{ $order->id }})"
+                                            id="submitReviewBtn{{ $product->id }}"
+                                            class="px-5 py-2 bg-slate-900 dark:bg-amber-400 text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all shadow-md">
+                                        <i class="fas fa-paper-plane mr-1.5"></i> Kirim Ulasan
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <!-- Card: Alamat Tujuan Pengiriman -->
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                 <h3 class="text-lg font-serif font-bold text-slate-950 dark:text-white mb-6 flex items-center gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
@@ -355,5 +454,135 @@
             }
         });
     }
+
+    // ===== RATING SYSTEM =====
+    const ratingValues = {};
+
+    const ratingLabels = {
+        1: 'Sangat Buruk',
+        2: 'Kurang Baik',
+        3: 'Cukup Baik',
+        4: 'Bagus',
+        5: 'Luar Biasa!'
+    };
+
+    function setRating(productId, value) {
+        ratingValues[productId] = value;
+        renderStars(productId, value, true);
+        document.getElementById('ratingLabel' + productId).textContent = ratingLabels[value];
+        document.getElementById('ratingLabel' + productId).className = 'text-xs ml-2 font-semibold text-amber-500';
+    }
+
+    function hoverRating(productId, value) {
+        renderStars(productId, value, false);
+    }
+
+    function resetHover(productId) {
+        const current = ratingValues[productId] || 0;
+        renderStars(productId, current, true);
+    }
+
+    function renderStars(productId, value, isSet) {
+        const container = document.getElementById('stars' + productId);
+        const btns = container.querySelectorAll('.star-btn');
+        btns.forEach((btn, i) => {
+            const icon = btn.querySelector('i');
+            if (i < value) {
+                icon.className = 'fas fa-star text-amber-400 transition-colors duration-150';
+            } else {
+                icon.className = isSet
+                    ? 'far fa-star text-slate-300 dark:text-zinc-600 transition-colors duration-150'
+                    : 'far fa-star text-amber-200 transition-colors duration-150';
+            }
+        });
+    }
+
+    function submitReview(productId, orderId) {
+        const rating  = ratingValues[productId];
+        const title   = document.getElementById('reviewTitle' + productId)?.value?.trim();
+        const comment = document.getElementById('reviewComment' + productId)?.value?.trim();
+        const btn     = document.getElementById('submitReviewBtn' + productId);
+        const isDark  = document.documentElement.classList.contains('dark');
+
+        if (!rating) {
+            Swal.fire({
+                toast: true, position: 'bottom-end', icon: 'warning',
+                title: 'Pilih rating bintang terlebih dahulu.',
+                showConfirmButton: false, timer: 2500,
+                customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
+            });
+            return;
+        }
+
+        // Loading state
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Mengirim...';
+
+        fetch('{{ route("reviews.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                order_id:   orderId,
+                product_id: productId,
+                rating:     rating,
+                title:      title || null,
+                comment:    comment || null,
+            })
+        })
+        .then(res => res.json().then(data => ({ status: res.status, data })))
+        .then(({ status, data }) => {
+            if (status === 200 || status === 201) {
+                // Ganti form dengan tampilan sukses
+                const formEl = document.getElementById('reviewForm' + productId);
+                const stars  = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+                formEl.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1">
+                            ${Array.from({length: 5}, (_, i) =>
+                                `<i class="fas fa-star text-sm ${i < rating ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700'}"></i>`
+                            ).join('')}
+                            <span class="text-xs font-bold text-slate-500 ml-1">${rating}/5</span>
+                        </div>
+                        ${title ? `<p class="text-sm font-semibold text-slate-700 dark:text-zinc-300">${title}</p>` : ''}
+                        ${comment ? `<p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">${comment}</p>` : ''}
+                        <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+                            <i class="fas fa-check-circle"></i> Ulasan terkirim
+                        </span>
+                    </div>
+                `;
+
+                Swal.fire({
+                    toast: true, position: 'bottom-end', icon: 'success',
+                    title: 'Ulasan berhasil dikirim!',
+                    showConfirmButton: false, timer: 2500,
+                    customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
+                });
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i> Kirim Ulasan';
+                Swal.fire({
+                    toast: true, position: 'bottom-end', icon: 'error',
+                    title: data.message || 'Gagal mengirim ulasan.',
+                    showConfirmButton: false, timer: 3000,
+                    customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
+                });
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i> Kirim Ulasan';
+            Swal.fire({
+                toast: true, position: 'bottom-end', icon: 'error',
+                title: 'Terjadi kesalahan. Coba lagi.',
+                showConfirmButton: false, timer: 3000,
+                customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
+            });
+        });
+    }
+    // ===== END RATING SYSTEM =====
 </script>
 @endsection

@@ -39,112 +39,137 @@ class CheckoutController extends Controller
     // 2. Memproses Simpan Pesanan (Place Order) & Auto-Save Alamat
     public function process(Request $request)
     {
+        \Log::info('=== CHECKOUT PROCESS START ===');
+        \Log::info('Request data', $request->all());
+        \Log::info('Cart session', session()->get('cart', []));
+        \Log::info('DB_PORT', [config('database.connections.mysql.port')]);
+        \Log::info('DB_HOST', [config('database.connections.mysql.host')]);
+
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
-            return redirect()->route('shop')->with('error', 'Keranjang kosong.');
+            \Log::info('REDIRECT: cart kosong');
+            return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong.');
         }
 
-        // Kalkulasi Total
         $subtotal = 0;
         foreach ($cart as $item) {
             $subtotal += $item['price'] * $item['quantity'];
         }
-        $taxAmount = $subtotal * 0.11;
-        $totalAmount = $subtotal + 50000 + $taxAmount;
+
+        $shippingCost = 50000;
+        $taxAmount    = $subtotal * 0.11;
+        $totalAmount  = $subtotal + $shippingCost + $taxAmount;
+
+        \Log::info('Kalkulasi', compact('subtotal', 'taxAmount', 'totalAmount'));
 
         DB::beginTransaction();
+        \Log::info('DB transaction started');
+
         try {
-            // LOGIKA AUTO-SAVE ALAMAT
+            // Address logic
             if ($request->filled('address_id') && $request->address_id !== 'new') {
-                // Jika pakai alamat lama, timpa request dengan data dari DB untuk keamanan
-                $addr = Address::where('id', $request->address_id)->where('user_id', auth()->id())->first();
+                \Log::info('Pakai alamat lama: ' . $request->address_id);
+                $addr = Address::where('id', $request->address_id)
+                    ->where('user_id', auth()->id())
+                    ->first();
+
+                \Log::info('Alamat ditemukan', [$addr]);
+
                 if ($addr) {
                     $request->merge([
-                        'first_name' => $addr->first_name,
-                        'last_name' => $addr->last_name,
-                        'phone' => $addr->phone,
-                        'address' => $addr->address,
-                        'city' => $addr->city,
+                        'first_name'  => $addr->first_name,
+                        'last_name'   => $addr->last_name,
+                        'phone'       => $addr->phone,
+                        'address'     => $addr->address,
+                        'city'        => $addr->city,
                         'postal_code' => $addr->postal_code,
                     ]);
                 }
             } else {
-                // Jika pilih "Tambah alamat baru" ATAU belum punya alamat sama sekali, SIMPAN ke DB
+                \Log::info('Simpan alamat baru');
                 Address::create([
-                    'user_id' => auth()->id(),
-                    'label' => 'Alamat ' . now()->format('d M Y'), // Label otomatis
-                    'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'phone' => $request->phone,
-                    'address' => $request->address,
-                    'city' => $request->city,
+                    'user_id'     => auth()->id(),
+                    'label'       => 'Alamat ' . now()->format('d M Y'),
+                    'first_name'  => $request->first_name,
+                    'last_name'   => $request->last_name,
+                    'phone'       => $request->phone,
+                    'address'     => $request->address,
+                    'city'        => $request->city,
                     'postal_code' => $request->postal_code,
-                    'is_default' => auth()->user()->addresses()->count() === 0 ? true : false,
+                    'is_default'  => auth()->user()->addresses()->count() === 0,
                 ]);
             }
 
-            // Rangkai alamat lengkap untuk disimpan di riwayat pesanan (Immutable/Tidak bisa diubah)
             $fullAddress = $request->first_name . ' ' . $request->last_name . " | " .
                 $request->phone . " | " .
                 $request->address . ", " . $request->city . " " . $request->postal_code;
 
-            // Simpan Data Order
+            \Log::info('Full address: ' . $fullAddress);
+
             $order = Order::create([
-                'user_id' => auth()->id() ?? 1,
-                'order_number' => 'ORD-' . strtoupper(Str::random(8)),
-                'subtotal' => $subtotal,
-                'tax_amount' => $taxAmount,
-                'total_amount' => $totalAmount,
-                'status' => 'Pending',
+                'user_id'          => auth()->id(),
+                'order_number'     => 'ORD-' . strtoupper(\Str::random(8)),
+                'subtotal'         => $subtotal,
+                'tax_amount'       => $taxAmount,
+                'total_amount'     => $totalAmount,
+                'status'           => 'Pending',
                 'shipping_address' => $fullAddress,
             ]);
 
-            // Simpan Item & Kurangi Stok
+            \Log::info('Order created', [$order->id]);
+
             foreach ($cart as $variantId => $item) {
+                \Log::info('Creating order item', $item);
                 OrderItem::create([
-                    'order_id' => $order->id,
+                    'order_id'           => $order->id,
                     'product_variant_id' => $item['variant_id'],
-                    'quantity' => $item['quantity'],
-                    'price_at_purchase' => $item['price'],
+                    'quantity'           => $item['quantity'],
+                    'price_at_purchase'  => $item['price'],
                 ]);
 
                 $variant = ProductVariant::find($item['variant_id']);
                 if ($variant) {
                     $variant->decrement('stock', $item['quantity']);
+                    \Log::info('Stock decremented for variant ' . $variant->id);
                 }
             }
 
             DB::commit();
+            \Log::info('DB committed');
 
-            // KONFIGURASI MIDTRANS SNAP
-            Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            // Midtrans
+            Config::$serverKey    = env('MIDTRANS_SERVER_KEY');
             Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
-            Config::$isSanitized = true;
-            Config::$is3ds = true;
+            Config::$isSanitized  = true;
+            Config::$is3ds        = true;
 
             $params = [
                 'transaction_details' => [
-                    'order_id' => $order->order_number,
-                    'gross_amount' => (int) $order->total_amount, 
+                    'order_id'     => $order->order_number,
+                    'gross_amount' => (int) $order->total_amount,
                 ],
                 'customer_details' => [
                     'first_name' => $request->first_name,
-                    'last_name' => $request->last_name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
+                    'last_name'  => $request->last_name,
+                    'email'      => $request->email,
+                    'phone'      => $request->phone,
                 ],
             ];
 
-            $snapToken = Snap::getSnapToken($params);
+            \Log::info('Midtrans params', $params);
 
-            // Bersihkan Keranjang setelah Snap Token tercipta
+            $snapToken = Snap::getSnapToken($params);
+            \Log::info('Snap token received: ' . $snapToken);
+
             session()->forget('cart');
 
             return view('payment', compact('snapToken', 'order'));
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('CHECKOUT ERROR: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
     }

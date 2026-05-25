@@ -13,7 +13,8 @@
         "laravel/framework": "^13.7",
         "laravel/socialite": "*",
         "laravel/tinker": "^3.0",
-        "midtrans/midtrans-php": "^2.6"
+        "midtrans/midtrans-php": "^2.6",
+        "openai-php/laravel": "^0.19.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -85,6 +86,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": ["[PKSA-dw7n-x7f5-zf63]"]
         }
     },
     "minimum-stability": "stable",
