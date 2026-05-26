@@ -163,42 +163,50 @@
 
             {{-- SECTION RATING — hanya tampil jika order Completed --}}
             @if ($order->status === 'Completed')
+            @php
+                $unreviewedItems = $order->items->filter(function($item) {
+                    return $item->variant?->product && !$item->review;
+                });
+                $allReviewed = $unreviewedItems->isEmpty();
+            @endphp
+
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                 <h3 class="text-lg font-serif font-bold text-slate-950 dark:text-white mb-2 flex items-center gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
                     <i class="fas fa-star text-amber-500 text-sm"></i> Beri Ulasan Produk
                 </h3>
                 <p class="text-xs text-slate-400 dark:text-zinc-500 mb-6">Bagikan pengalaman Anda untuk membantu pelanggan lain memilih parfum terbaik.</p>
 
-                <div class="space-y-5">
-                    @foreach ($order->items as $item)
-                        @php
-                            $variant     = $item->variant;
-                            $product     = $variant?->product;
-                            if (!$product) continue;
+                @if ($allReviewed)
+                    {{-- Semua sudah diulas --}}
+                    <div class="text-center py-6">
+                        <div class="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-check-circle text-emerald-500 text-xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-700 dark:text-zinc-300">Semua produk sudah diulas</p>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Terima kasih atas ulasan Anda!</p>
+                    </div>
 
-                            $imgRaw  = $product->image_url;
-                            $imgSrc  = $imgRaw
-                                ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
-                                : 'https://placehold.co/80x80?text=Scentify';
-
-                            $reviewed = $item->review;
-                        @endphp
-
-                        <div class="flex flex-col sm:flex-row sm:items-start gap-4 p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-zinc-900/30"
-                            id="reviewCard{{ $product->id }}">
-
-                            {{-- Info Produk --}}
-                            <div class="flex items-center gap-3 sm:w-56 shrink-0">
-                                <img src="{{ $imgSrc }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-white/10 shrink-0" alt="{{ $product->name }}">
-                                <div class="min-w-0">
-                                    <p class="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{{ $product->name }}</p>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $variant?->size ?? '-' }}ml</p>
+                    {{-- Tampilkan ulasan yang sudah dikirim --}}
+                    <div class="space-y-4 mt-4">
+                        @foreach ($order->items as $item)
+                            @php
+                                $product  = $item->variant?->product;
+                                $reviewed = $item->review;
+                                if (!$product || !$reviewed) continue;
+                                $imgRaw = $product->image_url;
+                                $imgSrc = $imgRaw
+                                    ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
+                                    : 'https://placehold.co/80x80?text=Scentify';
+                            @endphp
+                            <div class="flex flex-col sm:flex-row sm:items-start gap-4 p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-zinc-900/30">
+                                <div class="flex items-center gap-3 sm:w-48 shrink-0">
+                                    <img src="{{ $imgSrc }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-white/10 shrink-0" alt="{{ $product->name }}">
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{{ $product->name }}</p>
+                                        <p class="text-[10px] text-slate-400">{{ $item->variant?->size ?? '-' }}ml</p>
+                                    </div>
                                 </div>
-                            </div>
-
-                            {{-- Sudah review --}}
-                            @if ($reviewed)
-                                <div class="flex-1 flex flex-col gap-1">
+                                <div class="flex-1 space-y-1">
                                     <div class="flex items-center gap-1">
                                         @for ($s = 1; $s <= 5; $s++)
                                             <i class="fas fa-star text-sm {{ $s <= $reviewed->rating ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700' }}"></i>
@@ -211,52 +219,125 @@
                                     @if ($reviewed->comment)
                                         <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">{{ $reviewed->comment }}</p>
                                     @endif
-                                    <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
+                                    <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
                                         <i class="fas fa-check-circle"></i> Ulasan terkirim
                                     </span>
                                 </div>
-                            @else
-                                {{-- Belum review — tampilkan form --}}
-                                <div class="flex-1" id="reviewForm{{ $product->id }}">
+                            </div>
+                        @endforeach
+                    </div>
+
+                @else
+                    {{-- Masih ada yang belum diulas --}}
+
+                    {{-- Tampilkan yang sudah diulas dulu (jika ada) --}}
+                    @php $alreadyReviewed = $order->items->filter(fn($i) => $i->review && $i->variant?->product); @endphp
+                    @if ($alreadyReviewed->isNotEmpty())
+                        <div class="space-y-3 mb-6">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sudah Diulas</p>
+                            @foreach ($alreadyReviewed as $item)
+                                @php
+                                    $product  = $item->variant->product;
+                                    $reviewed = $item->review;
+                                    $imgRaw   = $product->image_url;
+                                    $imgSrc   = $imgRaw
+                                        ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
+                                        : 'https://placehold.co/80x80?text=Scentify';
+                                @endphp
+                                <div class="flex items-center gap-3 p-3 rounded-xl border border-emerald-100 dark:border-emerald-500/10 bg-emerald-50/50 dark:bg-emerald-500/5">
+                                    <img src="{{ $imgSrc }}" class="w-9 h-9 rounded-lg object-cover shrink-0" alt="{{ $product->name }}">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-slate-800 dark:text-zinc-200 truncate">{{ $product->name }}</p>
+                                        <div class="flex items-center gap-0.5 mt-0.5">
+                                            @for ($s = 1; $s <= 5; $s++)
+                                                <i class="fas fa-star text-[10px] {{ $s <= $reviewed->rating ? 'text-amber-400' : 'text-slate-200' }}"></i>
+                                            @endfor
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] text-emerald-500 font-semibold shrink-0">
+                                        <i class="fas fa-check-circle mr-1"></i>Terkirim
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="border-t border-slate-100 dark:border-white/5 pt-6 mb-4">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Belum Diulas</p>
+                        </div>
+                    @endif
+
+                    {{-- Form untuk item yang belum diulas — semua dalam 1 form, 1 tombol --}}
+                    <div class="space-y-5" id="reviewItemsContainer">
+                        @foreach ($unreviewedItems as $item)
+                            @php
+                                $product = $item->variant->product;
+                                $uid     = 'item_' . $item->id;
+                                $imgRaw  = $product->image_url;
+                                $imgSrc  = $imgRaw
+                                    ? (str_starts_with($imgRaw, 'http') ? $imgRaw : asset('product_image/' . $imgRaw))
+                                    : 'https://placehold.co/80x80?text=Scentify';
+                            @endphp
+                            <div class="flex flex-col sm:flex-row sm:items-start gap-4 p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-zinc-900/30"
+                                data-uid="{{ $uid }}"
+                                data-product-id="{{ $product->id }}"
+                                data-item-id="{{ $item->id }}"
+                                data-order-id="{{ $order->id }}">
+
+                                {{-- Info Produk --}}
+                                <div class="flex items-center gap-3 sm:w-48 shrink-0">
+                                    <img src="{{ $imgSrc }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-white/10 shrink-0" alt="{{ $product->name }}">
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">{{ $product->name }}</p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $item->variant?->size ?? '-' }}ml · {{ $item->quantity }}x</p>
+                                    </div>
+                                </div>
+
+                                {{-- Input Rating --}}
+                                <div class="flex-1">
                                     {{-- Bintang --}}
-                                    <div class="flex items-center gap-1 mb-3" id="stars{{ $product->id }}">
+                                    <div class="flex items-center gap-1 mb-3" id="stars{{ $uid }}">
                                         @for ($s = 1; $s <= 5; $s++)
                                             <button type="button"
-                                                    onclick="setRating({{ $product->id }}, {{ $s }})"
-                                                    onmouseover="hoverRating({{ $product->id }}, {{ $s }})"
-                                                    onmouseout="resetHover({{ $product->id }})"
-                                                    class="star-btn text-2xl transition-transform duration-100 hover:scale-110 focus:outline-none"
-                                                    data-value="{{ $s }}">
+                                                    onclick="setRating('{{ $uid }}', {{ $s }})"
+                                                    onmouseover="hoverRating('{{ $uid }}', {{ $s }})"
+                                                    onmouseout="resetHover('{{ $uid }}')"
+                                                    class="star-btn text-2xl transition-transform duration-100 hover:scale-110 focus:outline-none">
                                                 <i class="far fa-star text-slate-300 dark:text-zinc-600 transition-colors duration-150"></i>
                                             </button>
                                         @endfor
-                                        <span id="ratingLabel{{ $product->id }}" class="text-xs text-slate-400 ml-2 font-medium">Pilih bintang</span>
+                                        <span id="ratingLabel{{ $uid }}" class="text-xs text-slate-400 ml-2 font-medium">Pilih bintang</span>
                                     </div>
 
-                                    {{-- Input judul --}}
                                     <input type="text"
-                                        id="reviewTitle{{ $product->id }}"
+                                        id="reviewTitle{{ $uid }}"
                                         placeholder="Judul ulasan (opsional)"
                                         maxlength="100"
                                         class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all mb-2">
 
-                                    {{-- Textarea --}}
-                                    <textarea id="reviewComment{{ $product->id }}"
+                                    <textarea id="reviewComment{{ $uid }}"
                                             placeholder="Ceritakan pengalaman Anda dengan parfum ini..."
                                             maxlength="1000" rows="2"
-                                            class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none mb-3"></textarea>
-
-                                    <button type="button"
-                                            onclick="submitReview({{ $product->id }}, {{ $order->id }})"
-                                            id="submitReviewBtn{{ $product->id }}"
-                                            class="px-5 py-2 bg-slate-900 dark:bg-amber-400 text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all shadow-md">
-                                        <i class="fas fa-paper-plane mr-1.5"></i> Kirim Ulasan
-                                    </button>
+                                            class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none"></textarea>
                                 </div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- 1 Tombol Kirim untuk semua --}}
+                    <div class="mt-6 pt-4 border-t border-slate-100 dark:border-white/5">
+                        <button type="button"
+                                onclick="submitAllReviews()"
+                                id="submitAllReviewsBtn"
+                                class="w-full py-3.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2">
+                            <i class="fas fa-paper-plane"></i>
+                            Kirim {{ $unreviewedItems->count() > 1 ? $unreviewedItems->count() . ' Ulasan Sekaligus' : 'Ulasan' }}
+                        </button>
+                        @if ($unreviewedItems->count() > 1)
+                            <p class="text-center text-[11px] text-slate-400 mt-2">
+                                Semua ulasan akan dikirim sekaligus dalam satu klik
+                            </p>
+                        @endif
+                    </div>
+                @endif
             </div>
             @endif
 
@@ -456,6 +537,7 @@
     }
 
     // ===== RATING SYSTEM =====
+    // ===== RATING SYSTEM =====
     const ratingValues = {};
 
     const ratingLabels = {
@@ -466,49 +548,60 @@
         5: 'Luar Biasa!'
     };
 
-    function setRating(productId, value) {
-        ratingValues[productId] = value;
-        renderStars(productId, value, true);
-        document.getElementById('ratingLabel' + productId).textContent = ratingLabels[value];
-        document.getElementById('ratingLabel' + productId).className = 'text-xs ml-2 font-semibold text-amber-500';
+    function setRating(uid, value) {
+        ratingValues[uid] = value;
+        renderStars(uid, value, true);
+        const label = document.getElementById('ratingLabel' + uid);
+        label.textContent = ratingLabels[value];
+        label.className = 'text-xs ml-2 font-semibold text-amber-500';
     }
 
-    function hoverRating(productId, value) {
-        renderStars(productId, value, false);
+    function hoverRating(uid, value) {
+        renderStars(uid, value, false);
     }
 
-    function resetHover(productId) {
-        const current = ratingValues[productId] || 0;
-        renderStars(productId, current, true);
+    function resetHover(uid) {
+        renderStars(uid, ratingValues[uid] || 0, true);
     }
 
-    function renderStars(productId, value, isSet) {
-        const container = document.getElementById('stars' + productId);
-        const btns = container.querySelectorAll('.star-btn');
-        btns.forEach((btn, i) => {
+    function renderStars(uid, value, isSet) {
+        const container = document.getElementById('stars' + uid);
+        if (!container) return;
+        container.querySelectorAll('.star-btn').forEach((btn, i) => {
             const icon = btn.querySelector('i');
-            if (i < value) {
-                icon.className = 'fas fa-star text-amber-400 transition-colors duration-150';
-            } else {
-                icon.className = isSet
+            icon.className = i < value
+                ? 'fas fa-star text-amber-400 transition-colors duration-150'
+                : (isSet
                     ? 'far fa-star text-slate-300 dark:text-zinc-600 transition-colors duration-150'
-                    : 'far fa-star text-amber-200 transition-colors duration-150';
-            }
+                    : 'far fa-star text-amber-200 transition-colors duration-150');
         });
     }
 
-    function submitReview(productId, orderId) {
-        const rating  = ratingValues[productId];
-        const title   = document.getElementById('reviewTitle' + productId)?.value?.trim();
-        const comment = document.getElementById('reviewComment' + productId)?.value?.trim();
-        const btn     = document.getElementById('submitReviewBtn' + productId);
-        const isDark  = document.documentElement.classList.contains('dark');
+    async function submitAllReviews() {
+        const btn       = document.getElementById('submitAllReviewsBtn');
+        const isDark    = document.documentElement.classList.contains('dark');
+        const items     = document.querySelectorAll('#reviewItemsContainer [data-uid]');
 
-        if (!rating) {
+        // Validasi semua item harus ada ratingnya
+        let allValid = true;
+        items.forEach(card => {
+            const uid = card.dataset.uid;
+            if (!ratingValues[uid]) {
+                allValid = false;
+                // Highlight stars yang belum dipilih
+                const starsEl = document.getElementById('stars' + uid);
+                if (starsEl) {
+                    starsEl.classList.add('ring-2', 'ring-rose-400', 'rounded-lg', 'px-1');
+                    setTimeout(() => starsEl.classList.remove('ring-2', 'ring-rose-400', 'rounded-lg', 'px-1'), 2500);
+                }
+            }
+        });
+
+        if (!allValid) {
             Swal.fire({
                 toast: true, position: 'bottom-end', icon: 'warning',
-                title: 'Pilih rating bintang terlebih dahulu.',
-                showConfirmButton: false, timer: 2500,
+                title: 'Pilih rating bintang untuk semua produk.',
+                showConfirmButton: false, timer: 3000,
                 customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
             });
             return;
@@ -516,73 +609,86 @@
 
         // Loading state
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Mengirim...';
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Mengirim semua ulasan...';
 
-        fetch('{{ route("reviews.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                order_id:   orderId,
-                product_id: productId,
-                rating:     rating,
-                title:      title || null,
-                comment:    comment || null,
-            })
-        })
-        .then(res => res.json().then(data => ({ status: res.status, data })))
-        .then(({ status, data }) => {
-            if (status === 200 || status === 201) {
-                // Ganti form dengan tampilan sukses
-                const formEl = document.getElementById('reviewForm' + productId);
-                const stars  = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-                formEl.innerHTML = `
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-1">
-                            ${Array.from({length: 5}, (_, i) =>
-                                `<i class="fas fa-star text-sm ${i < rating ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700'}"></i>`
-                            ).join('')}
-                            <span class="text-xs font-bold text-slate-500 ml-1">${rating}/5</span>
+        // Kirim semua review secara paralel
+        const promises = Array.from(items).map(card => {
+            const uid       = card.dataset.uid;
+            const productId = parseInt(card.dataset.productId);
+            const itemId    = parseInt(card.dataset.itemId);
+            const orderId   = parseInt(card.dataset.orderId);
+            const title     = document.getElementById('reviewTitle' + uid)?.value?.trim() || null;
+            const comment   = document.getElementById('reviewComment' + uid)?.value?.trim() || null;
+
+            return fetch('{{ route("reviews.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept':       'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    order_id:      orderId,
+                    order_item_id: itemId,
+                    product_id:    productId,
+                    rating:        ratingValues[uid],
+                    title:         title,
+                    comment:       comment,
+                })
+            }).then(res => res.json().then(data => ({ status: res.status, data, uid, rating: ratingValues[uid], title, comment })));
+        });
+
+        try {
+            const results = await Promise.all(promises);
+            const allSuccess = results.every(r => r.status === 200 || r.status === 201);
+
+            if (allSuccess) {
+                // Ganti seluruh form dengan tampilan sukses
+                const container = document.getElementById('reviewItemsContainer');
+                container.innerHTML = results.map(r => `
+                    <div class="flex items-center gap-3 p-3 rounded-xl border border-emerald-100 dark:border-emerald-500/10 bg-emerald-50/50 dark:bg-emerald-500/5">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+                            <i class="fas fa-check text-emerald-500 text-xs"></i>
                         </div>
-                        ${title ? `<p class="text-sm font-semibold text-slate-700 dark:text-zinc-300">${title}</p>` : ''}
-                        ${comment ? `<p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">${comment}</p>` : ''}
-                        <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1 mt-1">
-                            <i class="fas fa-check-circle"></i> Ulasan terkirim
-                        </span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-0.5">
+                                ${Array.from({length: 5}, (_, i) =>
+                                    `<i class="fas fa-star text-[11px] ${i < r.rating ? 'text-amber-400' : 'text-slate-200'}"></i>`
+                                ).join('')}
+                            </div>
+                            ${r.title ? `<p class="text-xs font-semibold text-slate-700 dark:text-zinc-300 mt-0.5">${r.title}</p>` : ''}
+                            ${r.comment ? `<p class="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 line-clamp-1">${r.comment}</p>` : ''}
+                        </div>
+                        <span class="text-[10px] text-emerald-500 font-bold shrink-0">Terkirim</span>
                     </div>
-                `;
+                `).join('');
+
+                // Sembunyikan tombol kirim
+                btn.closest('.mt-6').remove();
 
                 Swal.fire({
-                    toast: true, position: 'bottom-end', icon: 'success',
-                    title: 'Ulasan berhasil dikirim!',
-                    showConfirmButton: false, timer: 2500,
-                    customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
+                    icon: 'success',
+                    title: 'Terima kasih!',
+                    text: `${results.length} ulasan berhasil dikirim.`,
+                    confirmButtonColor: '#f59e0b',
+                    customClass: { popup: isDark ? 'dark-swal rounded-2xl' : 'rounded-2xl' }
                 });
             } else {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i> Kirim Ulasan';
-                Swal.fire({
-                    toast: true, position: 'bottom-end', icon: 'error',
-                    title: data.message || 'Gagal mengirim ulasan.',
-                    showConfirmButton: false, timer: 3000,
-                    customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
-                });
+                throw new Error('Sebagian ulasan gagal dikirim.');
             }
-        })
-        .catch(() => {
+
+        } catch (err) {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-paper-plane mr-1.5"></i> Kirim Ulasan';
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Kirim Ulasan';
             Swal.fire({
                 toast: true, position: 'bottom-end', icon: 'error',
-                title: 'Terjadi kesalahan. Coba lagi.',
+                title: err.message || 'Gagal mengirim ulasan.',
                 showConfirmButton: false, timer: 3000,
                 customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
             });
-        });
+        }
     }
+// ===== END RATING SYSTEM =====
     // ===== END RATING SYSTEM =====
 </script>
 @endsection

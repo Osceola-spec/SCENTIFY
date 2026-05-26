@@ -22,7 +22,6 @@
         </div>
         
         <div class="flex flex-col sm:flex-row items-center justify-between lg:justify-end gap-3 sm:gap-4 w-full lg:w-auto">
-            
             <div class="relative w-full sm:w-56 md:w-64 order-1 sm:order-none">
                 <input type="text" name="search" form="filterForm" value="{{ request('search') }}" 
                        placeholder="Cari nama parfum..." 
@@ -56,7 +55,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
         <aside id="filterSidebar" class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white dark:bg-darkbg lg:bg-transparent lg:dark:bg-transparent p-6 lg:p-0 border-r border-slate-200 dark:border-white/10 lg:border-none shadow-2xl lg:shadow-none transform -translate-x-full lg:translate-x-0 overflow-y-auto lg:overflow-visible lg:static lg:col-span-3 lg:w-full reveal">
             <div class="flex lg:hidden justify-end mb-6">
                 <button type="button" onclick="closeMobileFilter()" class="w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
@@ -103,12 +101,12 @@
 
                     <div>
                         <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Harga Maksimal</h6>
-                        <div class="relative pt-4 px-2">
+                        <div class="relative pt-4 px-2 group">
                             <input type="range" name="max_price" id="priceRange" min="0" max="5000000" step="100000" 
                                    value="{{ request('max_price', 5000000) }}"
                                    class="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
                             
-                            <div id="rangeTooltip" class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-amber-500 text-white dark:text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-lg pointer-events-none hidden group-active:block">
+                            <div id="rangeTooltip" class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-amber-500 text-white dark:text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-lg pointer-events-none hidden group-hover:block group-active:block transition-all duration-150">
                                 Rp 5.000.000
                             </div>
                         </div>
@@ -127,7 +125,6 @@
         </aside>
 
         <main class="lg:col-span-9">
-            
             @php
                 $activeFilters = [];
 
@@ -189,7 +186,7 @@
                                     <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1" title="{{ $product->name }}">
                                         {{ $product->name }}
                                     </h5>
-                                    {{-- Tambahkan setelah tag <h5> nama produk --}}
+                                    
                                     @php
                                         $avgRating   = $product->reviews->avg('rating') ?? 0;
                                         $reviewCount = $product->reviews->count();
@@ -247,12 +244,18 @@
                                                     data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                                                     data-product-description="{{ $product->description ?? '' }}"
                                                     data-product-images="{{ json_encode($product->images->map(fn($img) => $img->url)) }}"
-                                                    data-variants="{{ json_encode($product->variants) }}">
+                                                    data-variants="{{ json_encode($product->variants) }}"
+                                                    data-reviews="{{ json_encode($product->reviews->map(fn($r) => [
+                                                        'rating' => $r->rating,
+                                                        'comment' => $r->comment,
+                                                        'date' => $r->created_at->format('d M Y'),
+                                                        'user_name' => $r->user->name ?? 'Pelanggan Scentify'
+                                                    ])) }}">
                                                 <i class="fas fa-cart-plus"></i> Beli
                                             </button>
                                         @else
                                             <a href="{{ route('login') }}" class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
-                                            onclick="event.preventDefault(); showLoginAlert(this.href)">
+                                               onclick="event.preventDefault(); showLoginAlert(this.href)">
                                                 <i class="fas fa-cart-plus"></i> Beli
                                             </a>
                                         @endauth
@@ -283,7 +286,6 @@
             <div class="mt-16 pt-8 border-t border-slate-200 dark:border-white/5 flex justify-center custom-pagination reveal">
                 {{ $products->links('pagination::bootstrap-5') }}
             </div>
-
         </main>
     </div>
 </div>
@@ -297,17 +299,14 @@
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                 <div class="md:col-span-5">
-                    {{-- Ganti div gambar tunggal di dalam modal --}}
-                    <div class="md:col-span-5">
-                        {{-- Gambar Utama --}}
-                        <div class="w-full h-64 md:h-72 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900">
-                            <img id="modalProductImage" src="" alt="Product" class="w-full h-full object-cover transition-all duration-300">
-                        </div>
-                        {{-- Thumbnail Gallery --}}
-                        <div id="modalGallery" class="flex gap-2 mt-3 overflow-x-auto pb-1"></div>
+                    {{-- Gambar Utama --}}
+                    <div class="w-full h-64 md:h-72 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900">
+                        <img id="modalProductImage" src="" alt="Product" class="w-full h-full object-cover transition-all duration-300">
                     </div>
+                    {{-- Thumbnail Gallery --}}
+                    <div id="modalGallery" class="flex gap-2 mt-3 overflow-x-auto pb-1"></div>
                 </div>
 
                 <div class="md:col-span-7 flex flex-col justify-between h-full">
@@ -335,9 +334,17 @@
                             <span id="modalStockStatus" class="text-xs text-slate-500 font-medium hidden"></span>
                         </div>
 
-                        <div id="variantNotice" class="hidden mt-4 text-xs text-rose-500 flex items-center gap-1.5 font-medium">
+                        <div id="variantNotice" class="mt-4 text-xs text-rose-500 flex items-center gap-1.5 font-medium">
                             <i class="fas fa-exclamation-circle"></i> Pilih salah satu varian terlebih dahulu.
                         </div>
+                    </div>
+
+                    <div class="border-t border-slate-200 dark:border-white/5 mt-8 pt-6">
+                        <h5 class="text-sm font-serif font-bold text-slate-950 dark:text-white mb-4 flex items-center gap-2">
+                            <i class="fas fa-star text-amber-500 text-xs"></i> 
+                            Ulasan Pelanggan (<span id="modalReviewCount">0</span>)
+                        </h5>
+                        <div id="modalReviewsList" class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 mt-8">
@@ -358,6 +365,7 @@
 
 <form id="hiddenCartForm" action="" method="POST" class="hidden">
     @csrf
+    <input type="hidden" name="variant_id" id="hiddenVariantId" value="">
     <input type="hidden" name="quantity" id="hiddenQuantity" value="1">
 </form>
 
@@ -376,331 +384,284 @@
 </style>
 
 <script>
+    const isDarkMode = () => document.documentElement.classList.contains('dark');
+
+    // Variable global untuk pencatatan modal varian produk
+    let selectedVariantId = null;
+    let maxVariantStock = 0;
+
+    // ==========================================
     // 1. MOBILE FILTER DRAWER
+    // ==========================================
     function openMobileFilter() {
-        document.getElementById('filterSidebar').classList.remove('-translate-x-full');
-        document.getElementById('filterOverlay').classList.remove('opacity-0', 'pointer-events-none');
-    }
-    function closeMobileFilter() {
-        document.getElementById('filterSidebar').classList.add('-translate-x-full');
-        document.getElementById('filterOverlay').classList.add('opacity-0', 'pointer-events-none');
+        const sidebar = document.getElementById('filterSidebar');
+        const overlay = document.getElementById('filterOverlay');
+        if (sidebar) sidebar.classList.remove('-translate-x-full');
+        if (overlay) overlay.classList.remove('opacity-0', 'pointer-events-none');
     }
 
-    // 2. LOGIC PRICE RANGE SLIDER
-    (function() {
+    function closeMobileFilter() {
+        const sidebar = document.getElementById('filterSidebar');
+        const overlay = document.getElementById('filterOverlay');
+        if (sidebar) sidebar.classList.add('-translate-x-full');
+        if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    // ==========================================
+    // 2. LOGIC PRICE RANGE SLIDER & DISPATCHERS
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
         const rangeInput = document.getElementById('priceRange');
         const rangeTooltip = document.getElementById('rangeTooltip');
         const priceLabel = document.getElementById('priceLabel');
 
-        function updateUI() {
+        function updateSliderUI() {
             if (!rangeInput) return;
             const val = Number(rangeInput.value);
-            const min = Number(rangeInput.min) || 0;
-            const max = Number(rangeInput.max) || 5000000;
-            const percent = ((val - min) / (max - min)) * 100;
             const formatted = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
-
+            
+            if (priceLabel) priceLabel.textContent = formatted;
             if (rangeTooltip) {
-                rangeTooltip.innerText = formatted;
-                rangeTooltip.style.left = `calc(${percent}% + (${8 - percent * 0.16}px))`;
+                rangeTooltip.textContent = formatted;
+                const min = rangeInput.min ? Number(rangeInput.min) : 0;
+                const max = rangeInput.max ? Number(rangeInput.max) : 5000000;
+                const pct = ((val - min) / (max - min)) * 100;
+                rangeTooltip.style.left = `calc(${pct}% + (${8 - pct * 0.15}px))`;
             }
-            if (priceLabel) priceLabel.innerText = formatted;
         }
 
         if (rangeInput) {
-            rangeInput.addEventListener('input', updateUI);
-            updateUI();
-        }
-    })();
-
-    // 3. INTERAKTIF TOMBOL WISHLIST & SHARE
-    function toggleWishlist(btn, event, productId) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const isAuth = {{ auth()->check() ? 'true' : 'false' }};
-        if (!isAuth) {
-            showLoginAlert('{{ route('login') }}');
-            return;
+            rangeInput.addEventListener('input', updateSliderUI);
+            updateSliderUI();
         }
 
-        const icon = btn.querySelector('i');
-        const isDark = document.documentElement.classList.contains('dark');
-        
-        const originalClass = icon.className;
-        icon.className = 'fas fa-circle-notch fa-spin text-slate-400 text-[10px] sm:text-xs';
-
-        fetch(`/wishlist/toggle/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        // Delegasi Event Click tombol Beli / Variant Selector
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.variant-selector-btn');
+            if (btn) {
+                openVariantModal(btn);
             }
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Terjadi kesalahan jaringan');
-            return response.json();
-        })
-        .then(data => {
-            if (data.status === 'added') {
-                icon.className = 'fas fa-heart text-rose-500 text-[10px] sm:text-xs transition-transform duration-300 scale-125';
-                setTimeout(() => icon.classList.remove('scale-125'), 200);
-                
-                Swal.fire({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000, icon: 'success', title: 'Disimpan ke Wishlist!', customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }});
-            } else if (data.status === 'removed') {
-                icon.className = 'far fa-heart text-[10px] sm:text-xs transition-transform duration-300';
-                
-                Swal.fire({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000, icon: 'info', title: 'Dihapus dari Wishlist.', customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }});
-            }
-            
-            const badge = document.getElementById('wishlist-badge');
-            if (badge) {
-                badge.innerText = data.count;
-                if (data.count > 0) {
-                    badge.classList.remove('opacity-0');
-                } else {
-                    badge.classList.add('opacity-0');
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Wishlist Error:', error);
-            icon.className = originalClass;
-            Swal.fire({ toast: true, position: 'bottom-end', icon: 'error', title: 'Gagal memproses data.', showConfirmButton: false, timer: 2000 });
-        });
-    }
-
-    function shareProduct(productName, event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        const isDark = document.documentElement.classList.contains('dark');
-        
-        Swal.fire({
-            title: 'Bagikan Produk',
-            text: `Rekomendasikan mahakarya aroma '${productName}' kepada kerabat Anda.`,
-            icon: 'share-nodes',
-            iconHtml: '<i class="fas fa-share-nodes text-amber-500"></i>',
-            showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-link mr-2"></i> Salin Tautan',
-            cancelButtonText: 'Tutup',
-            confirmButtonColor: '#f59e0b',
-            cancelButtonColor: '#64748b',
-            reverseButtons: true,
-            customClass: {
-                popup: isDark ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
-                confirmButton: 'rounded-xl px-5 py-2 font-bold',
-                cancelButton: 'rounded-xl px-5 py-2 font-bold'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                navigator.clipboard.writeText(window.location.href);
-                Swal.fire({
-                    toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2500,
-                    icon: 'success', title: 'Tautan berhasil disalin!',
-                    customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
-                });
-            }
-        });
-    }
-
-    // 4. PREMIUM VARIANT MODAL LOGIC & QUANTITY
-    let selectedVariant = null;
-    let variantsMap = {};
-
-    document.querySelectorAll('.variant-selector-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const productImages = JSON.parse(this.dataset.productImages || '[]');
-            openVariantModal(
-                this.dataset.productId,
-                this.dataset.productName,
-                this.dataset.productBrand,
-                this.dataset.productImage,
-                this.dataset.productDescription,
-                JSON.parse(this.dataset.variants),
-                productImages
-            );
         });
     });
 
-    function openVariantModal(productId, productName, productBrand, productImage, productDescription, variants, productImages) {
-        selectedVariant = null;
-        variantsMap = {};
+    // ==========================================
+    // 3. VARIANT SELECTION & MODAL IMPLEMENTATION
+    // ==========================================
+    function openVariantModal(btn) {
+        const id = btn.getAttribute('data-product-id');
+        const name = btn.getAttribute('data-product-name');
+        const brand = btn.getAttribute('data-product-brand');
+        const image = btn.getAttribute('data-product-image');
+        const desc = btn.getAttribute('data-product-description');
+        const images = JSON.parse(btn.getAttribute('data-product-images') || '[]');
+        const variants = JSON.parse(btn.getAttribute('data-variants') || '[]');
+        const reviews = JSON.parse(btn.getAttribute('data-reviews') || '[]');
 
-        // Set gambar utama
-        document.getElementById('modalProductImage').src = productImage;
-        document.getElementById('modalProductName').textContent = productName;
-        document.getElementById('modalProductBrand').textContent = productBrand;
-        document.getElementById('modalProductDescription').textContent = productDescription;
+        // Pengisian Data Utama Modal
+        document.getElementById('modalProductName').textContent = name;
+        document.getElementById('modalProductBrand').textContent = brand;
+        document.getElementById('modalProductDescription').textContent = desc || 'Tidak ada deskripsi.';
+        document.getElementById('modalProductImage').src = image;
         document.getElementById('modalQuantity').value = 1;
-        document.getElementById('modalStockStatus').classList.add('hidden');
-
-        // Render galeri thumbnail
-        const gallery = document.getElementById('modalGallery');
-        gallery.innerHTML = '';
-
-        const allImages = productImages && productImages.length > 0
-            ? productImages
-            : [productImage];
-
-        if (allImages.length > 1) {
-            allImages.forEach((imgUrl, index) => {
-                const thumb = document.createElement('button');
-                thumb.type = 'button';
-                thumb.className = `shrink-0 w-14 h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 focus:outline-none ${index === 0 ? 'border-amber-500' : 'border-slate-200 dark:border-white/10 opacity-60 hover:opacity-100'}`;
-                thumb.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover" alt="Foto ${index + 1}">`;
-                thumb.onclick = () => switchModalImage(imgUrl, thumb);
-                gallery.appendChild(thumb);
-            });
-        }
-
-        // Variants
-        variants.forEach(variant => { variantsMap[variant.id] = variant; });
-
-        let variantsList = '';
-        variants.forEach(variant => {
-            const stock = variant.stock || 0;
-            const isOutOfStock = stock <= 0;
-            variantsList += `
-                <button type="button" class="variant-btn px-4 py-2 text-xs font-mono font-bold border-2 border-slate-200 dark:border-white/10 rounded-xl hover:border-amber-500 dark:hover:border-amber-400 transition-all ${isOutOfStock ? 'opacity-40 cursor-not-allowed' : ''}"
-                        onclick="${!isOutOfStock ? `selectVariant(this, ${variant.id})` : ''}"
-                        ${isOutOfStock ? 'disabled' : ''}>
-                    ${variant.size}ml
-                </button>
-            `;
-        });
-
-        document.getElementById('variantsList').innerHTML = variantsList;
-        document.getElementById('variantNotice').classList.add('hidden');
+        
+        // Reset State Varian Terpilih
+        selectedVariantId = null;
+        maxVariantStock = 0;
         document.getElementById('addToCartBtn').disabled = true;
+        document.getElementById('variantNotice').classList.remove('hidden');
+        document.getElementById('modalStockStatus').classList.add('hidden');
         document.getElementById('modalProductPrice').textContent = 'Rp 0';
 
-        const modal = document.getElementById('variantModal');
-        modal.classList.remove('opacity-0', 'pointer-events-none');
-        modal.querySelector('.bg-white').classList.remove('scale-95');
-    }
+        // Render Galeri Foto Mini (Thumbnails)
+        const galleryContainer = document.getElementById('modalGallery');
+        galleryContainer.innerHTML = '';
+        const allImages = [image, ...images].filter(Boolean);
+        const uniqueImages = [...new Set(allImages)];
 
-    function switchModalImage(imgUrl, thumbEl) {
-        document.getElementById('modalProductImage').src = imgUrl;
-
-        // Update active state thumbnail
-        document.querySelectorAll('#modalGallery button').forEach(btn => {
-            btn.classList.remove('border-amber-500');
-            btn.classList.add('border-slate-200', 'dark:border-white/10', 'opacity-60');
-        });
-        thumbEl.classList.add('border-amber-500');
-        thumbEl.classList.remove('border-slate-200', 'dark:border-white/10', 'opacity-60');
-    }
-
-    function selectVariant(element, variantId) {
-        document.querySelectorAll('.variant-btn').forEach(btn => {
-            btn.classList.remove('border-amber-500', 'text-amber-500', 'bg-amber-500/10');
-            btn.classList.add('border-slate-200', 'dark:border-white/10');
+        uniqueImages.forEach((imgUrl, idx) => {
+            const thumb = document.createElement('button');
+            thumb.type = 'button';
+            thumb.className = `w-12 h-12 rounded-xl overflow-hidden border-2 ${idx === 0 ? 'border-amber-500' : 'border-transparent'} bg-slate-100 dark:bg-zinc-900 shrink-0 transition-all`;
+            thumb.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover">`;
+            thumb.addEventListener('click', () => {
+                document.getElementById('modalProductImage').src = imgUrl;
+                galleryContainer.querySelectorAll('button').forEach(b => b.classList.remove('border-amber-500'));
+                thumb.classList.add('border-amber-500');
+            });
+            galleryContainer.appendChild(thumb);
         });
 
-        element.classList.remove('border-slate-200', 'dark:border-white/10');
-        element.classList.add('border-amber-500', 'text-amber-500', 'bg-amber-500/10');
+        // Render Daftar Pilihan Varian Ukuran
+        const variantsContainer = document.getElementById('variantsList');
+        variantsContainer.innerHTML = '';
 
-        selectedVariant = variantId;
-        document.getElementById('addToCartBtn').disabled = false;
-        document.getElementById('variantNotice').classList.add('hidden');
+        variants.forEach(v => {
+            const vBtn = document.createElement('button');
+            vBtn.type = 'button';
+            const hasStock = v.stock > 0;
+            vBtn.className = `px-4 py-2 text-xs font-semibold font-mono border rounded-xl transition-all ${hasStock ? 'border-slate-200 dark:border-white/10 text-slate-800 dark:text-zinc-300 hover:border-amber-500' : 'border-slate-100 dark:border-zinc-800 text-slate-300 dark:text-zinc-600 line-through cursor-not-allowed'}`;
+            vBtn.textContent = v.name || `${v.size}ml`;
+            
+            if (hasStock) {
+                vBtn.addEventListener('click', () => {
+                    selectedVariantId = v.id;
+                    maxVariantStock = v.stock;
+                    
+                    variantsContainer.querySelectorAll('button').forEach(b => {
+                        b.classList.remove('bg-amber-500', 'text-white', 'border-amber-500', 'dark:text-black');
+                        b.classList.add('border-slate-200', 'dark:border-white/10', 'text-slate-800', 'dark:text-zinc-300');
+                    });
+                    vBtn.classList.remove('border-slate-200', 'dark:border-white/10', 'text-slate-800', 'dark:text-zinc-300');
+                    vBtn.classList.add('bg-amber-500', 'text-white', 'border-amber-500', 'dark:text-black');
 
-        document.getElementById('modalQuantity').value = 1;
-        const stockStatus = document.getElementById('modalStockStatus');
-        stockStatus.classList.remove('hidden');
-        // stockStatus.innerText = `Sisa Stok: ${variantsMap[variantId].stock} item`;
+                    const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v.price);
+                    document.getElementById('modalProductPrice').textContent = formattedPrice;
 
-        const priceFormatted = new Intl.NumberFormat('id-ID', {
-            style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-        }).format(variantsMap[variantId].price);
+                    const stockStatus = document.getElementById('modalStockStatus');
+                    stockStatus.textContent = `Stok: ${v.stock} tersedia`;
+                    stockStatus.classList.remove('hidden');
 
-        document.getElementById('modalProductPrice').textContent = priceFormatted;
-    }
+                    document.getElementById('addToCartBtn').disabled = false;
+                    document.getElementById('variantNotice').classList.add('hidden');
+                    document.getElementById('modalQuantity').value = 1;
+                });
+            }
+            variantsContainer.appendChild(vBtn);
+        });
 
-    function incrementQuantity() {
-        const input = document.getElementById('modalQuantity');
-        let val = parseInt(input.value);
-        let maxStock = selectedVariant && variantsMap[selectedVariant] ? (variantsMap[selectedVariant].stock || 99) : 99;
+        // Render Dinamis Komentar Ulasan
+        document.getElementById('modalReviewCount').textContent = reviews.length;
+        const reviewsContainer = document.getElementById('modalReviewsList');
+        reviewsContainer.innerHTML = '';
 
-        if (val < maxStock) {
-            input.value = val + 1;
+        if (reviews.length === 0) {
+            reviewsContainer.innerHTML = `<p class="text-xs text-slate-400 dark:text-zinc-500 italic py-2">Belum ada ulasan untuk produk ini.</p>`;
         } else {
-            Swal.fire({
-                toast: true, position: 'bottom-end', icon: 'warning', title: 'Stok maksimum tercapai!',
-                showConfirmButton: false, timer: 2000,
-                customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal' : '' }
+            reviews.forEach(r => {
+                const rDiv = document.createElement('div');
+                rDiv.className = 'p-3 bg-slate-50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-white/5';
+                
+                let starsHtml = '';
+                for (let s = 1; s <= 5; s++) {
+                    starsHtml += `<i class="fas fa-star text-[9px] ${s <= r.rating ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700'}"></i>`;
+                }
+
+                rDiv.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-semibold text-slate-800 dark:text-zinc-200">${r.user_name}</span>
+                        <span class="text-[10px] font-mono text-slate-400">${r.date}</span>
+                    </div>
+                    <div class="flex items-center gap-0.5 mb-1.5">${starsHtml}</div>
+                    <p class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">${r.comment || 'Tidak ada komentar.'}</p>
+                `;
+                reviewsContainer.appendChild(rDiv);
             });
         }
-    }
 
-    function decrementQuantity() {
-        const input = document.getElementById('modalQuantity');
-        let val = parseInt(input.value);
-        if (val > 1) input.value = val - 1;
+        // Tampilkan Modal dengan Transisi Smooth
+        const modal = document.getElementById('variantModal');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.firstElementChild.classList.remove('scale-95');
+        modal.firstElementChild.classList.add('scale-100');
     }
 
     function closeVariantModal() {
         const modal = document.getElementById('variantModal');
         modal.classList.add('opacity-0', 'pointer-events-none');
-        modal.querySelector('.bg-white').classList.add('scale-95');
+        modal.firstElementChild.classList.remove('scale-100');
+        modal.firstElementChild.classList.add('scale-95');
+    }
+
+    function incrementQuantity() {
+        const qtyInput = document.getElementById('modalQuantity');
+        let val = parseInt(qtyInput.value) || 1;
+        if (selectedVariantId && val < maxVariantStock) {
+            qtyInput.value = val + 1;
+        } else if (!selectedVariantId) {
+            document.getElementById('variantNotice').classList.remove('hidden');
+        }
+    }
+
+    function decrementQuantity() {
+        const qtyInput = document.getElementById('modalQuantity');
+        let val = parseInt(qtyInput.value) || 1;
+        if (val > 1) {
+            qtyInput.value = val - 1;
+        }
     }
 
     function submitVariantSelection() {
-        if (!selectedVariant) {
+        if (!selectedVariantId) {
             document.getElementById('variantNotice').classList.remove('hidden');
             return;
         }
-
-        const submitBtn = document.getElementById('addToCartBtn');
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-75', 'cursor-wait');
-        submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-sm mr-2"></i> Memproses...';
-
-        document.getElementById('hiddenQuantity').value = document.getElementById('modalQuantity').value;
-        document.getElementById('hiddenCartForm').action = `/cart/add/${selectedVariant}`;
-        document.getElementById('hiddenCartForm').submit();
+        
+        const qty = document.getElementById('modalQuantity').value;
+        const hiddenForm = document.getElementById('hiddenCartForm');
+        
+        document.getElementById('hiddenQuantity').value = qty;
+        document.getElementById('hiddenVariantId').value = selectedVariantId;
+        
+        // Sesuaikan endpoint action berdasarkan konfigurasi routing aplikasi Anda
+        hiddenForm.action = `/cart/add/${selectedVariantId}`; 
+        hiddenForm.submit();
     }
 
-    // 5. Unauthorized Add to Cart Interceptor & Admin Delete
+    // ==========================================
+    // 4. GENERAL UTILITIES (WISHLIST, ACTION CONTROLS)
+    // ==========================================
+    function toggleWishlist(btn, event, productId) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Asinkronus AJAX toggle wishlist menggunakan standard Fetch API
+        fetch(`/wishlist/toggle/${productId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const icon = btn.querySelector('i');
+            if (data.status === 'added') {
+                icon.className = 'fas fa-heart text-[10px] sm:text-xs text-rose-500 transition-transform duration-300 scale-125';
+                setTimeout(() => icon.classList.remove('scale-125'), 300);
+            } else {
+                icon.className = 'far fa-heart text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 transition-transform duration-300';
+            }
+        })
+        .catch(err => console.error('Gagal memproses wishlist:', err));
+    }
+
+    function confirmDelete(id, name) {
+        if (confirm(`Apakah Anda yakin ingin menghapus produk "${name}"?`)) {
+            document.getElementById(`delete-form-${id}`).submit();
+        }
+    }
+
     function showLoginAlert(loginUrl) {
-        Swal.fire({
-            title: 'Opps, Belum Login!',
-            text: 'Silakan login terlebih dahulu untuk memasukkan parfum ke keranjang.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#f59e0b',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Login Sekarang',
-            cancelButtonText: 'Nanti Saja',
-            customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]' }
-        }).then((result) => {
-            if (result.isConfirmed) window.location.href = loginUrl;
-        });
+        alert('Silakan login terlebih dahulu untuk melakukan pembelian.');
+        window.location.href = loginUrl;
     }
 
-    function confirmDelete(productId, productName) {
-        Swal.fire({
-            title: 'Pindahkan ke Sampah?',
-            text: `Produk '${productName}' akan disembunyikan dari katalog Scentify.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ff2a5f',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true,
-            customClass: {
-                popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
-                confirmButton: 'rounded-full px-4',
-                cancelButton: 'rounded-full px-4'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + productId).submit();
-            }
-        });
+    function shareProduct(name, event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (navigator.share) {
+            navigator.share({
+                title: name,
+                text: `Lihat koleksi parfum premium: ${name}`,
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => alert('Tautan produk berhasil disalin ke clipboard!'))
+                .catch(err => console.error('Gagal menyalin tautan:', err));
+        }
     }
 </script>
 @endsection

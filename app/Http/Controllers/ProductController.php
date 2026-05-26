@@ -169,4 +169,6 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('admin.inventory')->with('success', 'Produk berhasil dihapus.');
     }
+
+    
 }

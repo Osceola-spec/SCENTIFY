@@ -135,7 +135,7 @@
                 <h2 class="text-xl font-bold text-slate-800 hidden sm:block">@yield('title', 'Admin Panel')</h2>
             </div>
 
-            <div class="flex items-center gap-4 sm:gap-6">
+            {{-- <div class="flex items-center gap-4 sm:gap-6">
                 <!-- Search Box (Optional visual) -->
                 <div class="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2">
                     <i class="fas fa-search text-slate-400 text-sm"></i>
@@ -147,7 +147,7 @@
                     <i class="far fa-bell"></i>
                     <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
                 </button>
-            </div>
+            </div> --}}
         </header>
 
         <!-- Main Content Area -->
