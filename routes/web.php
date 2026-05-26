@@ -19,6 +19,8 @@ use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\MidtransNotificationController;
+
 
 // ==========================================
 // RUTE PUBLIK
@@ -155,3 +157,6 @@ Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store
 Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
 
 Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
+
+// Route untuk Webhook Midtrans
+Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);

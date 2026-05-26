@@ -231,8 +231,8 @@ class CheckoutController extends Controller
         \Log::info("User memilih opsi Bayar Nanti untuk Order ID: {$order->order_number}");
 
         // 1. Bersihkan sisa data checkout di session jika masih ada
-        session()->forget('checkout_data');
-        session()->forget('cart'); // Memastikan keranjang benar-benar kosong setelah pesanan disimpan
+        // session()->forget('checkout_data');
+        // session()->forget('cart'); // Memastikan keranjang benar-benar kosong setelah pesanan disimpan
 
         // 2. Redirect ke halaman My Orders dengan pesan sukses
         // Catatan: Sesuaikan 'orders.index' dengan nama route halaman daftar pesanan Anda
