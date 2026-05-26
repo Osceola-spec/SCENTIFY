@@ -64,4 +64,31 @@ class CustomerOrderController extends Controller
 
         return view('orders.show', compact('order'));
     }
+
+    public function cancel($id)
+    {
+        // Cari order milik user yang sedang login
+        $order = Order::where('user_id', Auth::id())->findOrFail($id);
+
+        // Pastikan hanya pesanan berstatus 'Pending' yang bisa dibatalkan
+        if ($order->status !== 'Pending') {
+            // Jika menggunakan toast/sweetalert dari session, Anda bisa menyesuaikan flash message ini
+            return back()->with('error', 'Hanya pesanan yang belum dibayar yang dapat dibatalkan.');
+        }
+
+        // Ubah status menjadi Cancelled
+        $order->update([
+            'status' => 'Cancelled'
+        ]);
+
+        /* * OPSIONAL: Jika sistem Anda memotong stok (stock deduction) pada saat 
+         * checkout (bukan saat dibayar), jangan lupa kembalikan stoknya di sini.
+         * Contoh:
+         * foreach ($order->items as $item) {
+         * $item->variant->increment('stock', $item->quantity);
+         * }
+         */
+
+        return back()->with('success', 'Pesanan Anda berhasil dibatalkan.');
+    }
 }

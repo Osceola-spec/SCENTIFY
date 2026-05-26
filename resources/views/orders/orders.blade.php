@@ -179,7 +179,17 @@
                         @endif
                     @endif
 
-                    @if ($order->status === 'Pending')
+                   @if ($order->status === 'Pending')
+                        <form id="cancel-form-{{ $order->id }}" action="{{ route('orders.cancel', $order->id) }}" method="POST" class="hidden">
+                            @csrf
+                            @method('PUT')
+                        </form>
+
+                        <button type="button" onclick="cancelOrder('{{ $order->id }}', '{{ $order->order_number }}')"
+                                class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-center">
+                            Batalkan
+                        </button>
+
                         <button onclick="payNow('{{ $order->order_number }}')"
                                 class="flex-1 sm:flex-none px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-center">
                             Bayar Sekarang
@@ -287,6 +297,41 @@
                     timer: 2000,
                     customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]' }
                 });
+            }
+        });
+    }
+    function cancelOrder(orderId, orderNumber) {
+        Swal.fire({
+            title: 'Batalkan Pesanan?',
+            text: `Apakah Anda yakin ingin membatalkan pesanan #${orderNumber}? Tindakan ini tidak dapat dikembalikan.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // Warna Rose 500
+            cancelButtonColor: '#64748b', // Warna Slate 500
+            confirmButtonText: 'Ya, Batalkan',
+            cancelButtonText: 'Kembali',
+            reverseButtons: true,
+            customClass: {
+                popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
+                confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
+                cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Tampilkan loading sebentar sebelum submit
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Sedang membatalkan pesanan Anda.',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    },
+                    customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]' }
+                });
+                
+                // Submit form pembatalan
+                document.getElementById(`cancel-form-${orderId}`).submit();
             }
         });
     }

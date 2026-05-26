@@ -44,9 +44,16 @@
             </p>
 
             <!-- Tombol Pay Utama yang Memicu Midtrans Snap -->
-            <button id="pay-button" class="w-full bg-slate-950 dark:bg-amber-400 text-white dark:text-black py-4 rounded-xl font-bold tracking-widest uppercase shadow-xl shadow-slate-900/20 dark:shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3">
-                <i class="fas fa-wallet text-lg"></i> Bayar Sekarang
-            </button>
+            <div class="mt-4 d-flex gap-2">
+                <button id="pay-button" class="btn btn-primary w-100">
+                    Bayar Sekarang
+                </button>
+
+                <a href="{{ route('checkout.pay-later', $order->id) }}" class="btn btn-outline-secondary w-100" 
+                onclick="return confirm('Apakah Anda yakin ingin membayar pesanan ini nanti?')">
+                    Bayar Nanti
+                </a>
+            </div>
             
             <div class="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 flex items-center justify-center gap-2 text-[10px] text-slate-400 dark:text-zinc-500 font-medium uppercase tracking-widest">
                 <i class="fas fa-lock text-emerald-500"></i> Transaksi Aman Didukung Oleh Midtrans

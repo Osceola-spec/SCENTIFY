@@ -2,9 +2,9 @@
 
 @section('content')
 @php
-    $nameParts = explode(' ', auth()->user()->name ?? '', 2);
-    $autoFirstName = $nameParts[0] ?? '';
-    $autoLastName = $nameParts[1] ?? '';
+    // Langsung ambil dari kolom database yang baru
+    $autoFirstName = auth()->user()->first_name ?? '';
+    $autoLastName = auth()->user()->last_name ?? '';
 @endphp
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10">
@@ -64,13 +64,13 @@
                         
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nama Depan <span class="text-rose-500">*</span></label>
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nama Depan (Penerima) <span class="text-rose-500">*</span></label>
                                 <input type="text" name="first_name" id="first_name" value="{{ $autoFirstName }}" required
                                        class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
                             </div>
                             <div>
-                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nama Belakang <span class="text-rose-500">*</span></label>
-                                <input type="text" name="last_name" id="last_name" value="{{ $autoLastName }}" required
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nama Belakang (Penerima)</label>
+                                <input type="text" name="last_name" id="last_name" value="{{ $autoLastName }}"
                                        class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
                             </div>
                         </div>
@@ -78,8 +78,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Email <span class="text-rose-500">*</span></label>
-                                <input type="email" name="email" id="email" value="{{ auth()->user()->email ?? '' }}" required
-                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                <input type="email" name="email" id="email" value="{{ auth()->user()->email ?? '' }}" required readonly
+                                       class="w-full px-4 py-3.5 bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400 text-sm cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nomor WhatsApp <span class="text-rose-500">*</span></label>
@@ -180,12 +180,12 @@
         const savedSelect = document.getElementById('savedAddressSelect');
         if (!savedSelect) return;
 
-        // Data variabel nama otomatis yang diinjeksi dari PHP
+        // Data dari Laravel
         const defaultFirstName = '{{ addslashes($autoFirstName) }}';
         const defaultLastName = '{{ addslashes($autoLastName) }}';
         const defaultEmail = '{{ auth()->user()->email ?? '' }}';
 
-        // Data array alamat dari backend Laravel
+        // Data array alamat 
         const addresses = {
             @foreach(auth()->user()->addresses as $addr)
                 '{{ $addr->id }}': {
@@ -200,26 +200,22 @@
             @endforeach
         };
 
-        // Fungsi memanipulasi pengisian field & readonly state
         function fillAddress(addr) {
-            // Jika addr kosong (Pilih Alamat Baru), isi dengan Nama & Email User yang sedang Login
             document.getElementById('address_id').value = addr ? addr.id : 'new';
             document.getElementById('first_name').value = addr ? addr.first_name : defaultFirstName;
             document.getElementById('last_name').value  = addr ? addr.last_name : defaultLastName;
-            document.getElementById('email').value      = defaultEmail; // Email tidak berubah
+            document.getElementById('email').value      = defaultEmail; 
             document.getElementById('phone').value      = addr ? addr.phone : '';
             document.getElementById('address').value    = addr ? addr.address : '';
             document.getElementById('city').value       = addr ? addr.city : '';
             document.getElementById('postal_code').value= addr ? addr.postal_code : '';
 
-            // Kunci input field jika menggunakan alamat yang sudah tersimpan
             const disabled = !!addr;
             ['first_name','last_name','phone','address','city','postal_code'].forEach(id => {
                 document.getElementById(id).readOnly = disabled;
             });
         }
 
-        // Listener jika terjadi perubahan pada Select Box
         savedSelect.addEventListener('change', function(){
             const val = this.value;
             if (val === 'new') {
@@ -229,7 +225,6 @@
             }
         });
 
-        // Initialize: Pilih otomatis alamat default jika ada, jika tidak ada biarkan kosong (new)
         (function(){
             @php $default = auth()->user()->addresses->firstWhere('is_default', true); @endphp
             @if($default)
@@ -239,7 +234,6 @@
                     savedSelect.dispatchEvent(new Event('change')); 
                 }
             @else
-                // Eksekusi untuk pre-fill nama jika user belum pernah punya alamat
                 fillAddress(null);
             @endif
         })();

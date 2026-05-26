@@ -14,25 +14,29 @@ class ChatbotController extends Controller
         $userMessage = $request->input('message');
 
         if (!$userMessage) {
-            return response()->json(['status' => 'error', 'message' => 'Pesan tidak boleh kosong.'], 400);
+            return response()->json(['status' => 'error', 'message' => 'Pesan kosong.'], 400);
         }
 
         try {
             $hfToken = env('HF_TOKEN');
 
-            // 1. Tarik semua produk yang search_context-nya TIDAK kosong
-            $products = Product::whereNotNull('search_context')
-                               ->where('search_context', '!=', '')
-                               ->get();
+            // 1. Deteksi Data User yang sedang Login (Mekanisme Auth Laravel)
+            $currentUser = auth()->user();
+            if ($currentUser) {
+                $userInfoContext = "Pelanggan yang sedang berbicara dengan Anda bernama: {$currentUser->name} (Email: {$currentUser->email}).";
+            } else {
+                $userInfoContext = "Pelanggan saat ini belum login (berstatus sebagai Guest/Tamu). Panggil dia dengan sebutan 'Kakak' atau 'Scent Lover'.";
+            }
 
+            // 2. Tarik semua produk yang search_context-nya sudah terisi mewah
+            $products = Product::whereNotNull('search_context')->where('search_context', '!=', '')->get();
             $topProducts = collect();
 
-            // Jika database ternyata kosong, kita langsung pakai fallback di bawah
             if ($products->count() > 0) {
                 $sentences = $products->pluck('search_context')->toArray();
 
                 try {
-                    // Bungkus payload sesuai format curl pipeline kamu
+                    // Minta Hugging Face Pipeline Similarity mencocokkan chat user dengan konteks kaya kita
                     $innerPayload = json_encode([
                         'source_sentence' => $userMessage,
                         'sentences'       => $sentences
@@ -47,49 +51,38 @@ class ChatbotController extends Controller
 
                     if ($similarityResponse->successful()) {
                         $scores = $similarityResponse->json();
-                        
-                        // Pastikan respons dari HF berbentuk array score angka
                         if (is_array($scores)) {
                             foreach ($products as $index => $product) {
                                 $product->similarity_score = $scores[$index] ?? 0;
                             }
-                            // Ambil 3 produk dengan kecocokan tertinggi
                             $topProducts = $products->sortByDesc('similarity_score')->take(3);
                         }
-                    } else {
-                        Log::warning('HF Pipeline gagal. Response: ' . $similarityResponse->body());
                     }
                 } catch (\Exception $e) {
-                    Log::error('Gagal hit HF Similarity: ' . $e->getMessage());
+                    Log::error('Koneksi HF Similarity bermasalah: ' . $e->getMessage());
                 }
 
-                // [FALLBACK SYSTEM] Jika HF bermasalah/tidak merespon, ambil 3 produk pertama secara acak/terbaru
                 if ($topProducts->isEmpty()) {
-                    $topProducts = $products->take(10);
+                    $topProducts = $products->take(10); // Fallback sistem jika API similarity down
                 }
             }
 
-            // 2. Bangun teks katalog untuk disuntikkan ke Llama
-            if ($topProducts->count() > 0) {
-                $contextText = "Berikut adalah daftar produk Parfum yang tersedia di toko Scentify saat ini:\n";
-                foreach ($topProducts as $index => $product) {
-                    $contextText .= ($index + 1) . ". Nama Parfum: {$product->name}, Kategori: {$product->category}, Gender: {$product->gender_type}, Deskripsi Aroma: {$product->description}\n";
-                }
-            } else {
-                // Kondisi jika database benar-benar kosong total dari Tinker kemarin
-                $contextText = "PERINGATAN: Saat ini katalog produk di database sedang kosong karena maintenance. Beritahu pelanggan dengan sopan bahwa sistem produk sedang diperbarui.";
+            // 3. Susun teks katalog final
+            $contextText = "";
+            foreach ($topProducts as $index => $product) {
+                $contextText .= ($index + 1) . ". {$product->search_context}\n";
             }
 
-            // 3. Susun Instruksi Akhir untuk Llama 3.1
-            $systemPrompt = "Anda adalah Scenty, virtual assistant premium untuk toko parfum 'Scentify'.\n";
-            $systemPrompt .= "Tugas utama Anda adalah merekomendasikan parfum berdasarkan data katalog di bawah ini:\n";
-            $systemPrompt .= "=== KATALOG PRODUK ===\n" . $contextText . "\n====================\n\n";
-            $systemPrompt .= "Aturan Chat:\n";
-            $systemPrompt .= "- Jawablah menggunakan Bahasa Indonesia yang anggun, ramah, dan mewah.\n";
-            $systemPrompt .= "- Jangan sebutkan urusan teknis seperti kata 'database', 'katalog', atau 'fail-safe' kepada pelanggan.\n";
-            $systemPrompt .= "- Jika produk yang dicari pelanggan ada di dalam teks katalog di atas, tawarkan produk tersebut dengan persuasif.";
+            // 4. Susun System Prompt (Gabungkan Persona + Info User + Data Katalog Kaya)
+            $systemPrompt = "Anda adalah Scenty, asisten AI mewah dan personal untuk toko parfum 'Scentify'.\n";
+            $systemPrompt .= "=== INFORMASI USER ===\n" . $userInfoContext . "\n======================\n\n";
+            $systemPrompt .= "=== KATALOG PRODUK RELEVAN ===\n" . $contextText . "\n==============================\n\n";
+            $systemPrompt .= "Aturan Komunikasi:\n";
+            $systemPrompt .= "- Selalu sapa user secara personal memanfaatkan data INFORMASI USER di atas (contoh: 'Halo Kak Steven, ada yang bisa Scenty bantu hari ini?'). Jika guest, gunakan sapaan hangat universal.\n";
+            $systemPrompt .= "- Berikan informasi harga, ukuran varian, atau scent notes secara akurat sesuai data KATALOG PRODUK RELEVAN di atas.\n";
+            $systemPrompt .= "- Jawab dengan Bahasa Indonesia yang elegan, profesional, penuh sopan santun khas butik parfum mewah.";
 
-            // 4. Kirim ke Llama 3.1
+            // 5. Kirim data super lengkap ke Llama 3.1
             $llamaResponse = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $hfToken,
                 'Content-Type'  => 'application/json',
@@ -104,7 +97,7 @@ class ChatbotController extends Controller
 
             if ($llamaResponse->successful()) {
                 $data = $llamaResponse->json();
-                $reply = $data['choices'][0]['message']['content'] ?? 'Maaf, saya kehilangan sinyal pikiran. Bisa diulangi?';
+                $reply = $data['choices'][0]['message']['content'] ?? 'Maaf Kak, racikan pikiran saya terganggu. Bisa diulangi?';
                 
                 return response()->json([
                     'status' => 'success',
@@ -112,14 +105,11 @@ class ChatbotController extends Controller
                 ]);
             }
 
-            return response()->json(['status' => 'error', 'message' => 'Llama API Error: ' . $llamaResponse->body()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal terhubung ke otak AI.'], 500);
 
         } catch (\Exception $e) {
-            Log::error('Chatbot Controller Error Ultimate: ' . $e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'DEBUG ERROR: ' . $e->getMessage() . ' di baris ' . $e->getLine()
-            ], 500);
+            Log::error('Ultimate Chatbot Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Terjadi kendala pada sistem internal.'], 500);
         }
     }
 }

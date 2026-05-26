@@ -181,8 +181,9 @@
     <input type="hidden" name="cart_ids" id="hiddenCartIds">
 </form>
 
-<form id="hiddenCheckoutForm" action="{{ route('checkout') }}" method="GET" class="hidden">
-    </form>
+<form id="hiddenCheckoutForm" action="{{ route('checkout') }}" method="POST" class="hidden">
+    @csrf
+</form>
 
 <style>
     /* Menghilangkan panah spinner bawaan browser pada input type number */
@@ -379,12 +380,13 @@
     }
 
     // 6. Submit Checkout Handler
+    // 6. Submit Checkout Handler
     function submitCheckout() {
         const checkboxes = document.querySelectorAll('.item-checkbox');
         const checkoutForm = document.getElementById('hiddenCheckoutForm');
         
-        // Kosongkan form input sebelumnya (jika ada)
-        checkoutForm.innerHTML = ''; 
+        // Hapus input sebelumnya KECUALI token CSRF
+        checkoutForm.querySelectorAll('input:not([name="_token"])').forEach(el => el.remove());
 
         checkboxes.forEach(chk => {
             if (chk.checked) {
@@ -392,7 +394,7 @@
                 const qtyInput = document.getElementById('qty-desktop-' + id) || document.getElementById('qty-mobile-' + id);
                 const qty = qtyInput ? qtyInput.value : 1;
 
-                // Injeksi data item yang dipilih dan kuantitasnya ke dalam form checkout
+                // Injeksi data item yang dipilih
                 const inputId = document.createElement('input');
                 inputId.type = 'hidden';
                 inputId.name = 'checkout_items[]';

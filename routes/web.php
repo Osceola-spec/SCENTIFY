@@ -48,7 +48,7 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{variantId}', [CartController::class, 'add'])->name('cart.add');
 Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
 
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+Route::post('/checkout', [CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
 
 // ==========================================
@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/addresses', [\App\Http\Controllers\AddressController::class, 'store'])->name('addresses.store');
     Route::put('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'update'])->name('addresses.update');
     Route::delete('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'destroy'])->name('addresses.destroy');
-    Route::post('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
+    Route::put('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
     Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
 });
 
@@ -151,3 +151,7 @@ Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
 
 // Di dalam Route::middleware('auth')->group(...)
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
+Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
+
+Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');

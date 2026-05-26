@@ -93,7 +93,7 @@ class ProductController extends Controller
         $brands = Brand::orderBy('name')->get();
         $notes  = ScentNote::orderBy('name')->get();
         $product->load(['variants', 'images', 'notes']);
-        return view('admin.products.edit', compact('product', 'brands', 'notes'));
+        return view('products.edit-product', compact('product', 'brands', 'notes'));
     }
 
     public function update(Request $request, Product $product)
@@ -167,6 +167,6 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('shop')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil dihapus.');
     }
 }
