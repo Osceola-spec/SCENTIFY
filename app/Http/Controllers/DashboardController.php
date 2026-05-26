@@ -8,76 +8,137 @@ use App\Models\Brand;
 use App\Models\ProductVariant;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Data Metrik Utama
-        $totalProducts = Product::count();
-        $totalBrands = Brand::count();
-        $totalVariants = ProductVariant::count();
-        $totalOrders = Order::count();
-        $pendingOrders = Order::where('status', 'Pending')->count();
+        // 1. Data Metrik Utama (Angka Total Saat Ini)
+        $totalProducts   = Product::count();
+        $totalBrands     = Brand::count();
+        $totalVariants   = ProductVariant::count();
+        $totalOrders     = Order::count();
+        $pendingOrders   = Order::where('status', 'Pending')->count();
         $completedOrders = Order::where('status', 'Completed')->count();
         
-        // 2. Kalkulasi Pendapatan
-        $totalRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])->sum('total_amount');
-        $monthlyRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
+        // Status valid untuk perhitungan finansial
+        $validStatuses  = ['Paid', 'Shipped', 'Completed'];
+        $totalRevenue   = Order::whereIn('status', $validStatuses)->sum('total_amount');
+
+        // ==========================================
+        // PERHITUNGAN PERSENTASE LIVE (METRIK UTAMA)
+        // ==========================================
+
+        // A. Persentase Total Pesanan (Bulan Ini vs Bulan Lalu)
+        $ordersThisMonth = Order::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        $ordersLastMonth = Order::whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->count();
+        
+        $orderDiffPercentage = 0;
+        if ($ordersLastMonth > 0) {
+            $orderDiffPercentage = round((($ordersThisMonth - $ordersLastMonth) / $ordersLastMonth) * 100);
+        } elseif ($ordersThisMonth > 0) {
+            $orderDiffPercentage = 100; // Jika bulan lalu 0 tapi bulan ini ada penjualan, langsung +100%
+        }
+
+        // B. Persentase Pesanan Selesai (Bulan Ini vs Bulan Lalu)
+        $completedThisMonth = Order::where('status', 'Completed')
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+        $completedLastMonth = Order::where('status', 'Completed')
+            ->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->whereYear('created_at', Carbon::now()->subMonth()->year)
+            ->count();
+
+        $completedDiffPercentage = 0;
+        if ($completedLastMonth > 0) {
+            $completedDiffPercentage = round((($completedThisMonth - $completedLastMonth) / $completedLastMonth) * 100);
+        } elseif ($completedThisMonth > 0) {
+            $completedDiffPercentage = 100;
+        }
+
+        // C. Persentase Pendapatan Hari Ini vs Kemarin
+        $todayRevenue = Order::whereIn('status', $validStatuses)
+            ->whereDate('created_at', Carbon::today())
             ->sum('total_amount');
-        $todayRevenue = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
-            ->whereDate('created_at', now())
+        $yesterdayRevenue = Order::whereIn('status', $validStatuses)
+            ->whereDate('created_at', Carbon::yesterday())
             ->sum('total_amount');
 
-        // 3. Data Tabel Widget
-        $recentProducts = Product::with('brand')->latest()->take(5)->get();
-        $upcomingOrders = Order::with('user')->whereIn('status', ['Pending', 'Paid', 'Shipped'])->latest()->take(5)->get();
-        $lowStockVariants = ProductVariant::with('product')->where('stock', '<=', 10)->orderBy('stock')->take(5)->get();
+        $revenueDiffPercentage = 0;
+        if ($yesterdayRevenue > 0) {
+            $revenueDiffPercentage = round((($todayRevenue - $yesterdayRevenue) / $yesterdayRevenue) * 100);
+        } elseif ($todayRevenue > 0) {
+            $revenueDiffPercentage = 100;
+        }
 
-        // 4. Kueri Grafik Pendapatan Bulanan (Jan-Des Tahun Ini)
+        // Data finansial tambahan untuk dashboard tampilan lama Anda
+        $monthlyRevenue = Order::whereIn('status', $validStatuses)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('total_amount');
+
+        // ==========================================
+        // DATA TABEL & GRAFIK (WIDGET)
+        // ==========================================
+
+        // Filter: Produk baru 15 hari terakhir
+        $recentProducts = Product::with('brand')
+            ->where('created_at', '>=', Carbon::now()->subDays(15))
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Filter: List pesanan pending
+        $pendingOrdersList = Order::with('user')
+            ->where('status', 'Pending')
+            ->latest()
+            ->get();
+
+        // Filter: Varian stok rendah
+        $lowStockVariants = ProductVariant::with('product')
+            ->where('stock', '<=', 10)
+            ->orderBy('stock', 'asc')
+            ->take(5)
+            ->get();
+
+        // Grafik Bulanan Pendapatan
         $revenueData = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $revenueData[] = Order::whereIn('status', ['Paid', 'Shipped', 'Completed'])
-                ->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', $i)
+        for ($month = 1; $month <= 12; $month++) {
+            $revenueData[] = Order::whereIn('status', $validStatuses)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->whereMonth('created_at', $month)
                 ->sum('total_amount');
         }
 
-        // 5. Kueri Grafik Segmentasi Penjualan Gender
-        $menSales = OrderItem::whereHas('variant.product', function($q) {
-            $q->where('gender_type', 'Men');
-        })->whereHas('order', function($q) {
-            $q->whereIn('status', ['Paid', 'Shipped', 'Completed']);
-        })->sum('quantity');
+        // Grafik Segmentasi Gender
+        $menSales = OrderItem::whereHas('variant.product', function($q) { $q->where('gender_type', 'Men'); })
+            ->whereHas('order', function($q) use ($validStatuses) { $q->whereIn('status', $validStatuses); })->sum('quantity');
 
-        $womenSales = OrderItem::whereHas('variant.product', function($q) {
-            $q->where('gender_type', 'Women');
-        })->whereHas('order', function($q) {
-            $q->whereIn('status', ['Paid', 'Shipped', 'Completed']);
-        })->sum('quantity');
+        $womenSales = OrderItem::whereHas('variant.product', function($q) { $q->where('gender_type', 'Women'); })
+            ->whereHas('order', function($q) use ($validStatuses) { $q->whereIn('status', $validStatuses); })->sum('quantity');
 
-        $unisexSales = OrderItem::whereHas('variant.product', function($q) {
-            $q->where('gender_type', 'Unisex');
-        })->whereHas('order', function($q) {
-            $q->whereIn('status', ['Paid', 'Shipped', 'Completed']);
-        })->sum('quantity');
+        $unisexSales = OrderItem::whereHas('variant.product', function($q) { $q->where('gender_type', 'Unisex'); })
+            ->whereHas('order', function($q) use ($validStatuses) { $q->whereIn('status', $validStatuses); })->sum('quantity');
 
         $totalSales = $menSales + $womenSales + $unisexSales;
-        
         $genderData = [
             $totalSales > 0 ? round(($menSales / $totalSales) * 100) : 0,
             $totalSales > 0 ? round(($womenSales / $totalSales) * 100) : 0,
             $totalSales > 0 ? round(($unisexSales / $totalSales) * 100) : 0,
         ];
 
-        // 6. Kembalikan semua data ke View
         return view('admin.dashboard', compact(
             'totalProducts', 'totalBrands', 'totalVariants', 'totalOrders',
             'pendingOrders', 'completedOrders', 'totalRevenue', 'monthlyRevenue',
-            'todayRevenue', 'recentProducts', 'upcomingOrders', 'lowStockVariants',
-            'revenueData', 'genderData'
+            'todayRevenue', 'recentProducts', 'pendingOrdersList', 'lowStockVariants',
+            'revenueData', 'genderData',
+            'orderDiffPercentage', 'completedDiffPercentage', 'revenueDiffPercentage' // Variabel Live Baru
         ));
     }
 }

@@ -42,14 +42,44 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email:dns|unique:users,email',
+            'username' => 'nullable|string|max:20|unique:users,username',
             'password' => 'required|string|min:8',
         ]);
 
+        // 1. Logika pembuatan username otomatis & aman dari limit 20 karakter
+        if ($request->filled('username')) {
+            $username = (string) $request->input('username');
+        } else {
+            // Ambil bagian depan email sebelum '@' (Contoh: ckurniawan03)
+            $username = explode('@', $validated['email'])[0];
+        }
+
+        // Potong paksa maksimal 20 karakter sesuai limit database terbaru kamu
+        $username = mb_substr($username, 0, 20);
+
+        // Antisipasi jika username otomatis tersebut ternyata sudah terdaftar di database
+        $originalUsername = $username;
+        $count = 1;
+        while (User::where('username', $username)->exists()) {
+            $suffix = (string) $count;
+            // Potong teks asli agar ketika digabung angka, totalnya tetap maksimal 20 karakter
+            $username = mb_substr($originalUsername, 0, 20 - strlen($suffix)) . $suffix;
+            $count++;
+        }
+
+        // 2. Memecah input 'name' menjadi 'first_name' dan 'last_name' karena kolom 'name' sudah di-drop
+        $nameParts = explode(' ', trim($validated['name']));
+        $firstName = $nameParts[0];
+        $lastName = isset($nameParts[1]) ? implode(' ', array_slice($nameParts, 1)) : null;
+
+        // 3. Simpan data ke model User menggunakan kolom yang sesuai database baru
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => 'customer',
+            'first_name' => $firstName,
+            'last_name'  => $lastName,
+            'username'   => $username, 
+            'email'      => $validated['email'],
+            'password'   => Hash::make($validated['password']),
+            'role'       => 'customer',
         ]);
 
         Auth::login($user);
@@ -58,4 +88,3 @@ class AuthController extends Controller
         return redirect()->intended(route('home'));
     }
 }
-

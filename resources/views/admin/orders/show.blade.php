@@ -87,7 +87,6 @@
             </div>
 
             {{-- Daftar Produk --}}
-            {{-- Daftar Produk --}}
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-50">
                     <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Produk Dipesan</h3>
@@ -165,19 +164,28 @@
             @endif
         </div>
 
-        {{-- Kolom Kanan: Update Status --}}
+        {{-- Kolom Kanan: Update Status & Waktu Terkini --}}
         <div class="space-y-6">
 
-            {{-- Info Waktu --}}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-3">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Waktu Pesanan</h3>
-                <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Dibuat</span>
-                    <span class="font-semibold text-slate-700">{{ $order->created_at->format('d M Y, H:i') }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-slate-400">Diperbarui</span>
-                    <span class="font-semibold text-slate-700">{{ $order->updated_at->format('d M Y, H:i') }}</span>
+            {{-- Info Waktu Pesanan (Selalu Format WIB) --}}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-500"></div>
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="far fa-clock text-amber-500"></i> Waktu Pesanan
+                </h3>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Dibuat</span>
+                        <span class="font-semibold text-slate-700" id="createdAtTime" data-utc="{{ $order->created_at->toIso8601String() }}">
+                            {{ $order->created_at->format('d M Y, H:i') }} WIB
+                        </span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Diperbarui</span>
+                        <span class="font-semibold text-slate-700" id="updatedAtTime" data-utc="{{ $order->updated_at->toIso8601String() }}">
+                            {{ $order->updated_at->format('d M Y, H:i') }} WIB
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -216,7 +224,7 @@
                             </div>
                         </div>
 
-                        {{-- Input Nomor Resi (muncul hanya saat Shipped dipilih) --}}
+                        {{-- Input Nomor Resi --}}
                         <div id="trackingField" class="mb-4 hidden">
                             <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">
                                 Nomor Resi <span class="text-rose-500">*</span>
@@ -269,37 +277,63 @@
                     $steps = ['Pending', 'Processing', 'Shipped', 'Completed'];
                     $currentIdx = array_search($order->status, $steps);
                     $isCancelled = $order->status === 'Cancelled';
+
+                    $colorMap = [
+                        'Pending'    => ['bg' => 'bg-amber-500', 'text' => 'text-amber-600', 'badge' => 'bg-amber-50 text-amber-500 border-amber-200'],
+                        'Processing' => ['bg' => 'bg-blue-500',  'text' => 'text-blue-600',  'badge' => 'bg-blue-50 text-blue-500 border-blue-200'],
+                        'Shipped'    => ['bg' => 'bg-indigo-500', 'text' => 'text-indigo-600', 'badge' => 'bg-indigo-50 text-indigo-500 border-indigo-200'],
+                        'Completed'  => ['bg' => 'bg-emerald-500','text' => 'text-emerald-600','badge' => 'bg-emerald-50 text-emerald-500 border-emerald-200'],
+                        'Cancelled'  => ['bg' => 'bg-rose-500',   'text' => 'text-rose-600',   'badge' => 'bg-rose-50 text-rose-500 border-rose-200']
+                    ];
+
+                    $iconMap = [
+                        'Pending' => 'fa-clock', 
+                        'Processing' => 'fa-box-open', 
+                        'Shipped' => 'fa-truck', 
+                        'Completed' => 'fa-check-circle'
+                    ];
                 @endphp
                 <div class="space-y-3">
                     @foreach ($steps as $i => $step)
                         @php
                             $isDone    = !$isCancelled && $currentIdx !== false && $i <= $currentIdx;
                             $isCurrent = !$isCancelled && $currentIdx !== false && $i === $currentIdx;
-                            $iconMap   = ['Pending' => 'fa-clock', 'Processing' => 'fa-box-open', 'Shipped' => 'fa-truck', 'Completed' => 'fa-check-circle'];
+                            
+                            if ($isCurrent) {
+                                $stepClass = $colorMap[$step]['bg'] . ' text-white shadow-md ring-4 ring-' . ($step == 'Pending' ? 'amber' : ($step == 'Processing' ? 'blue' : ($step == 'Shipped' ? 'indigo' : 'emerald'))) . '-100';
+                                $textClass = $colorMap[$step]['text'] . ' font-bold';
+                            } elseif ($isDone) {
+                                $stepClass = 'bg-emerald-500 text-white';
+                                $textClass = 'text-slate-700 font-semibold';
+                            } else {
+                                $stepClass = 'bg-slate-100 text-slate-300';
+                                $textClass = 'text-slate-300';
+                            }
                         @endphp
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs
-                                {{ $isCurrent ? 'bg-amber-500 text-white shadow-md shadow-amber-200' : ($isDone ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-300') }}">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs transition-all {{ $stepClass }}">
                                 <i class="fas {{ $isDone && !$isCurrent ? 'fa-check' : $iconMap[$step] }}"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-semibold {{ $isCurrent ? 'text-amber-600' : ($isDone ? 'text-emerald-600' : 'text-slate-300') }}">
+                                <p class="text-sm transition-colors {{ $textClass }}">
                                     {{ $step }}
                                 </p>
                             </div>
                             @if ($isCurrent)
-                                <span class="text-[10px] font-bold bg-amber-50 text-amber-500 border border-amber-200 px-2 py-0.5 rounded-full">Sekarang</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border {{ $colorMap[$step]['badge'] }}">Sekarang</span>
                             @endif
                         </div>
                     @endforeach
 
                     @if ($isCancelled)
                         <div class="flex items-center gap-3 mt-1">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs bg-rose-500 text-white">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs bg-rose-500 text-white shadow-md ring-4 ring-rose-100">
                                 <i class="fas fa-times"></i>
                             </div>
-                            <p class="text-sm font-semibold text-rose-500">Cancelled</p>
-                            <span class="text-[10px] font-bold bg-rose-50 text-rose-500 border border-rose-200 px-2 py-0.5 rounded-full">Sekarang</span>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-rose-600">Cancelled</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border {{ $colorMap['Cancelled']['badge'] }}">Sekarang</span>
                         </div>
                     @endif
                 </div>
@@ -310,13 +344,42 @@
 </div>
 
 <script>
+    // --- FITUR LOCAL TIMEZONE (WIB FIXED) ---
+    function convertUTCToLocal() {
+        const options = { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false,
+            timeZone: 'Asia/Jakarta' // Memaksa kalkulasi waktu ke zona Asia/Jakarta (WIB)
+        };
+
+        ['createdAtTime', 'updatedAtTime'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.getAttribute('data-utc')) {
+                const utcDate = new Date(el.getAttribute('data-utc'));
+                if (!isNaN(utcDate.getTime())) {
+                    // Konversi waktu dan format tanda titik ke titik dua jika ada (misal 14.30 -> 14:30)
+                    const localString = utcDate.toLocaleDateString('id-ID', options).replace(/\./g, ':');
+                    el.textContent = `${localString} WIB`;
+                }
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        convertUTCToLocal();
+    });
+
+    // --- LOGIC FORM STATUS ---
     function handleStatusChange(val) {
         const trackingField  = document.getElementById('trackingField');
         const cancelWarning  = document.getElementById('cancelWarning');
         const submitBtn      = document.getElementById('submitBtn');
         const trackingInput  = document.getElementById('trackingInput');
 
-        // Sembunyikan semua dulu
         trackingField.classList.add('hidden');
         cancelWarning.classList.add('hidden');
         trackingInput.removeAttribute('required');
@@ -339,7 +402,6 @@
 
         if (!status) return;
 
-        // Validasi client-side: resi wajib untuk Shipped
         if (status === 'Shipped' && !trackingInput.value.trim()) {
             trackingInput.focus();
             trackingInput.classList.add('border-rose-400', 'ring-1', 'ring-rose-400');

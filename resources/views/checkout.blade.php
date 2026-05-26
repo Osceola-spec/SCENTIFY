@@ -78,7 +78,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Email <span class="text-rose-500">*</span></label>
-                                <input type="email" name="email" id="email" value="{{ auth()->user()->email ?? '' }}" required readonly
+                                <input type="email" id="email" value="{{ auth()->user()->email ?? '' }}" required disabled
                                        class="w-full px-4 py-3.5 bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-white/10 rounded-xl text-slate-400 text-sm cursor-not-allowed">
                             </div>
                             <div>
@@ -178,12 +178,23 @@
 <script>
     (function(){
         const savedSelect = document.getElementById('savedAddressSelect');
+        const checkoutForm = document.getElementById('checkoutForm');
+
+        // PENGAMANAN UTAMA: Sebelum form tersubmit, buka paksa status readOnly semua field pengiriman!
+        if (checkoutForm) {
+            checkoutForm.addEventListener('submit', function() {
+                ['first_name','last_name','phone','address','city','postal_code'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.readOnly = false;
+                });
+            });
+        }
+
         if (!savedSelect) return;
 
         // Data dari Laravel
         const defaultFirstName = '{{ addslashes($autoFirstName) }}';
         const defaultLastName = '{{ addslashes($autoLastName) }}';
-        const defaultEmail = '{{ auth()->user()->email ?? '' }}';
 
         // Data array alamat 
         const addresses = {
@@ -204,7 +215,6 @@
             document.getElementById('address_id').value = addr ? addr.id : 'new';
             document.getElementById('first_name').value = addr ? addr.first_name : defaultFirstName;
             document.getElementById('last_name').value  = addr ? addr.last_name : defaultLastName;
-            document.getElementById('email').value      = defaultEmail; 
             document.getElementById('phone').value      = addr ? addr.phone : '';
             document.getElementById('address').value    = addr ? addr.address : '';
             document.getElementById('city').value       = addr ? addr.city : '';
@@ -212,7 +222,8 @@
 
             const disabled = !!addr;
             ['first_name','last_name','phone','address','city','postal_code'].forEach(id => {
-                document.getElementById(id).readOnly = disabled;
+                const el = document.getElementById(id);
+                if (el) el.readOnly = disabled;
             });
         }
 
@@ -225,6 +236,7 @@
             }
         });
 
+        // Inisialisasi Alamat Utama (Default) saat halaman pertama kali termuat
         (function(){
             @php $default = auth()->user()->addresses->firstWhere('is_default', true); @endphp
             @if($default)

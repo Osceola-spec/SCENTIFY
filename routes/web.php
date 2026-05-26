@@ -21,40 +21,27 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\MidtransNotificationController;
 
-
 // ==========================================
-// RUTE PUBLIK
+// RUTE PUBLIK (BISA DIAKSES SIAPA SAJA)
 // ==========================================
 Route::get('/', function () {
     return view('home');
 })->name('home');
 
 Route::get('/shop', [ShopController::class, 'show'])->name('shop');
+Route::get('/brands', [BrandController::class, 'publicIndex'])->name('brands.index');
 
-Route::middleware(['auth'])->group(function () {
-    
-    // Tampilan halaman utama riwayat pesanan saya
-    Route::get('/my-orders', [CustomerOrderController::class, 'index'])
-        ->name('orders.index');
-        
-    // Tampilan halaman detail pesanan kustomer
-    Route::get('/my-orders/{id}', [CustomerOrderController::class, 'show'])
-        ->name('orders.show');
-        
-});
+// API Chatbot & Webhook Midtrans (Jangan diberi middleware auth)
+Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
+Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
+
+// Rute Login Google
+Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google.login');
+Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);
+
 
 // ==========================================
-// RUTE KERANJANG & CHECKOUT
-// ==========================================
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{variantId}', [CartController::class, 'add'])->name('cart.add');
-Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
-
-Route::post('/checkout', [CheckoutController::class, 'index'])->name('checkout');
-Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-
-// ==========================================
-// RUTE AUTENTIKASI (GUEST)
+// RUTE AUTENTIKASI (KHUSUS TAMU / GUEST)
 // ==========================================
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'show_login'])->name('login');
@@ -63,25 +50,50 @@ Route::middleware('guest')->group(function () {
     Route::post('/register_auth', [AuthController::class, 'register_auth'])->name('register.auth');
 });
 
+
 // ==========================================
-// RUTE PENGGUNA LOGIN (USER BIASA)
+// RUTE PENGGUNA LOGIN (WAJIB AUTH)
 // ==========================================
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
+    
+    // Profil & Pengaturan Akun
     Route::get('/profile', [ProfileController::class, 'show_profile'])->name('profile');
-    // Addresses
+    Route::put('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
+    Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
+    
+    // Manajemen Alamat Pengguna
     Route::post('/profile/addresses', [\App\Http\Controllers\AddressController::class, 'store'])->name('addresses.store');
     Route::put('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'update'])->name('addresses.update');
     Route::delete('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'destroy'])->name('addresses.destroy');
-    Route::put('/profile/update', [ProfileController::class, 'update_profile'])->name('profile.update');
-    Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
+    
+    // Keranjang Belanja (Cart)
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{variantId}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
+
+    // Proses Checkout & Pembayaran
+    // Ubah menjadi ANY:
+    Route::any('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
+    
+    // Riwayat Pesanan Kustomer
+    Route::get('/my-orders', [CustomerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/my-orders/{id}', [CustomerOrderController::class, 'show'])->name('orders.show');
+    Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
+        
+    // Wishlist
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+    // Ulasan / Review Produk
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
 
-Route::get('/brands', [BrandController::class, 'publicIndex'])->name('brands.index');
 
 // ==========================================
 // RUTE KHUSUS ADMIN PANEL
 // ==========================================
-// Menggunakan prefix '/admin' agar URL rapi (contoh: scentify.com/admin/dashboard)
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
     // Dashboard & Inventory
@@ -124,39 +136,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
+    // Manajemen Pesanan oleh Admin
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
     Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
-    // Di dalam group middleware admin
-    Route::get('/customers', [App\Http\Controllers\AdminCustomerController::class, 'index'])
-        ->name('admin.customers.index');
-    Route::get('/customers/{user}', [App\Http\Controllers\AdminCustomerController::class, 'show'])
-        ->name('admin.customers.show');
+    // Manajemen Pelanggan (Customers)
+    Route::get('/customers', [App\Http\Controllers\AdminCustomerController::class, 'index'])->name('admin.customers.index');
+    Route::get('/customers/{user}', [App\Http\Controllers\AdminCustomerController::class, 'show'])->name('admin.customers.show');
 });
-
-// Rute untuk mengklik tombol Google
-Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google.login');
-
-// Rute tempat Google mengembalikan data (callback)
-Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);
-
-Route::middleware('auth')->group(function () {
-    // ... rute profile & addresses yang sudah ada ...
-    
-    // Rute Wishlist
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-});
-
-Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
-
-// Di dalam Route::middleware('auth')->group(...)
-Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-
-Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
-
-Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
-
-// Route untuk Webhook Midtrans
-Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);

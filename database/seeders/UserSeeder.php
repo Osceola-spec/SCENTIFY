@@ -18,7 +18,9 @@ class UserSeeder extends Seeder
         // 1. Insert Admin User
         DB::table('users')->insert([
             [
-                'name' => 'Admin Scentify',
+                'username' => 'admin_scentify', // Maksimal 20 karakter & Unik
+                'first_name' => 'Admin',
+                'last_name' => 'Scentify',
                 'email' => 'admin@scentify.com',
                 'password' => Hash::make('password123'),
                 'role' => 'admin',
@@ -34,7 +36,9 @@ class UserSeeder extends Seeder
         // 2. Insert Customer Users
         $customers = [
             [
-                'name' => 'Budi Santoso',
+                'username' => 'budis',
+                'first_name' => 'Budi',
+                'last_name' => 'Santoso',
                 'email' => 'budi@example.com',
                 'password' => Hash::make('password123'),
                 'role' => 'customer',
@@ -43,7 +47,9 @@ class UserSeeder extends Seeder
                 'profile_picture' => null,
             ],
             [
-                'name' => 'Siti Nurhaliza',
+                'username' => 'sitin',
+                'first_name' => 'Siti',
+                'last_name' => 'Nurhaliza',
                 'email' => 'siti@example.com',
                 'password' => Hash::make('password123'),
                 'role' => 'customer',
@@ -52,7 +58,9 @@ class UserSeeder extends Seeder
                 'profile_picture' => null,
             ],
             [
-                'name' => 'Andi Wijaya',
+                'username' => 'andiw',
+                'first_name' => 'Andi',
+                'last_name' => 'Wijaya',
                 'email' => 'andi@example.com',
                 'password' => Hash::make('password123'),
                 'role' => 'customer',
@@ -61,7 +69,9 @@ class UserSeeder extends Seeder
                 'profile_picture' => null,
             ],
             [
-                'name' => 'Dewi Lestari',
+                'username' => 'dewil',
+                'first_name' => 'Dewi',
+                'last_name' => 'Lestari',
                 'email' => 'dewi@example.com',
                 'password' => Hash::make('password123'),
                 'role' => 'customer',
@@ -70,7 +80,9 @@ class UserSeeder extends Seeder
                 'profile_picture' => null,
             ],
             [
-                'name' => 'Ricky Fernando',
+                'username' => 'rickyf',
+                'first_name' => 'Ricky',
+                'last_name' => 'Fernando',
                 'email' => 'ricky@example.com',
                 'password' => Hash::make('password123'),
                 'role' => 'customer',

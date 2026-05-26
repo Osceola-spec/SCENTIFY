@@ -64,7 +64,8 @@ class ReviewAndOrderSeeder extends Seeder
                 $status      = $statuses[array_rand($statuses)];
                 $orderDate   = $now->copy()->subDays(rand(1, 120));
                 $city        = $cities[array_rand($cities)];
-                $shippingAddr = "{$user->name} | 08" . rand(100000000, 999999999) . " | Jl. Contoh No.{$o}, {$city}";
+                $fullName = trim("{$user->first_name} {$user->last_name}");
+                $shippingAddr = "{$fullName} | 08" . rand(100000000, 999999999) . " | Jl. Contoh No.{$o}, {$city}";
 
                 $selectedVariants = $variants->random(rand(1, 3));
                 $subtotal = 0;
