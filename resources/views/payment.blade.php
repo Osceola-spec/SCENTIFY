@@ -43,15 +43,17 @@
                 Silakan selesaikan pembayaran Anda sekarang agar pesanan eksklusif Anda dapat segera kami proses dan kirimkan.
             </p>
 
-            <!-- Tombol Pay Utama yang Memicu Midtrans Snap -->
-            <button id="pay-button" class="btn btn-primary w-100">
-                Bayar Sekarang
-            </button>
 
-            <a href="{{ route('checkout.pay-later', $order->id) }}" class="btn btn-outline-secondary w-100" 
-                onclick="return confirm('Apakah Anda yakin ingin membayar pesanan ini nanti?')">
-                Bayar Nanti
-            </a>
+            <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                <button id="pay-button" class="flex-1 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-base shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2">
+                    Bayar Sekarang
+                </button>
+                <a href="{{ route('checkout.pay-later', $order->id) }}"
+                   class="flex-1 py-4 rounded-xl border border-amber-400 text-amber-500 bg-white dark:bg-darkcard/80 hover:bg-amber-50 dark:hover:bg-amber-900/10 font-bold text-base shadow-lg transition-all duration-200 text-center flex items-center justify-center"
+                   onclick="return confirm('Apakah Anda yakin ingin membayar pesanan ini nanti?')">
+                    Bayar Nanti
+                </a>
+            </div>
             
             <div class="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 flex items-center justify-center gap-2 text-[10px] text-slate-400 dark:text-zinc-500 font-medium uppercase tracking-widest">
                 <i class="fas fa-lock text-emerald-500"></i> Transaksi Aman Didukung Oleh Midtrans

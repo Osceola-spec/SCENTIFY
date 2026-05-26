@@ -176,68 +176,136 @@
 
 @section('scripts')
 <script>
-    (function(){
+    console.log('=== CHECKOUT ADDRESS SELECTOR INIT ===');
+
+    function initializeAddressSelector() {
         const savedSelect = document.getElementById('savedAddressSelect');
-        if (!savedSelect) return;
-
-        // Data dari Laravel
-        const defaultFirstName = '{{ addslashes($autoFirstName) }}';
-        const defaultLastName = '{{ addslashes($autoLastName) }}';
-        const defaultEmail = '{{ auth()->user()->email ?? '' }}';
-
-        // Data array alamat 
-        const addresses = {
-            @foreach(auth()->user()->addresses as $addr)
-                '{{ $addr->id }}': {
-                    id: '{{ $addr->id }}',
-                    first_name: '{{ addslashes($addr->first_name) }}',
-                    last_name: '{{ addslashes($addr->last_name) }}',
-                    phone: '{{ addslashes($addr->phone) }}',
-                    address: '{{ addslashes($addr->address) }}',
-                    city: '{{ addslashes($addr->city) }}',
-                    postal_code: '{{ addslashes($addr->postal_code) }}'
-                },
-            @endforeach
-        };
-
-        function fillAddress(addr) {
-            document.getElementById('address_id').value = addr ? addr.id : 'new';
-            document.getElementById('first_name').value = addr ? addr.first_name : defaultFirstName;
-            document.getElementById('last_name').value  = addr ? addr.last_name : defaultLastName;
-            document.getElementById('email').value      = defaultEmail; 
-            document.getElementById('phone').value      = addr ? addr.phone : '';
-            document.getElementById('address').value    = addr ? addr.address : '';
-            document.getElementById('city').value       = addr ? addr.city : '';
-            document.getElementById('postal_code').value= addr ? addr.postal_code : '';
-
-            const disabled = !!addr;
-            ['first_name','last_name','phone','address','city','postal_code'].forEach(id => {
-                document.getElementById(id).readOnly = disabled;
-            });
+        if (!savedSelect) {
+            console.error('savedAddressSelect element tidak ditemukan!');
+            return;
         }
 
-        savedSelect.addEventListener('change', function(){
+        // Data dari Laravel
+
+        const defaultFirstName = @json($autoFirstName);
+        const defaultLastName = @json($autoLastName);
+        const defaultEmail = @json(auth()->user()->email ?? '');
+        const addresses = @json(auth()->user()->addresses->keyBy('id'));
+        console.log('Default values:', { defaultFirstName, defaultLastName, defaultEmail });
+        console.log('Available addresses:', addresses);
+
+        function fillAddress(addr) {
+            console.log('=== FILLING ADDRESS ===');
+            console.log('Address data:', addr);
+            
+            try {
+                // Get all form fields
+                const fields = {
+                    address_id: document.getElementById('address_id'),
+                    first_name: document.getElementById('first_name'),
+                    last_name: document.getElementById('last_name'),
+                    email: document.getElementById('email'),
+                    phone: document.getElementById('phone'),
+                    address: document.getElementById('address'),
+                    city: document.getElementById('city'),
+                    postal_code: document.getElementById('postal_code')
+                };
+
+                // Verify all fields exist
+                for (let key in fields) {
+                    if (!fields[key]) {
+                        console.error(`Field not found: ${key}`);
+                        return;
+                    }
+                }
+
+                // Set values
+                fields.address_id.value = addr ? addr.id : 'new';
+                fields.first_name.value = addr ? addr.first_name : defaultFirstName;
+                fields.last_name.value = addr ? addr.last_name : defaultLastName;
+                fields.email.value = defaultEmail;
+                fields.phone.value = addr ? addr.phone : '';
+                fields.address.value = addr ? addr.address : '';
+                fields.city.value = addr ? addr.city : '';
+                fields.postal_code.value = addr ? addr.postal_code : '';
+
+                console.log('Values set. New values:');
+                console.log({
+                    address_id: fields.address_id.value,
+                    first_name: fields.first_name.value,
+                    last_name: fields.last_name.value,
+                    email: fields.email.value,
+                    phone: fields.phone.value,
+                    address: fields.address.value,
+                    city: fields.city.value,
+                    postal_code: fields.postal_code.value
+                });
+
+                // Set readonly state
+                const disabled = !!addr;
+                const editableFields = ['first_name', 'last_name', 'phone', 'address', 'city', 'postal_code'];
+                
+                editableFields.forEach(key => {
+                    fields[key].readOnly = disabled;
+                    console.log(`Field ${key} readonly: ${disabled}`);
+                });
+
+            } catch (error) {
+                console.error('Error in fillAddress:', error);
+            }
+        }
+
+        // Add change listener
+        savedSelect.addEventListener('change', function(e) {
             const val = this.value;
+            console.log('=== DROPDOWN CHANGED ===');
+            console.log('Selected value:', val);
+            
             if (val === 'new') {
+                console.log('Filling with new address (empty)');
                 fillAddress(null);
             } else if (addresses[val]) {
+                console.log('Filling with address:', addresses[val]);
                 fillAddress(addresses[val]);
+            } else {
+                console.warn('Address ID not found in addresses object:', val);
+                console.warn('Available IDs:', Object.keys(addresses));
             }
         });
 
-        (function(){
+        // Initialize with default address
+        try {
             @php $default = auth()->user()->addresses->firstWhere('is_default', true); @endphp
             @if($default)
-                const opt = Array.from(savedSelect.options).find(o => o.value == '{{ $default->id }}');
-                if (opt) { 
-                    savedSelect.value = '{{ $default->id }}'; 
-                    savedSelect.dispatchEvent(new Event('change')); 
+                const defaultAddressId = '{{ $default->id }}';
+                console.log('Setting default address ID:', defaultAddressId);
+                savedSelect.value = defaultAddressId;
+                
+                if (addresses[defaultAddressId]) {
+                    console.log('Found default address in object');
+                    fillAddress(addresses[defaultAddressId]);
+                } else {
+                    console.warn('Default address not in addresses object');
                 }
             @else
+                console.log('No default address, initializing empty');
                 fillAddress(null);
             @endif
-        })();
-    })();
+        } catch (err) {
+            console.error('Error in initialization:', err);
+        }
+
+        console.log('=== INITIALIZATION COMPLETE ===');
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        console.log('DOM still loading, waiting for DOMContentLoaded');
+        document.addEventListener('DOMContentLoaded', initializeAddressSelector);
+    } else {
+        console.log('DOM already loaded, initializing now');
+        initializeAddressSelector();
+    }
 </script>
 @endsection
 @endsection
