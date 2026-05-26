@@ -1,4 +1,4 @@
-<header id="navbar" class="fixed w-full z-[99999] top-0 transition-all duration-300 py-4 sm:py-6 px-4 sm:px-8 bg-transparent" style="pointer-events: auto;">
+<header id="navbar" class="fixed w-full z-40 top-0 transition-all duration-300 py-4 sm:py-6 px-4 sm:px-8 bg-transparent" style="pointer-events: auto;">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
         <!-- Logo -->
         <a href="{{ route('home') }}" class="text-2xl font-serif tracking-widest uppercase hover:scale-105 transition-transform duration-300">

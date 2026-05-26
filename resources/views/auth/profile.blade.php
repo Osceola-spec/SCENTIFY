@@ -156,12 +156,11 @@
     </div>
 
     <div id="editProfileModal"
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
-        <div
-            class="modal-body-card bg-white dark:bg-darkcard border border-slate-200 dark:border-white/5 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+        class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20 bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        
+        <div class="modal-body-card bg-white dark:bg-darkcard border border-slate-200 dark:border-white/5 rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
 
-            <div
-                class="px-6 py-5 border-b border-slate-200 dark:border-white/5 flex items-center justify-between bg-slate-50 dark:bg-zinc-900/50">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-white/5 flex items-center justify-between bg-slate-50 dark:bg-zinc-900/50">
                 <h5 class="font-serif font-bold text-lg text-slate-900 dark:text-white">Edit Profil Anda</h5>
                 <button type="button" onclick="closeEditModal()"
                     class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors focus:outline-none">
@@ -174,94 +173,62 @@
                 @csrf
                 @method('PUT')
 
-                <div class="p-6 sm:p-8 space-y-5">
+                <div class="p-6 space-y-4">
 
-                    <div>
-                        <label for="username"
-                            class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Username</label>
-                        <input type="text" id="username" name="username" value="{{ old('username', $user->username) }}"
-                            required maxlength="20"
-                            class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border @error('username') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-                        <p class="text-[10px] text-slate-400 mt-1">Maksimal 20 karakter.</p>
-                        @error('username')
-                            <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="username" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Username</label>
+                            <input type="text" id="username" name="username" value="{{ old('username', $user->username) }}" required maxlength="20"
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/50 border @error('username') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-all">
+                            @error('username') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label for="phone" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Nomor Telepon</label>
+                            <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/50 border @error('phone') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-all">
+                            @error('phone') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="first_name"
-                                class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Nama
-                                Depan</label>
-                            <input type="text" id="first_name" name="first_name"
-                                value="{{ old('first_name', $user->first_name) }}" required
-                                class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border @error('first_name') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-                            @error('first_name')
-                                <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <label for="first_name" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Nama Depan</label>
+                            <input type="text" id="first_name" name="first_name" value="{{ old('first_name', $user->first_name) }}" required
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/50 border @error('first_name') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-all">
+                            @error('first_name') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
 
                         <div>
-                            <label for="last_name"
-                                class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Nama
-                                Belakang</label>
-                            <input type="text" id="last_name" name="last_name"
-                                value="{{ old('last_name', $user->last_name) }}"
-                                class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border @error('last_name') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-                            @error('last_name')
-                                <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <label for="last_name" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Nama Belakang</label>
+                            <input type="text" id="last_name" name="last_name" value="{{ old('last_name', $user->last_name) }}"
+                                class="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/50 border @error('last_name') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-all">
+                            @error('last_name') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <div>
-                        <label for="phone"
-                            class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Nomor
-                            Telepon</label>
-                        <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
-                            class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border @error('phone') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
-                        @error('phone')
-                            <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <label for="bio" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Bio / Tentang Saya</label>
+                        <textarea id="bio" name="bio" rows="2" placeholder="Ceritakan sedikit tentang diri Anda..."
+                            class="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/50 border @error('bio') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-all resize-none">{{ old('bio', $user->bio) }}</textarea>
+                        @error('bio') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
-                        <label for="bio"
-                            class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Bio
-                            / Tentang Saya</label>
-                        <textarea id="bio" name="bio" rows="3" placeholder="Ceritakan sedikit tentang diri Anda..."
-                            class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border @error('bio') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none">{{ old('bio', $user->bio) }}</textarea>
-                        @error('bio')
-                            <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label
-                            class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-2">Foto
-                            Profil Baru</label>
-                        <div class="relative">
-                            <input type="file" id="profile_picture" name="profile_picture" accept="image/*"
-                                class="w-full px-4 py-3 bg-slate-50 dark:bg-zinc-800/50 border @error('profile_picture') border-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-500 dark:text-zinc-400 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-all cursor-pointer">
-                        </div>
-                        @error('profile_picture')
-                            <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
-                        @else
-                            <p class="text-[10px] text-slate-400 mt-2 flex items-center gap-1.5"><i
-                                    class="fas fa-info-circle"></i> Maks 2MB. Format: JPEG, PNG, JPG.</p>
-                        @enderror
+                        <label class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Foto Profil Baru</label>
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*"
+                            class="w-full px-4 py-2 bg-slate-50 dark:bg-zinc-800/50 border @error('profile_picture') border-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-500 dark:text-zinc-400 text-sm file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-all cursor-pointer">
                     </div>
 
                 </div>
 
-                <div
-                    class="px-6 py-5 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-900/50 flex justify-end gap-3">
+                <div class="px-6 py-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-zinc-900/50 flex justify-end gap-3">
                     <button type="button" onclick="closeEditModal()"
-                        class="px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-all focus:outline-none">
+                        class="px-6 py-2 rounded-xl font-semibold text-xs tracking-wider uppercase border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-all focus:outline-none">
                         Batal
                     </button>
                     <button type="submit"
-                        class="px-6 py-2.5 rounded-xl font-semibold text-xs tracking-wider uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black hover:bg-amber-500 dark:hover:bg-amber-300 shadow-md active:scale-95 transition-all focus:outline-none">
+                        class="px-6 py-2 rounded-xl font-semibold text-xs tracking-wider uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black hover:bg-amber-500 dark:hover:bg-amber-300 shadow-md active:scale-95 transition-all focus:outline-none">
                         Simpan Perubahan
                     </button>
                 </div>

@@ -5,8 +5,7 @@
 @section('content')
 <div class="space-y-6 fade-in pb-10">
 
-    <!-- Sticky Header Area -->
-    <div class="sticky top-0 z-30 bg-adminbg/90 backdrop-blur-md pt-2 pb-4 border-b border-slate-200/50 mb-6">
+    <div class="pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Inventory Produk</h1>
@@ -18,11 +17,9 @@
         </div>
     </div>
 
-    <!-- Search & Filter Card -->
     <div class="bg-white rounded-[1.5rem] p-5 border border-slate-100 shadow-sm relative overflow-hidden">
         <form action="{{ route('admin.inventory') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center relative z-10">
             
-            <!-- Search Input -->
             <div class="md:col-span-5 relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition-colors">
                     <i class="fas fa-search"></i>
@@ -32,7 +29,6 @@
                        placeholder="Cari nama parfum, notes, dll...">
             </div>
 
-            <!-- Filter Dropdown -->
             <div class="md:col-span-4 relative">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                     <i class="fas fa-filter text-xs"></i>
@@ -48,7 +44,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="md:col-span-3 flex gap-3">
                 <button type="submit" class="flex-1 bg-slate-900 text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-slate-800 transition-colors shadow-md">
                     Cari
@@ -60,7 +55,6 @@
         </form>
     </div>
 
-    <!-- Inventory Table Card -->
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-0">
             @if($products->isEmpty())

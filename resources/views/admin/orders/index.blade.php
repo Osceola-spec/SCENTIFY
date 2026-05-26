@@ -5,25 +5,18 @@
 @section('content')
 <div class="space-y-6 fade-in pb-10">
 
-    <!-- Sticky Header Area -->
-    <div class="sticky top-0 z-30 bg-adminbg/90 backdrop-blur-md pt-2 pb-4 border-b border-slate-200/50 mb-6">
+    <div class="pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Riwayat Pesanan</h1>
                 <p class="text-sm text-slate-500 mt-1">Kelola transaksi, perbarui status pengiriman, dan lacak seluruh pesanan masuk Scentify.</p>
             </div>
-            <!-- Indikator Total Data (Opsional, menyesuaikan layout yang ada) -->
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-mono font-semibold text-blue-600">
-                <i class="fas fa-receipt"></i> Order Management
-            </div>
         </div>
     </div>
 
-    <!-- Search & Filter Card -->
     <div class="bg-white rounded-[1.5rem] p-5 border border-slate-100 shadow-sm relative overflow-hidden">
         <form action="{{ route('admin.orders.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center relative z-10">
             
-            <!-- Search Input -->
             <div class="md:col-span-5 relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-amber-500 transition-colors">
                     <i class="fas fa-search"></i>
@@ -33,7 +26,6 @@
                        placeholder="Cari No. Pesanan atau Nama Pelanggan...">
             </div>
 
-            <!-- Status Filter Dropdown -->
             <div class="md:col-span-4 relative">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                     <i class="fas fa-filter text-xs"></i>
@@ -52,7 +44,6 @@
                 </div>
             </div>
 
-            <!-- Action Buttons -->
             <div class="md:col-span-3 flex gap-3">
                 <button type="submit" class="flex-1 bg-slate-900 text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-slate-800 active:scale-95 transition-all shadow-md">
                     Filter
@@ -64,7 +55,6 @@
         </form>
     </div>
 
-    <!-- Orders Table Card -->
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-0">
             <div class="overflow-x-auto">
@@ -82,12 +72,10 @@
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
                         @forelse ($orders as $order)
                             <tr class="hover:bg-slate-50/80 transition-colors group">
-                                <!-- Order Number -->
                                 <td class="px-6 py-4">
                                     <span class="font-mono font-bold text-slate-900 group-hover:text-amber-600 transition-colors">#{{ $order->order_number }}</span>
                                 </td>
                                 
-                                <!-- Customer Info -->
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold uppercase shrink-0">
@@ -100,7 +88,6 @@
                                     </div>
                                 </td>
                                 
-                                <!-- Date -->
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2 text-slate-500">
                                         <i class="far fa-calendar-alt text-amber-500/70"></i>
@@ -108,43 +95,30 @@
                                     </div>
                                 </td>
                                 
-                                <!-- Total Amount -->
                                 <td class="px-6 py-4 font-bold text-slate-900">
                                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                 </td>
                                 
-                                <!-- Status Badge -->
                                 <td class="px-6 py-4 text-center">
                                     @php
                                         $statusClass = match($order->status) {
-                                            'Pending' => 'bg-amber-50 text-amber-600 border-amber-200',
-                                            'Processing' => 'bg-blue-50 text-blue-600 border-blue-200',
-                                            'Shipped' => 'bg-indigo-50 text-indigo-600 border-indigo-200',
-                                            'Completed' => 'bg-emerald-50 text-emerald-600 border-emerald-200',
-                                            'Cancelled' => 'bg-rose-50 text-rose-600 border-rose-200',
-                                            default => 'bg-slate-50 text-slate-600 border-slate-200'
-                                        };
-                                        
-                                        $statusIcon = match($order->status) {
-                                            'Pending' => 'fa-clock',
-                                            'Processing' => 'fa-box-open',
-                                            'Shipped' => 'fa-truck',
-                                            'Completed' => 'fa-check-circle',
-                                            'Cancelled' => 'fa-times-circle',
-                                            default => 'fa-circle'
+                                            'Pending' => 'text-amber-600 bg-amber-50 border-amber-100',
+                                            'Processing' => 'text-blue-600 bg-blue-50 border-blue-100',
+                                            'Shipped' => 'text-indigo-600 bg-indigo-50 border-indigo-100',
+                                            'Completed' => 'text-emerald-600 bg-emerald-50 border-emerald-100',
+                                            'Cancelled' => 'text-rose-600 bg-rose-50 border-rose-100',
+                                            default => 'text-slate-600 bg-slate-50 border-slate-100'
                                         };
                                     @endphp
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border {{ $statusClass }}">
-                                        <i class="fas {{ $statusIcon }}"></i> {{ $order->status }}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold border {{ $statusClass }}">
+                                        {{ $order->status }}
                                     </span>
                                 </td>
                                 
-                                <!-- Actions -->
                                 <td class="px-6 py-4 text-center">
                                     <a href="{{ route('admin.orders.show', $order->id) }}" 
-                                       class="inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm font-semibold text-xs"
-                                       title="Lihat Detail Pesanan">
-                                        <i class="fas fa-eye"></i> Detail
+                                       class="inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all shadow-sm font-semibold text-xs">
+                                        <i class="fas fa-eye text-xs"></i> Detail
                                     </a>
                                 </td>
                             </tr>
@@ -155,7 +129,7 @@
                                         <i class="fas fa-receipt"></i>
                                     </div>
                                     <h5 class="text-lg font-bold text-slate-800 mb-1">Belum Ada Transaksi</h5>
-                                    <p class="text-sm text-slate-500 max-w-sm mx-auto">Tidak ada riwayat pesanan yang ditemukan. Ubah kata kunci pencarian atau filter status untuk menemukan data.</p>
+                                    <p class="text-sm text-slate-500 max-w-sm mx-auto">Tidak ada riwayat pesanan yang ditemukan.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -165,50 +139,17 @@
         </div>
     </div>
 
-    <!-- Custom Pagination (Tailwind Adaptive Theme) -->
     <div class="mt-8 flex justify-center custom-pagination">
         {{ $orders->links('pagination::bootstrap-5') }}
     </div>
 
 </div>
 
-<!-- Styling Kustom Khusus Komponen Pagination Bawaan Laravel (Tailwind Compliant) -->
 <style>
-    .custom-pagination .pagination {
-        display: flex;
-        gap: 0.25rem;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-    .custom-pagination .page-link {
-        color: #475569; /* text-slate-600 */
-        border: 1px solid #e2e8f0; /* border-slate-200 */
-        background-color: #ffffff;
-        border-radius: 0.5rem; /* rounded-lg */
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem; /* text-sm */
-        font-weight: 500;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .custom-pagination .page-item.active .page-link {
-        background-color: #0f172a !important; /* bg-slate-900 */
-        color: #ffffff !important;
-        border-color: #0f172a !important;
-    }
-    .custom-pagination .page-link:hover {
-        background-color: #f8fafc !important; /* bg-slate-50 */
-        color: #0f172a !important;
-        border-color: #cbd5e1 !important;
-    }
-    .custom-pagination .page-item.disabled .page-link {
-        color: #94a3b8;
-        background-color: #f8fafc;
-        border-color: #f1f5f9;
-        cursor: not-allowed;
-    }
+    .custom-pagination .pagination { display: flex; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
+    .custom-pagination .page-link { color: #475569; border: 1px solid #e2e8f0; background-color: #ffffff; border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .custom-pagination .page-item.active .page-link { background-color: #0f172a !important; color: #ffffff !important; border-color: #0f172a !important; }
+    .custom-pagination .page-link:hover { background-color: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+    .custom-pagination .page-item.disabled .page-link { color: #94a3b8; background-color: #f8fafc; border-color: #f1f5f9; cursor: not-allowed; }
 </style>
 @endsection

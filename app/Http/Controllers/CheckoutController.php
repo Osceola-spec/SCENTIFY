@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductVariant;
-use App\Models\Address; // Pastikan Model Address dipanggil
+use App\Models\Address;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
@@ -46,6 +46,10 @@ class CheckoutController extends Controller
             }
         }
 
+        if (empty($selectedCart)) {
+            return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang.');
+        }
+
         $shippingCost = 50000;
         $taxAmount = $subtotal * 0.11;
         $totalAmount = $subtotal + $shippingCost + $taxAmount;
@@ -73,15 +77,54 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         \Log::info('=== CHECKOUT PROCESS START ===');
-        \Log::info('Request data', $request->all());
+        \Log::info('Request data awal', $request->all());
 
         // Tarik data item terpilih dan kalkulasi harga dari session aman kita
         $checkoutData = session()->get('checkout_data');
 
         if (!$checkoutData || empty($checkoutData['cart'])) {
             \Log::info('REDIRECT: Data session checkout kosong');
-            return redirect()->route('cart.index')->with('error', 'Sesi checkout kosong atau kedaluwarsa.');
+            return redirect()->route('cart.index')->with('error', 'Sesi checkout kosong atau kedaluwarsa. Silakan pilih ulang item dari keranjang.');
         }
+
+        // Sinkronisasi paksa input email jika form me-read-only dan tidak terkirim di request
+        if (!$request->has('email') || empty($request->email)) {
+            $request->merge(['email' => auth()->user()->email]);
+        }
+
+        // Logika Alamat Lama: Tarik data dari DB sebelum validasi agar request terisi data lengkap
+        if ($request->filled('address_id') && $request->address_id !== 'new') {
+            \Log::info('Pakai alamat lama: ' . $request->address_id);
+            $addr = Address::where('id', $request->address_id)
+                ->where('user_id', auth()->id())
+                ->first();
+
+            if ($addr) {
+                \Log::info('Alamat ditemukan di DB, melakukan merge data ke request');
+                $request->merge([
+                    'first_name'  => $addr->first_name,
+                    'last_name'   => $addr->last_name,
+                    'phone'       => $addr->phone,
+                    'address'     => $addr->address,
+                    'city'        => $addr->city,
+                    'postal_code' => $addr->postal_code,
+                ]);
+            } else {
+                return redirect()->back()->withErrors(['address_id' => 'Alamat pilihan tidak valid atau bukan milik Anda.']);
+            }
+        }
+
+        // Aturan Validasi Pengiriman Data
+        $request->validate([
+            'address_id'  => 'required',
+            'first_name'  => 'required|string|max:255',
+            'last_name'   => 'nullable|string|max:255',
+            'email'       => 'required|email',
+            'phone'       => 'required|string|min:8|max:20',
+            'address'     => 'required|string',
+            'city'        => 'required|string|max:255',
+            'postal_code' => 'required|string|max:10',
+        ]);
 
         $cart         = $checkoutData['cart'];
         $subtotal     = $checkoutData['subtotal'];
@@ -89,33 +132,13 @@ class CheckoutController extends Controller
         $taxAmount    = $checkoutData['taxAmount'];
         $totalAmount  = $checkoutData['totalAmount'];
 
-        \Log::info('Kalkulasi terambil dari session', compact('subtotal', 'taxAmount', 'totalAmount'));
-
         DB::beginTransaction();
         \Log::info('DB transaction started');
 
         try {
-            // Logika Alamat
-            if ($request->filled('address_id') && $request->address_id !== 'new') {
-                \Log::info('Pakai alamat lama: ' . $request->address_id);
-                $addr = Address::where('id', $request->address_id)
-                    ->where('user_id', auth()->id())
-                    ->first();
-
-                \Log::info('Alamat ditemukan', [$addr]);
-
-                if ($addr) {
-                    $request->merge([
-                        'first_name'  => $addr->first_name,
-                        'last_name'   => $addr->last_name,
-                        'phone'       => $addr->phone,
-                        'address'     => $addr->address,
-                        'city'        => $addr->city,
-                        'postal_code' => $addr->postal_code,
-                    ]);
-                }
-            } else {
-                \Log::info('Simpan alamat baru');
+            // Jika memilih alamat baru, buat record baru di tabel addresses
+            if ($request->address_id === 'new') {
+                \Log::info('Menyimpan alamat baru ke database');
                 Address::create([
                     'user_id'     => auth()->id(),
                     'label'       => 'Alamat ' . now()->format('d M Y'),
@@ -133,12 +156,12 @@ class CheckoutController extends Controller
                 $request->phone . " | " .
                 $request->address . ", " . $request->city . " " . $request->postal_code;
 
-            \Log::info('Full address: ' . $fullAddress);
+            \Log::info('Full address text compiled: ' . $fullAddress);
 
             // Simpan data Order ke Database
             $order = Order::create([
                 'user_id'          => auth()->id(),
-                'order_number'     => 'ORD-' . strtoupper(\Str::random(8)),
+                'order_number'     => 'ORD-' . strtoupper(Str::random(8)),
                 'subtotal'         => $subtotal,
                 'tax_amount'       => $taxAmount,
                 'total_amount'     => $totalAmount,
@@ -146,11 +169,10 @@ class CheckoutController extends Controller
                 'shipping_address' => $fullAddress,
             ]);
 
-            \Log::info('Order created', [$order->id]);
+            \Log::info('Order successfully created. ID: ' . $order->id);
 
             // Simpan setiap item ke Order Items dan kurangi stok produk
             foreach ($cart as $variantId => $item) {
-                \Log::info('Creating order item', $item);
                 OrderItem::create([
                     'order_id'           => $order->id,
                     'product_variant_id' => $item['variant_id'],
@@ -160,13 +182,16 @@ class CheckoutController extends Controller
 
                 $variant = ProductVariant::find($item['variant_id']);
                 if ($variant) {
+                    if ($variant->stock < $item['quantity']) {
+                        throw new \Exception("Stok untuk produk " . $item['product_name'] . " tidak mencukupi.");
+                    }
                     $variant->decrement('stock', $item['quantity']);
-                    \Log::info('Stock decremented for variant ' . $variant->id);
+                    \Log::info('Stock decremented for variant ID: ' . $variant->id);
                 }
             }
 
             DB::commit();
-            \Log::info('DB committed');
+            \Log::info('DB Transaction Committed successfully');
 
             // Konfigurasi Sistem Midtrans
             Config::$serverKey    = env('MIDTRANS_SERVER_KEY');
@@ -187,55 +212,46 @@ class CheckoutController extends Controller
                 ],
             ];
 
-            \Log::info('Midtrans params', $params);
+            \Log::info('Submitting parameters to Midtrans', $params);
 
             // Dapatkan token Midtrans
             $snapToken = Snap::getSnapToken($params);
             \Log::info('Snap token received: ' . $snapToken);
 
-            // Bersihkan data cart global dan session checkout pembantu
+            // Bersihkan produk yang berhasil dibeli dari session cart utama
             $globalCart = session()->get('cart', []);
             foreach ($cart as $id => $item) {
-                unset($globalCart[$id]); // Hapus produk yang dibeli saja dari keranjang belanja global
+                unset($globalCart[$id]);
             }
             session()->put('cart', $globalCart);
             session()->forget('checkout_data');
 
-            // MENGHINDARI LAYAR PUTIH: Kembalikan view payment dengan data lengkap
+            // Buka halaman pembayaran midtrans
             return view('payment', compact('snapToken', 'order'));
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('CHECKOUT ERROR: ' . $e->getMessage());
-            \Log::error($e->getTraceAsString());
+            \Log::error('CHECKOUT TRANSACTION FAILED: ' . $e->getMessage());
             
-            // Mengganti dd($e->getMessage()) agar user dikembalikan ke halaman sebelumnya dengan pesan error yang rapi
-            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal memproses transaksi: ' . $e->getMessage());
         }
     }
+
     /**
      * Menangani opsi bayar nanti dari halaman payment.
      */
     public function payLater(Order $order)
     {
-        // Keamanan: Pastikan order ini memang milik user yang sedang login
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Akses tidak sah.');
         }
 
-        // Pastikan status order masih Pending
         if ($order->status !== 'Pending') {
             return redirect()->route('orders.index')->with('info', 'Pesanan ini sudah diproses.');
         }
 
         \Log::info("User memilih opsi Bayar Nanti untuk Order ID: {$order->order_number}");
 
-        // 1. Bersihkan sisa data checkout di session jika masih ada
-        // session()->forget('checkout_data');
-        // session()->forget('cart'); // Memastikan keranjang benar-benar kosong setelah pesanan disimpan
-
-        // 2. Redirect ke halaman My Orders dengan pesan sukses
-        // Catatan: Sesuaikan 'orders.index' dengan nama route halaman daftar pesanan Anda
         return redirect()->route('orders.index')->with('success', 'Pesanan berhasil disimpan. Silakan lakukan pembayaran sebelum kedaluwarsa di halaman akun Anda.');
     }
 }
