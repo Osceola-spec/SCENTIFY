@@ -19,6 +19,20 @@
 
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-4">
+            <div class="mb-4">
+                <input id="admin-branch-search" type="search" placeholder="Cari cabang..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+            </div>
+
+            @php
+                $branchesForJson = $branches->map(fn($b) => [
+                    'id' => $b->id,
+                    'name' => $b->name,
+                    'address' => $b->address,
+                    'city' => $b->city,
+                    'phone' => $b->phone,
+                    'email' => $b->email,
+                ]);
+            @endphp
             @if(session('success'))
                 <div class="mb-4 p-3 bg-emerald-50 text-emerald-700 rounded">{{ session('success') }}</div>
             @endif
@@ -40,7 +54,7 @@
                         </thead>
                         <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
                             @foreach($branches as $i => $branch)
-                                <tr class="group hover:bg-slate-50/80 transition-colors">
+                                <tr class="group hover:bg-slate-50/80 transition-colors branch-row" data-id="{{ $branch->id }}">
                                     <td class="px-6 py-4">{{ $i + 1 }}</td>
                                     <td class="px-6 py-4 font-bold">
                                         <div class="max-w-[160px] md:max-w-[260px] truncate" title="{{ $branch->name }}">{{ $branch->name }}</div>
@@ -75,6 +89,22 @@
                         </tbody>
                     </table>
                 </div>
+                <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+                <script>
+                    (function(){
+                        const data = @json($branchesForJson);
+                        const fuse = new Fuse(data, { keys: ['name','address','city','phone','email'], threshold: 0.35 });
+                        const input = document.getElementById('admin-branch-search');
+                        input.addEventListener('input', function(e){
+                            const q = e.target.value.trim();
+                            const matches = q ? fuse.search(q).map(r => r.item.id) : data.map(d => d.id);
+                            document.querySelectorAll('.branch-row').forEach(r => {
+                                const id = parseInt(r.getAttribute('data-id'));
+                                r.style.display = matches.includes(id) ? '' : 'none';
+                            });
+                        });
+                    })();
+                </script>
             @endif
         </div>
     </div>

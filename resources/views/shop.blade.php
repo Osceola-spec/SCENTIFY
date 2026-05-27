@@ -53,6 +53,48 @@
             </div>
         </div>
     </div>
+    {{-- @if(config('app.debug'))
+        <div class="mb-4 text-xs text-rose-500">
+            Debug activePromotion: @if(isset($activePromotion) && $activePromotion) ID={{ $activePromotion->id }}, ends_at={{ $activePromotion->ends_at }} @else <span class="text-rose-400">NULL</span> @endif
+        </div>
+    @endif --}}
+    @if(!empty($upcomingPromotion))
+        <div id="promo-upcoming-banner" class="mb-6 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-between gap-4">
+            <div>
+                <div class="text-sm font-mono text-amber-600 uppercase">Promo Akan Datang</div>
+                <div class="text-lg font-semibold text-slate-900 dark:text-white">{{ optional($upcomingPromotion)->title }}</div>
+                <div class="text-xs text-slate-700 dark:text-zinc-300">{{ optional($upcomingPromotion)->description }}</div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-slate-600 dark:text-zinc-300">Mulai dalam:</div>
+                <div id="promo-starts-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
+            </div>
+            <input type="hidden" id="promo-starts-at" value="{{ optional(optional($upcomingPromotion)->starts_at)->toIsoString() }}">
+        </div>
+    @endif
+
+    @if(!empty($activePromotion))
+        <div id="promo-banner" class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-4">
+            <div>
+                <div class="text-sm font-mono text-amber-600 uppercase">Promo Aktif</div>
+                <div class="text-lg font-semibold text-slate-900 dark:text-white">{{ optional($activePromotion)->title }}</div>
+                <div class="text-xs text-slate-700 dark:text-zinc-300">{{ optional($activePromotion)->description }}</div>
+            </div>
+            <div class="text-right">
+                @if(optional($activePromotion)->ends_at)
+                    <div class="text-xs text-slate-600 dark:text-zinc-300">Sisa waktu:</div>
+                    <div id="promo-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
+                    @if(optional($activePromotion)->applies_to_all === false && optional($activePromotion)->product)
+                        <a href="{{ route('products.edit', optional($activePromotion)->product->id) }}" class="text-xs text-slate-700 dark:text-zinc-300">Lihat produk terkait</a>
+                    @endif
+                    <input type="hidden" id="promo-ends-at" value="{{ optional(optional($activePromotion)->ends_at)->toIsoString() }}">
+                @else
+                    <div class="text-sm text-slate-600 dark:text-zinc-300">Promo aktif (tanpa tenggat waktu)</div>
+                @endif
+            </div>
+        </div>
+    @endif
+
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <aside id="filterSidebar" class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white dark:bg-darkbg lg:bg-transparent lg:dark:bg-transparent p-6 lg:p-0 border-r border-slate-200 dark:border-white/10 lg:border-none shadow-2xl lg:shadow-none transform -translate-x-full lg:translate-x-0 overflow-y-auto lg:overflow-visible lg:static lg:col-span-3 lg:w-full reveal">
@@ -170,7 +212,7 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6" id="product-container">
                 @forelse($products as $product)
-                    <div class="perspective-1000 reveal">
+                    <div class="perspective-1000 reveal product-card" data-id="{{ $product->id }}" data-name="{{ e($product->name) }}" data-brand="{{ e($product->brand->name ?? '') }}" data-description="{{ e(strip_tags($product->description ?? '')) }}">
                         <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative">
                             
                             <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
@@ -208,8 +250,30 @@
                                     @endif
                                 </div>
 
+                                @php
+                                    $basePrice = $product->variants->first()->price ?? 0;
+                                    $promoApplies = false;
+                                    $discountedPrice = null;
+                                    if (!empty($activePromotion)) {
+                                        $promoApplies = $activePromotion->applies_to_all || ($activePromotion->product_id && $activePromotion->product_id == $product->id);
+                                        if ($promoApplies) {
+                                            $dv = (float) $activePromotion->discount_value;
+                                            if ($activePromotion->discount_type === 'percent') {
+                                                $discountedPrice = max(0, round($basePrice * (1 - ($dv / 100))));
+                                            } else {
+                                                $discountedPrice = max(0, round($basePrice - $dv));
+                                            }
+                                        }
+                                    }
+                                @endphp
+
                                 <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">
-                                    Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}
+                                    @if($discountedPrice !== null)
+                                        <span class="text-xs text-slate-400 line-through mr-2">Rp {{ number_format($basePrice, 0, ',', '.') }}</span>
+                                        <span class="text-xs text-amber-600">Rp {{ number_format($discountedPrice, 0, ',', '.') }}</span>
+                                    @else
+                                        Rp {{ number_format($basePrice, 0, ',', '.') }}
+                                    @endif
                                 </p>
                             </div>
 
@@ -664,4 +728,198 @@
         }
     }
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const searchInput = document.querySelector('input[name="search"]');
+    const productContainer = document.getElementById('product-container');
+    const pagination = document.querySelector('.custom-pagination');
+    if (!searchInput || !productContainer) return;
+    // Build searchable list from rendered cards on page
+    const buildListFromDOM = () => {
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+        return cards.map(c => ({
+            id: c.dataset.id,
+            name: c.dataset.name || '',
+            brand: c.dataset.brand || '',
+            description: c.dataset.description || '',
+            html: c.outerHTML
+        }));
+    };
+
+    // Capture initial snapshot so we can fully restore when search cleared
+    const originalList = buildListFromDOM();
+    let list = originalList.slice();
+    const fuse = new Fuse(list, { keys: ['name','brand','description'], threshold: 0.35 });
+    let debounce = null;
+
+    // On input, search and replace product container with matched cards
+    searchInput.addEventListener('input', function(){
+        const q = this.value.trim();
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            if (q.length === 0) {
+                // restore full original snapshot
+                productContainer.innerHTML = originalList.map(i => i.html).join('');
+                if (pagination) pagination.style.display = '';
+                // reset list & fuse collection
+                list = originalList.slice();
+                fuse.setCollection(list);
+                return;
+            }
+
+            // Use the original snapshot as the search base to ensure full catalog is searched
+            fuse.setCollection(originalList);
+            const results = fuse.search(q).map(r => r.item);
+
+            if (results.length) {
+                productContainer.innerHTML = results.map(r => r.html).join('');
+            } else {
+                productContainer.innerHTML = `<div class="col-span-full text-center py-20 reveal"><div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-4 text-slate-400"><i class="fas fa-box-open text-xl"></i></div><h3 class="font-serif text-lg">Tidak ada produk yang sesuai.</h3><p class="text-xs text-slate-400 mt-1">Coba gunakan kata kunci lain atau kurangi filter Anda.</p></div>`;
+            }
+            if (pagination) pagination.style.display = 'none';
+        }, 200);
+    });
+});
+</script>
+
+<script>
+    // ==========================================
+    // 5. PROMO COUNTDOWN GLOBAL CONTROL
+    // ==========================================
+    document.addEventListener("DOMContentLoaded", function () {
+        const el = document.getElementById('promo-countdown');
+        const endInput = document.getElementById('promo-ends-at');
+        
+        // Validasi jika elemen tidak ditemukan di halaman
+        if (!el || !endInput || !endInput.value) return;
+
+        // Mengonversi string tanggal ISO dari backend menjadi objek Date browser
+        const endAt = new Date(endInput.value);
+        if (isNaN(endAt.getTime())) {
+            el.textContent = "Selamanya";
+            return;
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            let diff = endAt - now;
+
+            // Jika waktu promo sudah terlewati
+            if (diff <= 0) {
+                el.textContent = 'Selesai';
+                clearInterval(tid);
+                return;
+            }
+
+            // Perhitungan Hari, Jam, Menit, dan Detik
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -= days * (1000 * 60 * 60 * 24);
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+            
+            const minutes = Math.floor(diff / (1000 * 60));
+            diff -= minutes * (1000 * 60);
+            
+            const seconds = Math.floor(diff / 1000);
+
+            // Format string keluaran
+            const parts = [];
+            if (days > 0) {
+                parts.push(days + 'd');
+            }
+            
+            // Mengamankan format 2 digit angka (01:05:09)
+            const formatTime = String(hours).padStart(2, '0') + ':' + 
+                               String(minutes).padStart(2, '0') + ':' + 
+                               String(seconds).padStart(2, '0');
+            parts.push(formatTime);
+
+            el.textContent = parts.join(' ');
+        }
+
+        // Jalankan fungsi sekali di awal agar tidak ada delay kosong 1 detik
+        updateCountdown();
+        const tid = setInterval(updateCountdown, 1000);
+    });
+
+    // Upcoming promo countdown (reload page when it starts)
+    document.addEventListener("DOMContentLoaded", function () {
+        const elStart = document.getElementById('promo-starts-countdown');
+        const startInput = document.getElementById('promo-starts-at');
+        if (!elStart || !startInput || !startInput.value) return;
+
+        const startAt = new Date(startInput.value);
+        if (isNaN(startAt.getTime())) return;
+
+        function updateStartCountdown() {
+            const now = new Date();
+            let diff = startAt - now;
+            if (diff <= 0) {
+                elStart.textContent = 'Dimulai';
+                clearInterval(startTid);
+                // reload to reflect active promotion
+                try { setTimeout(() => window.location.reload(), 500); } catch(e) {}
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            diff -= days * (1000 * 60 * 60 * 24);
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            diff -= hours * (1000 * 60 * 60);
+            const minutes = Math.floor(diff / (1000 * 60));
+            diff -= minutes * (1000 * 60);
+            const seconds = Math.floor(diff / 1000);
+
+            const parts = [];
+            if (days > 0) parts.push(days + 'd');
+            parts.push(String(hours).padStart(2,'0') + ':' + String(minutes).padStart(2,'0') + ':' + String(seconds).padStart(2,'0'));
+            elStart.textContent = parts.join(' ');
+        }
+
+        updateStartCountdown();
+        const startTid = setInterval(updateStartCountdown, 1000);
+    });
+</script>
 @endsection
+
+@push('scripts')
+<script>
+    // Promo countdown
+    (function(){
+        const el = document.getElementById('promo-countdown');
+        const endInput = document.getElementById('promo-ends-at');
+        if (!el || !endInput) return;
+
+        let endAt = new Date(endInput.value);
+        if (isNaN(endAt.getTime())) return;
+
+        function updateCountdown(){
+            const now = new Date();
+            let diff = endAt - now;
+            if (diff <= 0) {
+                el.textContent = 'Selesai';
+                clearInterval(tid);
+                return;
+            }
+            const days = Math.floor(diff / (1000*60*60*24));
+            diff -= days * (1000*60*60*24);
+            const hours = Math.floor(diff / (1000*60*60));
+            diff -= hours * (1000*60*60);
+            const minutes = Math.floor(diff / (1000*60));
+            diff -= minutes * (1000*60);
+            const seconds = Math.floor(diff/1000);
+
+            const parts = [];
+            if (days > 0) parts.push(days + 'd');
+            parts.push(String(hours).padStart(2,'0')+':'+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0'));
+            el.textContent = parts.join(' ');
+        }
+
+        updateCountdown();
+        const tid = setInterval(updateCountdown, 1000);
+    })();
+</script>
+@endpush

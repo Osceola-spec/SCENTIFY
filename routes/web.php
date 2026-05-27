@@ -148,6 +148,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('/branches/{branch}', [AdminBranchController::class, 'update'])->name('admin.branches.update');
     Route::delete('/branches/{branch}', [AdminBranchController::class, 'destroy'])->name('admin.branches.destroy');
 
+    // Manajemen Promo / Flash Sale
+    Route::get('/promotions', [App\Http\Controllers\AdminPromotionController::class, 'index'])->name('admin.promotions.index');
+    Route::get('/promotions/create', [App\Http\Controllers\AdminPromotionController::class, 'create'])->name('admin.promotions.create');
+    Route::post('/promotions', [App\Http\Controllers\AdminPromotionController::class, 'store'])->name('admin.promotions.store');
+    Route::get('/promotions/{promotion}/edit', [App\Http\Controllers\AdminPromotionController::class, 'edit'])->name('admin.promotions.edit');
+    Route::put('/promotions/{promotion}', [App\Http\Controllers\AdminPromotionController::class, 'update'])->name('admin.promotions.update');
+    Route::delete('/promotions/{promotion}', [App\Http\Controllers\AdminPromotionController::class, 'destroy'])->name('admin.promotions.destroy');
+
     // Manajemen Pesanan oleh Admin
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');

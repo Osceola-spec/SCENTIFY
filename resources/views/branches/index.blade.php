@@ -12,6 +12,10 @@
                 </p>
             </div>
 
+            <div class="mb-4">
+                <input id="branch-search" type="search" placeholder="Cari toko atau alamat..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+            </div>
+
             <div class="space-y-4 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto lg:pr-3 native-scrollbar pb-10">
                 @forelse($branches as $index => $branch)
                     @php
@@ -21,7 +25,8 @@
                     @endphp
                     
                     <div class="tilt-card glass-card bg-white dark:bg-darkcard rounded-xl p-5 border border-slate-100 dark:border-white/5 shadow-sm hover:border-amber-500/40 dark:hover:border-amber-500/30 transition-all duration-300 group/card cursor-pointer"
-                         onclick="changeActiveMap('{{ $cleanName }}', '{{ $cleanAddress }}', '{{ $cleanCity }}', this)">
+                        data-id="{{ $branch->id }}" data-name="{{ e($branch->name) }}" data-address="{{ e($branch->address) }}"
+                        onclick="changeActiveMap('{{ $cleanName }}', '{{ $cleanAddress }}', '{{ $cleanCity }}', this)">
                         
                         <div class="flex items-start gap-4">
                             <div class="w-20 h-20 rounded-lg bg-slate-50 dark:bg-zinc-900 overflow-hidden flex-shrink-0 border border-slate-100 dark:border-white/5 shadow-inner">
@@ -143,5 +148,27 @@
             }
         }, 300);
     });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+<script>
+    (function(){
+        const branchesData = Array.from(document.querySelectorAll('.tilt-card')).map(el => ({
+            id: parseInt(el.getAttribute('data-id')),
+            name: el.getAttribute('data-name') || '',
+            address: el.getAttribute('data-address') || ''
+        }));
+
+        const fuse = new Fuse(branchesData, { keys: ['name','address'], threshold: 0.35 });
+        const input = document.getElementById('branch-search');
+        if (!input) return;
+        input.addEventListener('input', function(e){
+            const q = e.target.value.trim();
+            const matches = q ? fuse.search(q).map(r => r.item.id) : branchesData.map(b => b.id);
+            document.querySelectorAll('.tilt-card').forEach(el => {
+                const id = parseInt(el.getAttribute('data-id'));
+                el.style.display = matches.includes(id) ? '' : 'none';
+            });
+        });
+    })();
 </script>
 @endsection

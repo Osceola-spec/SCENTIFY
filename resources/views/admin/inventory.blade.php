@@ -142,6 +142,11 @@
                                                     <i class="fas fa-trash-alt text-xs"></i>
                                                 </button>
                                             </form>
+                                            <a href="{{ route('admin.promotions.create') }}?product_id={{ $product->id }}" 
+                                               class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 flex items-center justify-center transition-all shadow-sm"
+                                               title="Set Promo untuk produk ini">
+                                                <i class="fas fa-tags text-xs"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
