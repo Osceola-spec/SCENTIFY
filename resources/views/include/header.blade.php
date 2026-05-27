@@ -19,6 +19,10 @@
                 <span>Brands</span>
                 <span class="absolute bottom-0 left-0 h-[1.5px] bg-amber-500 transition-all duration-300 {{ request()->routeIs('brands.index') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
             </a>
+            <a href="{{ route('stores.index') }}" class="hover:text-amber-500 transition-colors duration-300 relative py-1 group">
+                <span>Stores</span>
+                <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
+            </a>
             <a href="{{ route('orders.index') }}" class="hover:text-amber-500 transition-colors duration-300 relative py-1 group">
                 <span>My Orders</span>
                 <span class="absolute bottom-0 left-0 w-0 h-[1.5px] bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
