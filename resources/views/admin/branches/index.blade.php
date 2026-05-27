@@ -27,24 +27,34 @@
                 <div class="p-8 text-center text-slate-500">Belum ada cabang.</div>
             @else
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                    <table class="w-full text-left border-collapse table-fixed">
                         <thead>
                             <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
-                                <th class="px-6 py-4 border-b border-slate-100">#</th>
-                                <th class="px-6 py-4 border-b border-slate-100">Nama</th>
-                                <th class="px-6 py-4 border-b border-slate-100">Alamat</th>
-                                <th class="px-6 py-4 border-b border-slate-100">Kontak</th>
-                                <th class="px-6 py-4 border-b border-slate-100">Status</th>
-                                <th class="px-6 py-4 border-b border-slate-100 text-center">Aksi</th>
+                                <th class="px-6 py-4 border-b border-slate-100 w-12">#</th>
+                                <th class="px-6 py-4 border-b border-slate-100 w-43">Nama</th>
+                                <th class="px-6 py-4 border-b border-slate-100 ">Alamat</th>
+                                <th class="px-6 py-4 border-b border-slate-100 w-44">Kontak</th>
+                                <th class="px-6 py-4 border-b border-slate-100 w-28">Status</th>
+                                <th class="px-6 py-4 border-b border-slate-100 w-36 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
                             @foreach($branches as $i => $branch)
                                 <tr class="group hover:bg-slate-50/80 transition-colors">
                                     <td class="px-6 py-4">{{ $i + 1 }}</td>
-                                    <td class="px-6 py-4 font-bold">{{ $branch->name }}</td>
-                                    <td class="px-6 py-4">{{ $branch->address }} {{ $branch->city ? ', '.$branch->city : '' }}</td>
-                                    <td class="px-6 py-4">{{ $branch->phone ?? '-' }}<br><small class="text-slate-400">{{ $branch->email ?? '' }}</small></td>
+                                    <td class="px-6 py-4 font-bold">
+                                        <div class="max-w-[160px] md:max-w-[260px] truncate" title="{{ $branch->name }}">{{ $branch->name }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="max-w-[220px] md:max-w-[520px] truncate" title="{{ $branch->address }}{{ $branch->city ? ', '.$branch->city : '' }}">{{ $branch->address }} {{ $branch->city ? ', '.$branch->city : '' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="max-w-[180px] truncate">
+                                            <span title="{{ $branch->phone ?? '-' }}">{{ $branch->phone ?? '-' }}</span>
+                                            <br>
+                                            <small class="text-slate-400 truncate block" title="{{ $branch->email ?? '' }}">{{ $branch->email ?? '' }}</small>
+                                        </div>
+                                    </td>
                                     <td class="px-6 py-4">@if($branch->is_active)<span class="px-2 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold border border-emerald-100">Aktif</span>@else<span class="px-2 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100">Nonaktif</span>@endif</td>
                                     <td class="px-6 py-4 text-center">
                                         <div class="inline-flex items-center justify-center gap-2">

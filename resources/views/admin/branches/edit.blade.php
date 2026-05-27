@@ -15,6 +15,16 @@
     </div>
 
     <div class="bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm">
+        @if($errors->any())
+            <div class="mb-4 p-3 bg-rose-50 text-rose-700 rounded">
+                <ul class="list-disc pl-5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('admin.branches.update', $branch->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @csrf
             @method('PUT')
@@ -53,7 +63,8 @@
 
             <div class="md:col-span-2 flex items-center gap-3 mt-2">
                 <label class="inline-flex items-center">
-                    <input type="checkbox" name="is_active" class="form-checkbox" {{ $branch->is_active ? 'checked' : '' }}>
+                    <input type="hidden" name="is_active" value="0">
+                    <input type="checkbox" name="is_active" value="1" class="form-checkbox" {{ $branch->is_active ? 'checked' : '' }}>
                     <span class="ml-2">Aktif</span>
                 </label>
                 <button type="submit" class="ml-auto bg-amber-500 text-white px-5 py-2.5 rounded-xl font-semibold">Perbarui Cabang</button>

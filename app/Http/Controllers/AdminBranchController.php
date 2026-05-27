@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
-class BranchController extends Controller
+class AdminBranchController extends Controller
 {
     public function index()
     {
@@ -37,9 +37,18 @@ class BranchController extends Controller
 
         $data['is_active'] = $request->has('is_active');
 
-        Branch::create($data);
+        try {
+            Branch::create($data);
+            return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error('Branch store failed: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan cabang. Periksa log.']);
+        }
+    }
 
-        return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil ditambahkan.');
+    public function show(Branch $branch)
+    {
+        return view('admin.branches.show', compact('branch'));
     }
 
     public function edit(Branch $branch)

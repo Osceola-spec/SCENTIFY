@@ -18,7 +18,7 @@ use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BranchController;
-use App\Http\Controllers\Admin\BranchController as AdminBranchController;
+use App\Http\Controllers\AdminBranchController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\MidtransNotificationController;
@@ -143,6 +143,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/branches', [AdminBranchController::class, 'index'])->name('admin.branches.index');
     Route::get('/branches/create', [AdminBranchController::class, 'create'])->name('admin.branches.create');
     Route::post('/branches', [AdminBranchController::class, 'store'])->name('admin.branches.store');
+    Route::get('/branches/{branch}', [AdminBranchController::class, 'show'])->name('admin.branches.show');
     Route::get('/branches/{branch}/edit', [AdminBranchController::class, 'edit'])->name('admin.branches.edit');
     Route::put('/branches/{branch}', [AdminBranchController::class, 'update'])->name('admin.branches.update');
     Route::delete('/branches/{branch}', [AdminBranchController::class, 'destroy'])->name('admin.branches.destroy');
