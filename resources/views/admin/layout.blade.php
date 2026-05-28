@@ -87,6 +87,12 @@
                 <span class="font-medium text-sm">Manajemen Brand</span>
             </a>
 
+            <a href="{{ route('admin.branches.index') }}" 
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.branches.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
+                <i class="fas fa-store w-5 text-center {{ request()->routeIs('admin.branches.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i> 
+                <span class="font-medium text-sm">Manajemen Cabang</span>
+            </a>
+
             <a href="{{ route('admin.orders.index') }}" 
                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.orders.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fas fa-shopping-cart w-5 text-center {{ request()->routeIs('admin.orders.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i> 

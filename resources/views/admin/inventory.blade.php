@@ -11,9 +11,14 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Inventory Produk</h1>
                 <p class="text-sm text-slate-500 mt-1">Kelola dan pantau semua produk yang tersedia di katalog toko.</p>
             </div>
-            <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30 active:scale-95 shrink-0">
-                <i class="fas fa-plus"></i> Tambah Produk Baru
-            </a>
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="{{ route('admin.promotions.index') }}" class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95">
+                    <i class="fas fa-tag"></i> Promosi
+                </a>
+                <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30 active:scale-95">
+                    <i class="fas fa-plus"></i> Tambah Produk Baru
+                </a>
+            </div>
         </div>
     </div>
 
@@ -142,6 +147,11 @@
                                                     <i class="fas fa-trash-alt text-xs"></i>
                                                 </button>
                                             </form>
+                                            <a href="{{ route('admin.promotions.create') }}?product_id={{ $product->id }}" 
+                                               class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 flex items-center justify-center transition-all shadow-sm"
+                                               title="Set Promo untuk produk ini">
+                                                <i class="fas fa-tags text-xs"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>

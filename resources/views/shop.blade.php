@@ -67,6 +67,52 @@
             </div>
         </div>
 
+        @if (!empty($upcomingPromotion))
+            <div id="promo-upcoming-banner"
+                class="mb-6 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-between gap-4">
+                <div>
+                    <div class="text-sm font-mono text-amber-600 uppercase">Promo Akan Datang</div>
+                    <div class="text-lg font-semibold text-slate-900 dark:text-white">
+                        {{ optional($upcomingPromotion)->title }}</div>
+                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ optional($upcomingPromotion)->description }}
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-slate-600 dark:text-zinc-300">Mulai dalam:</div>
+                    <div id="promo-starts-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
+                </div>
+                <input type="hidden" id="promo-starts-at"
+                    value="{{ optional(optional($upcomingPromotion)->starts_at)->toIsoString() }}">
+            </div>
+        @endif
+
+        @if (!empty($activePromotion))
+            <div id="promo-banner"
+                class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-4">
+                <div>
+                    <div class="text-sm font-mono text-amber-600 uppercase">Promo Aktif</div>
+                    <div class="text-lg font-semibold text-slate-900 dark:text-white">
+                        {{ optional($activePromotion)->title }}</div>
+                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ optional($activePromotion)->description }}
+                    </div>
+                </div>
+                <div class="text-right">
+                    @if (optional($activePromotion)->ends_at)
+                        <div class="text-xs text-slate-600 dark:text-zinc-300">Sisa waktu:</div>
+                        <div id="promo-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
+                        @if (optional($activePromotion)->applies_to_all === false && optional($activePromotion)->product)
+                            <a href="{{ route('products.edit', optional($activePromotion)->product->id) }}"
+                                class="text-xs text-slate-700 dark:text-zinc-300">Lihat produk terkait</a>
+                        @endif
+                        <input type="hidden" id="promo-ends-at"
+                            value="{{ optional(optional($activePromotion)->ends_at)->toIsoString() }}">
+                    @else
+                        <div class="text-sm text-slate-600 dark:text-zinc-300">Promo aktif (tanpa tenggat waktu)</div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <aside id="filterSidebar"
                 class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white dark:bg-darkbg lg:bg-transparent lg:dark:bg-transparent p-6 lg:p-0 border-r border-slate-200 dark:border-white/10 lg:border-none shadow-2xl lg:shadow-none transform -translate-x-full lg:translate-x-0 overflow-y-auto lg:overflow-visible lg:static lg:col-span-3 lg:w-full reveal">
@@ -180,7 +226,6 @@
                         <div class="flex items-center flex-wrap gap-2 sm:gap-3">
                             <i class="fas fa-filter text-amber-500 text-xs mr-1 mt-1 sm:mt-0"></i>
                             <span class="text-xs text-slate-500 dark:text-zinc-400">Filter Aktif:</span>
-
                             @foreach ($activeFilters as $filter)
                                 <span
                                     class="bg-slate-900 dark:bg-amber-400 text-white dark:text-black text-[11px] font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
@@ -199,8 +244,11 @@
                 @endif
 
                 <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6" id="product-container">
-                    @forelse ($products as $product)
-                        <div class="perspective-1000 reveal" id="product-card-{{ $product->id }}">
+                    @forelse($products as $product)
+                        <div class="perspective-1000 reveal product-card" id="product-card-{{ $product->id }}"
+                            data-id="{{ $product->id }}" data-name="{{ e($product->name) }}"
+                            data-brand="{{ e($product->brand->name ?? '') }}"
+                            data-description="{{ e(strip_tags($product->description ?? '')) }}">
                             <div
                                 class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative">
 
@@ -249,8 +297,35 @@
                                         @endif
                                     </div>
 
+                                    @php
+                                        $basePrice = $product->variants->first()->price ?? 0;
+                                        $promoApplies = false;
+                                        $discountedPrice = null;
+                                        if (!empty($activePromotion)) {
+                                            $promoApplies =
+                                                $activePromotion->applies_to_all ||
+                                                ($activePromotion->product_id &&
+                                                    $activePromotion->product_id == $product->id);
+                                            if ($promoApplies) {
+                                                $dv = (float) $activePromotion->discount_value;
+                                                if ($activePromotion->discount_type === 'percent') {
+                                                    $discountedPrice = max(0, round($basePrice * (1 - $dv / 100)));
+                                                } else {
+                                                    $discountedPrice = max(0, round($basePrice - $dv));
+                                                }
+                                            }
+                                        }
+                                    @endphp
+
                                     <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">
-                                        Rp {{ number_format($product->variants->first()->price ?? 0, 0, ',', '.') }}
+                                        @if ($discountedPrice !== null)
+                                            <span class="text-xs text-slate-400 line-through mr-2">Rp
+                                                {{ number_format($basePrice, 0, ',', '.') }}</span>
+                                            <span class="text-xs text-amber-600">Rp
+                                                {{ number_format($discountedPrice, 0, ',', '.') }}</span>
+                                        @else
+                                            Rp {{ number_format($basePrice, 0, ',', '.') }}
+                                        @endif
                                     </p>
                                 </div>
 
@@ -365,12 +440,10 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                     <div class="md:col-span-5">
-                        {{-- Gambar Utama --}}
                         <div class="w-full h-64 md:h-72 overflow-hidden rounded-2xl bg-slate-100 dark:bg-zinc-900">
                             <img id="modalProductImage" src="" alt="Product"
                                 class="w-full h-full object-cover transition-all duration-300">
                         </div>
-                        {{-- Thumbnail Gallery --}}
                         <div id="modalGallery" class="flex gap-2 mt-3 overflow-x-auto pb-1"></div>
                     </div>
 
@@ -417,8 +490,8 @@
                         <div class="border-t border-slate-200 dark:border-white/5 mt-8 pt-6">
                             <h5
                                 class="text-sm font-serif font-bold text-slate-950 dark:text-white mb-4 flex items-center gap-2">
-                                <i class="fas fa-star text-amber-500 text-xs"></i>
-                                Ulasan Pelanggan (<span id="modalReviewCount">0</span>)
+                                <i class="fas fa-star text-amber-500 text-xs"></i> Ulasan Pelanggan (<span
+                                    id="modalReviewCount">0</span>)
                             </h5>
                             <div id="modalReviewsList" class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                             </div>
@@ -493,13 +566,25 @@
 
     <script>
         const isDarkMode = () => document.documentElement.classList.contains('dark');
+        const activePromo = @json(
+            $activePromotion
+                ? [
+                    'discount_type' => $activePromotion->discount_type,
+                    'discount_value' => (float) $activePromotion->discount_value,
+                ]
+                : null);
+
+        function calcDiscountedPrice(originalPrice) {
+            if (!activePromo) return null;
+            if (activePromo.discount_type === 'percent') {
+                return Math.max(0, Math.round(originalPrice * (1 - activePromo.discount_value / 100)));
+            }
+            return Math.max(0, Math.round(originalPrice - activePromo.discount_value));
+        }
 
         let selectedVariantId = null;
         let maxVariantStock = 0;
 
-        // ==========================================
-        // 1. MOBILE FILTER DRAWER
-        // ==========================================
         function openMobileFilter() {
             const sidebar = document.getElementById('filterSidebar');
             const overlay = document.getElementById('filterOverlay');
@@ -514,9 +599,6 @@
             if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none');
         }
 
-        // ==========================================
-        // 2. LOGIC PRICE RANGE SLIDER & DISPATCHERS
-        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             const rangeInput = document.getElementById('priceRange');
             const rangeTooltip = document.getElementById('rangeTooltip');
@@ -548,15 +630,10 @@
 
             document.addEventListener('click', (e) => {
                 const btn = e.target.closest('.variant-selector-btn');
-                if (btn) {
-                    openVariantModal(btn);
-                }
+                if (btn) openVariantModal(btn);
             });
         });
 
-        // ==========================================
-        // 3. VARIANT SELECTION & MODAL IMPLEMENTATION
-        // ==========================================
         function openVariantModal(btn) {
             const id = btn.getAttribute('data-product-id');
             const name = btn.getAttribute('data-product-name');
@@ -627,12 +704,28 @@
                         vBtn.classList.add('bg-amber-500', 'text-white', 'border-amber-500',
                             'dark:text-black');
 
-                        const formattedPrice = new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR',
-                            maximumFractionDigits: 0
-                        }).format(v.price);
-                        document.getElementById('modalProductPrice').textContent = formattedPrice;
+                        const discountedPrice = calcDiscountedPrice(v.price);
+                        const priceEl = document.getElementById('modalProductPrice');
+                        if (discountedPrice !== null) {
+                            const fmtOrig = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(v.price);
+                            const fmtDisc = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(discountedPrice);
+                            priceEl.innerHTML =
+                                `<span class="text-sm text-slate-400 line-through mr-2">${fmtOrig}</span><span>${fmtDisc}</span>`;
+                        } else {
+                            priceEl.textContent = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(v.price);
+                        }
 
                         const stockStatus = document.getElementById('modalStockStatus');
                         stockStatus.textContent = `Stok: ${v.stock} tersedia`;
@@ -658,13 +751,11 @@
                     const rDiv = document.createElement('div');
                     rDiv.className =
                         'p-3 bg-slate-50 dark:bg-zinc-800/40 rounded-xl border border-slate-100 dark:border-white/5';
-
                     let starsHtml = '';
                     for (let s = 1; s <= 5; s++) {
                         starsHtml +=
                             `<i class="fas fa-star text-[9px] ${s <= r.rating ? 'text-amber-400' : 'text-slate-200 dark:text-zinc-700'}"></i>`;
                     }
-
                     rDiv.innerHTML = `
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-xs font-semibold text-slate-800 dark:text-zinc-200">${r.user_name}</span>
@@ -713,24 +804,16 @@
                 document.getElementById('variantNotice').classList.remove('hidden');
                 return;
             }
-
-            const qty = document.getElementById('modalQuantity').value;
-            const hiddenForm = document.getElementById('hiddenCartForm');
-
-            document.getElementById('hiddenQuantity').value = qty;
+            document.getElementById('hiddenQuantity').value = document.getElementById('modalQuantity').value;
             document.getElementById('hiddenVariantId').value = selectedVariantId;
-
+            const hiddenForm = document.getElementById('hiddenCartForm');
             hiddenForm.action = `/cart/add/${selectedVariantId}`;
             hiddenForm.submit();
         }
 
-        // ==========================================
-        // 4. GENERAL UTILITIES (WISHLIST, ACTION CONTROLS)
-        // ==========================================
         function toggleWishlist(btn, event, productId) {
             event.preventDefault();
             event.stopPropagation();
-
             fetch(`/wishlist/toggle/${productId}`, {
                     method: 'POST',
                     headers: {
@@ -769,7 +852,6 @@
         function shareProduct(name, event) {
             event.preventDefault();
             event.stopPropagation();
-
             if (navigator.share) {
                 navigator.share({
                     title: name,
@@ -784,172 +866,330 @@
         }
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            const productContainer = document.getElementById('product-container');
+            const pagination = document.querySelector('.custom-pagination');
+            if (!searchInput || !productContainer) return;
+
+            const buildListFromDOM = () => {
+                const cards = Array.from(document.querySelectorAll('.product-card'));
+                return cards.map(c => ({
+                    id: c.dataset.id,
+                    name: c.dataset.name || '',
+                    brand: c.dataset.brand || '',
+                    description: c.dataset.description || '',
+                    html: c.outerHTML
+                }));
+            };
+
+            const originalList = buildListFromDOM();
+            let list = originalList.slice();
+            const fuse = new Fuse(list, {
+                keys: ['name', 'brand', 'description'],
+                threshold: 0.35
+            });
+            let debounce = null;
+
+            searchInput.addEventListener('input', function() {
+                const q = this.value.trim();
+                clearTimeout(debounce);
+                debounce = setTimeout(() => {
+                    if (q.length === 0) {
+                        productContainer.innerHTML = originalList.map(i => i.html).join('');
+                        if (pagination) pagination.style.display = '';
+                        list = originalList.slice();
+                        fuse.setCollection(list);
+                        return;
+                    }
+
+                    fuse.setCollection(originalList);
+                    const results = fuse.search(q).map(r => r.item);
+
+                    if (results.length) {
+                        productContainer.innerHTML = results.map(r => r.html).join('');
+                    } else {
+                        productContainer.innerHTML =
+                            `<div class="col-span-full text-center py-20 reveal"><div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-4 text-slate-400"><i class="fas fa-box-open text-xl"></i></div><h3 class="font-serif text-lg">Tidak ada produk yang sesuai.</h3><p class="text-xs text-slate-400 mt-1">Coba gunakan kata kunci lain atau kurangi filter Anda.</p></div>`;
+                    }
+                    if (pagination) pagination.style.display = 'none';
+                }, 200);
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const el = document.getElementById('promo-countdown');
+            const endInput = document.getElementById('promo-ends-at');
+            if (!el || !endInput || !endInput.value) return;
+
+            const endAt = new Date(endInput.value);
+            if (isNaN(endAt.getTime())) {
+                el.textContent = "Selamanya";
+                return;
+            }
+
+            function updateCountdown() {
+                const now = new Date();
+                let diff = endAt - now;
+
+                if (diff <= 0) {
+                    el.textContent = 'Selesai';
+                    clearInterval(tid);
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff -= days * (1000 * 60 * 60 * 24);
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                diff -= hours * (1000 * 60 * 60);
+                const minutes = Math.floor(diff / (1000 * 60));
+                diff -= minutes * (1000 * 60);
+                const seconds = Math.floor(diff / 1000);
+
+                const parts = [];
+                if (days > 0) parts.push(days + 'd');
+                const formatTime = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+                parts.push(formatTime);
+                el.textContent = parts.join(' ');
+            }
+
+            updateCountdown();
+            const tid = setInterval(updateCountdown, 1000);
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const elStart = document.getElementById('promo-starts-countdown');
+            const startInput = document.getElementById('promo-starts-at');
+            if (!elStart || !startInput || !startInput.value) return;
+
+            const startAt = new Date(startInput.value);
+            if (isNaN(startAt.getTime())) return;
+
+            function updateStartCountdown() {
+                const now = new Date();
+                let diff = startAt - now;
+                if (diff <= 0) {
+                    elStart.textContent = 'Dimulai';
+                    clearInterval(startTid);
+                    try {
+                        setTimeout(() => window.location.reload(), 500);
+                    } catch (e) {}
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                diff -= days * (1000 * 60 * 60 * 24);
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                diff -= hours * (1000 * 60 * 60);
+                const minutes = Math.floor(diff / (1000 * 60));
+                diff -= minutes * (1000 * 60);
+                const seconds = Math.floor(diff / 1000);
+
+                const parts = [];
+                if (days > 0) parts.push(days + 'd');
+                parts.push(String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(
+                    seconds).padStart(2, '0'));
+                elStart.textContent = parts.join(' ');
+            }
+
+            updateStartCountdown();
+            const startTid = setInterval(updateStartCountdown, 1000);
+        });
+    </script>
+
     <script type="module">
-        // Deteksi apakah yang sedang membuka halaman ini adalah Admin
         const isAdmin = {{ auth()->check() && auth()->user()->role === 'admin' ? 'true' : 'false' }};
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
             '{{ csrf_token() }}';
 
-        // Deklarasikan channel satu kali saja agar lebih rapi
-        const channel = window.Echo.channel('scentify-live');
+        if (window.Echo) {
+            const channel = window.Echo.channel('scentify-live');
 
-        // ==========================================
-        // EVENT: PRODUK DITAMBAHKAN
-        // ==========================================
-        channel.listen('.product.added', (e) => {
-            console.log("🔥 SINYAL TAMBAH DITERIMA:", e);
+            channel.listen('.product.added', (e) => {
+                console.log("🔥 SINYAL TAMBAH DITERIMA:", e);
 
-            Swal.fire({
-                icon: 'info',
-                title: '✨ Rilis Baru!',
-                html: `Koleksi terbaru <b>${e.product.name}</b> baru saja ditambahkan ke katalog kami!`,
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-            });
+                Swal.fire({
+                    icon: 'info',
+                    title: '✨ Rilis Baru!',
+                    html: `Koleksi terbaru <b>${e.product.name}</b> baru saja ditambahkan ke katalog kami!`,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
 
-            const container = document.getElementById('product-container');
-            if (!container) return;
+                const container = document.getElementById('product-container');
+                if (!container) return;
 
-            let actionButtons = '';
-            if (isAdmin) {
-                actionButtons = `
-                    <a href="/products/${e.product.id}/edit"
-                        class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
-                        title="Edit Produk"><i class="fas fa-edit"></i> Edit</a>
-                    <form id="delete-form-${e.product.id}" action="/products/${e.product.id}" method="POST" class="flex-grow flex">
-                        <input type="hidden" name="_token" value="${csrfToken}">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="button" onclick="confirmDelete('${e.product.id}', '${e.product.name}')"
-                            class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-rose-500 hover:bg-rose-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
-                            title="Hapus Produk"><i class="fas fa-trash"></i> Hapus</button>
-                    </form>
-                `;
-            } else {
-                actionButtons = `
-                    <button type="button" onclick="window.location.reload()"
-                        class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-amber-500 hover:bg-amber-600 text-white rounded-full transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5">
-                        <i class="fas fa-sync"></i> Refresh untuk Beli
-                    </button>
-                `;
-            }
-
-            const newProductDiv = document.createElement('div');
-            newProductDiv.className = 'perspective-1000 reveal opacity-0';
-            // BERI ID PADA KARTU BARU AGAR BISA DIHAPUS/EDIT NANTINYA
-            newProductDiv.id = 'product-card-' + e.product.id;
-
-            const imgUrl = e.product.image_url ?
-                (e.product.image_url.startsWith('http') ? e.product.image_url :
-                    `/product_image/${e.product.image_url}`) :
-                'https://placehold.co/400x500?text=Baru';
-
-            newProductDiv.innerHTML = `
-                <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative ring-2 ring-amber-400">
-                    <div class="absolute -top-3 -right-3 z-10 bg-amber-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">Baru!</div>
-                    <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
-                        <img src="${imgUrl}" alt="${e.product.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                    </div>
-                    <div class="mt-3 flex-grow flex flex-col justify-start">
-                        <div>
-                            <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">${e.product.brand?.name || 'Scentify'}</small>
-                            <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1" title="${e.product.name}">${e.product.name}</h5>
-                            <div class="flex items-center gap-0.5 mt-1">
-                                <i class="far fa-star text-[9px] text-slate-200 dark:text-zinc-700"></i>
-                                <span class="text-[9px] text-slate-400 font-mono ml-1">Belum ada ulasan</span>
-                            </div>
-                        </div>
-                        <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">Cek Detail Baru</p>
-                    </div>
-                    <div class="mt-3 flex items-center gap-2 w-full">${actionButtons}</div>
-                </div>
-            `;
-
-            container.insertAdjacentElement('afterbegin', newProductDiv);
-            if (window.gsap) gsap.to(newProductDiv, {
-                opacity: 1,
-                duration: 1
-            });
-        });
-
-        // ==========================================
-        // EVENT: PRODUK DIHAPUS
-        // ==========================================
-        channel.listen('.product.deleted', (e) => {
-            console.log("🔥 SINYAL HAPUS DITERIMA:", e);
-            const cardToRemove = document.getElementById('product-card-' + e.productId);
-
-            if (cardToRemove) {
-                if (window.gsap) {
-                    gsap.to(cardToRemove, {
-                        opacity: 0,
-                        scale: 0.8,
-                        duration: 0.5,
-                        onComplete: () => cardToRemove.remove()
-                    });
+                let actionButtons = '';
+                if (isAdmin) {
+                    actionButtons = `
+                        <a href="/products/${e.product.id}/edit" class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5" title="Edit Produk"><i class="fas fa-edit"></i> Edit</a>
+                        <form id="delete-form-${e.product.id}" action="/products/${e.product.id}" method="POST" class="flex-grow flex">
+                            <input type="hidden" name="_token" value="${csrfToken}">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="button" onclick="confirmDelete('${e.product.id}', '${e.product.name}')" class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-rose-500 hover:bg-rose-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5" title="Hapus Produk"><i class="fas fa-trash"></i> Hapus</button>
+                        </form>
+                    `;
                 } else {
-                    cardToRemove.remove();
+                    actionButtons = `
+                        <button type="button" onclick="window.location.reload()" class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-amber-500 hover:bg-amber-600 text-white rounded-full transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5">
+                            <i class="fas fa-sync"></i> Refresh untuk Beli
+                        </button>
+                    `;
                 }
 
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'warning',
-                    title: 'Produk Ditarik',
-                    text: 'Satu produk baru saja dihapus dari katalog.',
-                    showConfirmButton: false,
-                    timer: 3000
+                const newProductDiv = document.createElement('div');
+                newProductDiv.className = 'perspective-1000 reveal opacity-0 product-card';
+                newProductDiv.id = 'product-card-' + e.product.id;
+
+                const imgUrl = e.product.image_url ? (e.product.image_url.startsWith('http') ? e.product.image_url :
+                    `/product_image/${e.product.image_url}`) : 'https://placehold.co/400x500?text=Baru';
+
+                newProductDiv.innerHTML = `
+                    <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative ring-2 ring-amber-400">
+                        <div class="absolute -top-3 -right-3 z-10 bg-amber-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">Baru!</div>
+                        <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
+                            <img src="${imgUrl}" alt="${e.product.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        </div>
+                        <div class="mt-3 flex-grow flex flex-col justify-start">
+                            <div>
+                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">${e.product.brand?.name || 'Scentify'}</small>
+                                <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1" title="${e.product.name}">${e.product.name}</h5>
+                                <div class="flex items-center gap-0.5 mt-1">
+                                    <i class="far fa-star text-[9px] text-slate-200 dark:text-zinc-700"></i>
+                                    <span class="text-[9px] text-slate-400 font-mono ml-1">Belum ada ulasan</span>
+                                </div>
+                            </div>
+                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">Cek Detail Baru</p>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2 w-full">${actionButtons}</div>
+                    </div>
+                `;
+
+                container.insertAdjacentElement('afterbegin', newProductDiv);
+                if (window.gsap) gsap.to(newProductDiv, {
+                    opacity: 1,
+                    duration: 1
                 });
-            }
-        });
+            });
 
-        // ==========================================
-        // EVENT: PRODUK DI-EDIT
-        // ==========================================
-        channel.listen('.product.updated', (e) => {
-            console.log("🔥 SINYAL UPDATE DITERIMA:", e);
-            const cardToUpdate = document.getElementById('product-card-' + e.product.id);
+            channel.listen('.product.deleted', (e) => {
+                console.log("🔥 SINYAL HAPUS DITERIMA:", e);
+                const cardToRemove = document.getElementById('product-card-' + e.productId);
 
-            if (cardToUpdate) {
-                // Animasi kedip (highlight)
-                if (window.gsap) {
-                    gsap.fromTo(cardToUpdate, {
-                        opacity: 0.5,
-                        scale: 0.95
-                    }, {
-                        opacity: 1,
-                        scale: 1,
-                        duration: 0.5,
-                        ease: "bounce.out"
+                if (cardToRemove) {
+                    if (window.gsap) {
+                        gsap.to(cardToRemove, {
+                            opacity: 0,
+                            scale: 0.8,
+                            duration: 0.5,
+                            onComplete: () => cardToRemove.remove()
+                        });
+                    } else {
+                        cardToRemove.remove();
+                    }
+
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: 'Produk Ditarik',
+                        text: 'Satu produk baru saja dihapus dari katalog.',
+                        showConfirmButton: false,
+                        timer: 3000
                     });
                 }
+            });
 
-                // Update Nama
-                const titleElement = cardToUpdate.querySelector('h5');
-                if (titleElement) {
-                    titleElement.textContent = e.product.name;
-                    titleElement.title = e.product.name;
+            channel.listen('.product.updated', (e) => {
+                console.log("🔥 SINYAL UPDATE DITERIMA:", e);
+                const cardToUpdate = document.getElementById('product-card-' + e.product.id);
+
+                if (cardToUpdate) {
+                    // Animasi Bounce
+                    if (window.gsap) {
+                        gsap.fromTo(cardToUpdate, {
+                            opacity: 0.5,
+                            scale: 0.95
+                        }, {
+                            opacity: 1,
+                            scale: 1,
+                            duration: 0.5,
+                            ease: "bounce.out"
+                        });
+                    }
+
+                    // 1. Update Nama Produk
+                    const titleElement = cardToUpdate.querySelector('h5');
+                    if (titleElement) {
+                        titleElement.textContent = e.product.name;
+                        titleElement.title = e.product.name;
+                    }
+
+                    // 2. Update Gambar Produk
+                    const imgElement = cardToUpdate.querySelector('img');
+                    if (imgElement && e.product.image_url) {
+                        imgElement.src = e.product.image_url.startsWith('http') ? e.product.image_url :
+                            `/product_image/${e.product.image_url}`;
+                    }
+
+                    // 3. Update Harga Produk (beserta logika diskon promo)
+                    const priceElement = cardToUpdate.querySelector('p.font-bold.mt-1');
+                    if (priceElement && e.product.variants && e.product.variants.length > 0) {
+                        const basePrice = e.product.variants[0].price;
+                        const discountedPrice = typeof calcDiscountedPrice === 'function' ? calcDiscountedPrice(
+                            basePrice) : null;
+
+                        if (discountedPrice !== null) {
+                            const fmtOrig = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(basePrice);
+                            const fmtDisc = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(discountedPrice);
+                            priceElement.innerHTML =
+                                `<span class="text-xs text-slate-400 line-through mr-2">${fmtOrig}</span><span class="text-xs text-amber-600">${fmtDisc}</span>`;
+                        } else {
+                            priceElement.textContent = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                maximumFractionDigits: 0
+                            }).format(basePrice);
+                        }
+                    }
+
+                    // 4. Update Data di Tombol "Beli" (Penting agar saat Modal diklik, harganya update!)
+                    const buyBtn = cardToUpdate.querySelector('.variant-selector-btn');
+                    if (buyBtn) {
+                        buyBtn.setAttribute('data-product-name', e.product.name);
+                        if (e.product.description) buyBtn.setAttribute('data-product-description', e.product
+                            .description);
+                        if (e.product.variants) buyBtn.setAttribute('data-variants', JSON.stringify(e.product
+                            .variants));
+                        if (imgElement) buyBtn.setAttribute('data-product-image', imgElement.src);
+                    }
+
+                    // Notifikasi sukses
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Katalog Diperbarui',
+                        text: `${e.product.name} baru saja diperbarui.`,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 }
-
-                // Update Gambar
-                const imgElement = cardToUpdate.querySelector('img');
-                if (imgElement && e.product.image_url) {
-                    const newImgUrl = e.product.image_url.startsWith('http') ?
-                        e.product.image_url :
-                        `/product_image/${e.product.image_url}`;
-                    imgElement.src = newImgUrl;
-                }
-
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Katalog Diperbarui',
-                    text: `${e.product.name} baru saja diperbarui.`,
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            }
-        });
+            });
+        }
     </script>
 @endsection

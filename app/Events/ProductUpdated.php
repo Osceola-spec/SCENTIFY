@@ -15,6 +15,8 @@ class ProductUpdated implements ShouldBroadcastNow
 
     public function __construct($product)
     {
+        $product->load(['brand', 'variants']);
+
         $this->product = $product;
     }
 

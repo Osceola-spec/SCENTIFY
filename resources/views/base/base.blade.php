@@ -663,6 +663,7 @@
             }
 
             // === BACKGROUND ANIMATION TAMBAHAN ===
+
             const bgCanvas = document.createElement('canvas');
             bgCanvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-11;pointer-events:none;';
             document.body.appendChild(bgCanvas);
@@ -756,6 +757,91 @@
             });
 
             drawBgAnimation();
+            // Guard so we only initialize the bg animation once (prevents duplicates on resize/theme toggle)
+            if (!window.__bgAnimationInitialized) {
+                window.__bgAnimationInitialized = true;
+
+                const bgCanvas = document.createElement('canvas');
+                bgCanvas.id = 'bg-ambient-canvas';
+                bgCanvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-11;pointer-events:none;';
+                document.body.appendChild(bgCanvas);
+                const bgCtx = bgCanvas.getContext('2d');
+                bgCanvas.width = window.innerWidth;
+                bgCanvas.height = window.innerHeight;
+
+                const mistOrbs = Array.from({ length: 12 }, () => ({
+                    x: Math.random() * bgCanvas.width,
+                    y: Math.random() * bgCanvas.height,
+                    r: Math.random() * 200 + 100,
+                    vx: (Math.random() - 0.5) * 0.18,
+                    vy: (Math.random() - 0.5) * 0.12,
+                    life: Math.random() * Math.PI * 2,
+                    lifeSpeed: Math.random() * 0.004 + 0.002,
+                    c: [[245,158,11],[168,85,247],[20,184,166],[239,68,68]][Math.floor(Math.random()*4)]
+                }));
+
+                const auroraWaves = Array.from({ length: 4 }, (_, i) => ({
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.004 + i * 0.0015,
+                    amp: 50 + i * 25,
+                    yBase: bgCanvas.height * (0.25 + i * 0.18),
+                    hue: [38, 270, 180, 330][i]
+                }));
+
+                function drawBgAnimation() {
+                    bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+                    const isDark = document.documentElement.classList.contains('dark');
+
+                    // --- Mist Orbs ---
+                    for (const o of mistOrbs) {
+                        o.x += o.vx; o.y += o.vy; o.life += o.lifeSpeed;
+                        if (o.x < -o.r) o.x = bgCanvas.width + o.r;
+                        if (o.x > bgCanvas.width + o.r) o.x = -o.r;
+                        if (o.y < -o.r) o.y = bgCanvas.height + o.r;
+                        if (o.y > bgCanvas.height + o.r) o.y = -o.r;
+                        const a = (Math.sin(o.life) * 0.5 + 0.5) * (isDark ? 0.055 : 0.035);
+                        const g = bgCtx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r);
+                        g.addColorStop(0, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},${a})`);
+                        g.addColorStop(1, `rgba(${o.c[0]},${o.c[1]},${o.c[2]},0)`);
+                        bgCtx.fillStyle = g;
+                        bgCtx.beginPath(); bgCtx.arc(o.x, o.y, o.r, 0, Math.PI * 2); bgCtx.fill();
+                    }
+
+                    // --- Aurora Waves (dark mode only) ---
+                    if (isDark) {
+                        for (const w of auroraWaves) {
+                            w.phase += w.speed;
+                            bgCtx.beginPath();
+                            bgCtx.moveTo(0, bgCanvas.height);
+                            for (let x = 0; x <= bgCanvas.width; x += 6) {
+                                const y = w.yBase
+                                    + Math.sin(x * 0.005 + w.phase) * w.amp
+                                    + Math.sin(x * 0.002 + w.phase * 1.4) * (w.amp * 0.35);
+                                bgCtx.lineTo(x, y);
+                            }
+                            bgCtx.lineTo(bgCanvas.width, bgCanvas.height);
+                            bgCtx.closePath();
+                            const grad = bgCtx.createLinearGradient(0, w.yBase - w.amp, 0, w.yBase + w.amp);
+                            grad.addColorStop(0, `hsla(${w.hue},80%,60%,0.055)`);
+                            grad.addColorStop(0.5, `hsla(${w.hue},80%,60%,0.1)`);
+                            grad.addColorStop(1, `hsla(${w.hue},80%,60%,0)`);
+                            bgCtx.fillStyle = grad; bgCtx.fill();
+                        }
+                    }
+
+                    requestAnimationFrame(drawBgAnimation);
+                }
+
+                window.addEventListener('resize', () => {
+                    const c = document.getElementById('bg-ambient-canvas');
+                    if (!c) return;
+                    c.width = window.innerWidth;
+                    c.height = window.innerHeight;
+                    auroraWaves.forEach((w, i) => { w.yBase = c.height * (0.25 + i * 0.18); });
+                });
+
+                drawBgAnimation();
+            }
             // === END BACKGROUND ANIMATION ===
         }
 

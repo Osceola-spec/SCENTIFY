@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
+use App\Models\Promotion;
 
 class CartController extends Controller
 {
@@ -14,11 +15,15 @@ class CartController extends Controller
 
         // Hitung total harga
         $total = 0;
+        $totalDiscount = 0;
         foreach ($cart as $item) {
             $total += $item['price'] * $item['quantity'];
+            if (isset($item['original_price']) && $item['original_price'] > $item['price']) {
+                $totalDiscount += ($item['original_price'] - $item['price']) * $item['quantity'];
+            }
         }
 
-        return view('cart', compact('cart', 'total'));
+        return view('cart', compact('cart', 'total', 'totalDiscount'));
     }
 
     // Memasukkan produk ke keranjang
@@ -34,6 +39,20 @@ class CartController extends Controller
         // Ambil data varian (beserta data produk utamanya)
         $variant = ProductVariant::with('product')->findOrFail($variantId);
 
+        // Hitung harga setelah diskon jika ada promo aktif
+        $originalPrice = $variant->price;
+        $finalPrice = $originalPrice;
+        $now = now();
+        $promo = Promotion::where('is_active', true)
+            ->where(function($q) use ($now) { $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now); })
+            ->first();
+        if ($promo && ($promo->applies_to_all || $promo->product_id == $variant->product_id)) {
+            $dv = (float) $promo->discount_value;
+            $finalPrice = $promo->discount_type === 'percent'
+                ? max(0, round($originalPrice * (1 - $dv / 100)))
+                : max(0, round($originalPrice - $dv));
+        }
+
         // Ambil data keranjang saat ini di session (jika kosong, buat array baru)
         $cart = session()->get('cart', []);
 
@@ -43,13 +62,14 @@ class CartController extends Controller
         } else {
             // Jika belum ada, masukkan sebagai item baru dengan kuantitas yang direquest
             $cart[$variantId] = [
-                'variant_id' => $variant->id,
+                'variant_id'   => $variant->id,
                 'product_name' => $variant->product->name,
-                'brand_name' => $variant->product->brand->name ?? 'Scentify',
-                'size' => $variant->size,
-                'price' => $variant->price,
-                'image_url' => $variant->product->image_url,
-                'quantity' => $quantityToAdd
+                'brand_name'   => $variant->product->brand->name ?? 'Scentify',
+                'size'         => $variant->size,
+                'price'        => $finalPrice,
+                'original_price' => $originalPrice,
+                'image_url'    => $variant->product->image_url,
+                'quantity'     => $quantityToAdd,
             ];
         }
 

@@ -91,7 +91,12 @@
                                 </div>
 
                                 <div class="col-span-2 hidden sm:block text-center text-sm font-medium text-slate-600 dark:text-zinc-400">
-                                    Rp {{ number_format($item['price'], 0, ',', '.') }}
+                                    @if(isset($item['original_price']) && $item['original_price'] > $item['price'])
+                                        <span class="text-xs text-slate-400 line-through block">Rp {{ number_format($item['original_price'], 0, ',', '.') }}</span>
+                                        <span class="text-amber-600 font-bold">Rp {{ number_format($item['price'], 0, ',', '.') }}</span>
+                                    @else
+                                        Rp {{ number_format($item['price'], 0, ',', '.') }}
+                                    @endif
                                 </div>
 
                                 <div class="col-span-2 hidden sm:flex justify-center">
@@ -137,6 +142,15 @@
                             <span class="text-slate-500 dark:text-zinc-400">Terpilih (<span id="selected-count">0</span> unit)</span>
                             <span id="selected-subtotal" class="font-bold text-slate-900 dark:text-white">Rp 0</span>
                         </div>
+
+                        @if($totalDiscount > 0)
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                                <i class="fas fa-tag text-xs"></i> Hemat Diskon
+                            </span>
+                            <span id="discount-amount" class="font-bold text-emerald-600 dark:text-emerald-400">- Rp {{ number_format($totalDiscount, 0, ',', '.') }}</span>
+                        </div>
+                        @endif
 
                         <div class="text-[11px] text-slate-400 dark:text-zinc-500 italic pb-6 border-b border-slate-200 dark:border-white/10 leading-relaxed">
                             * Biaya pengiriman dan pajak akan dihitung secara detail pada halaman penyelesaian checkout.

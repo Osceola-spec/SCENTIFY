@@ -5,16 +5,24 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Product;
+use Illuminate\Support\Facades\Log;
 use App\Models\Brand;
 use App\Models\ScentNote;
 use App\Models\ProductVariant;
+use App\Models\Promotion;
 use Illuminate\Support\Str;
 
 class ShopController extends Controller
 {
     public function show(Request $request)
     {
+        
         $brands = Brand::all();
+
+            // ensure variable exists for the view in all code paths
+            $activePromotion = null;
+            $upcomingPromotion = null;
+
 
         // 1. Mulai query dengan eager loading
         $query = Product::with([
@@ -26,24 +34,56 @@ class ShopController extends Controller
 
         // LOGIKA PENCARIAN NAVBAR
         if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
+            $searchTerm = $request->search;
 
-            $query->where(function($q) use ($search) {
-                // Cari berdasarkan Nama Parfum
-                $q->where('name', 'LIKE', "%{$search}%")
-                
-                // Atau cari berdasarkan Tipe Gender (Men, Women, Unisex)
-                  ->orWhere('gender_type', 'LIKE', "%{$search}%")
-                  
-                // Atau cari berdasarkan Kategori Jenis (Designer, Niche, Local)
-                  ->orWhere('category', 'LIKE', "%{$search}%")
-                  
-                // Atau cari berdasarkan Nama Brand di tabel relasi brands
-                  ->orWhereHas('brand', function($brandQuery) use ($search) {
-                      $brandQuery->where('name', 'LIKE', "%{$search}%");
-                  });
-            });
-        } // <-- KURUNG PENUTUP DISINI SEBELUMNYA REYOT / SALAH POSISI
+            // Gunakan Laravel Scout (Meilisearch) jika tersedia untuk fuzzy search
+            try {
+                $products = Product::search($searchTerm)
+                    ->with(['brand','variants','images','reviews'])
+                    ->paginate(12);
+
+                $wishlistedProductIds = [];
+                if (auth()->check()) {
+                    $wishlistedProductIds = \App\Models\Wishlist::where('user_id', auth()->id())->pluck('product_id')->toArray();
+                }
+
+                $brands = Brand::all();
+
+                // include active and upcoming promotions even when returning early from Scout search
+                $now = now();
+                $activePromotion = Promotion::where('is_active', true)
+                    ->where(function($q) use ($now) {
+                        $q->whereNull('starts_at')->orWhere('starts_at', '<=', $now);
+                    })
+                    ->where(function($q) use ($now) {
+                        $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
+                    })->first();
+
+                $upcomingPromotion = Promotion::where('is_active', true)
+                    ->whereNotNull('starts_at')
+                    ->where('starts_at', '>', $now)
+                    ->orderBy('starts_at', 'asc')
+                    ->first();
+
+                Log::debug('ShopController: scout search promotions', ['active_found' => (bool) $activePromotion, 'upcoming_found' => (bool) $upcomingPromotion]);
+
+                return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotion', 'upcomingPromotion'));
+            } catch (\Throwable $e) {
+                // Jika Scout/Meilisearch tidak tersedia, fallback ke query SQL biasa
+                // (log error dan lanjutkan)
+                Log::warning('Scout search failed, falling back to SQL: ' . $e->getMessage());
+
+                $search = $searchTerm;
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('gender_type', 'LIKE', "%{$search}%")
+                      ->orWhere('category', 'LIKE', "%{$search}%")
+                      ->orWhereHas('brand', function($brandQuery) use ($search) {
+                          $brandQuery->where('name', 'LIKE', "%{$search}%");
+                      });
+                });
+            }
+        }
 
         // 2. Filter Gender (Sekarang aman di luar scope IF Search)
         if ($request->has('gender')) {
@@ -93,7 +133,24 @@ class ShopController extends Controller
 
         // PASTIKAN COMPACT-NYA DISESUAIKAN:
         $products = $query->paginate(12)->withQueryString();
-        return view('shop', compact('products', 'brands', 'wishlistedProductIds'));
+
+        // Cari promo aktif berjalan (jika ada)
+        $now = now();
+        $activePromotion = Promotion::where('is_active', true)
+            ->where(function($q) use ($now) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '<=', $now);
+            })
+            ->where(function($q) use ($now) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
+            })->first();
+
+        $upcomingPromotion = Promotion::where('is_active', true)
+            ->whereNotNull('starts_at')
+            ->where('starts_at', '>', $now)
+            ->orderBy('starts_at', 'asc')
+            ->first();
+
+        return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotion', 'upcomingPromotion'));
     }
 
     public function insert_product()
@@ -143,14 +200,6 @@ class ShopController extends Controller
             'category.required' => 'Kategori produk wajib dipilih.',
             'gender_type.required' => 'Tipe gender wajib dipilih.',
             'image.image' => 'File harus berupa gambar.',
-            'image.mimes' => 'Format gambar yang diizinkan: jpeg, png, jpg, gif, svg.',
-            'image.max' => 'Ukuran gambar tidak boleh melebihi 2MB.',
-            'variants.required' => 'Minimal harus ada 1 varian.',
-            'variants.size.required' => 'Ukuran varian wajib diisi.',
-            'variants.size.*.required' => 'Ukuran varian wajib diisi.',
-            'variants.price.required' => 'Harga varian wajib diisi.',
-            'variants.price.*.required' => 'Harga varian wajib diisi.',
-            'variants.price.*.numeric' => 'Harga varian harus berupa angka.',
             'variants.price.*.min' => 'Harga varian minimal 1.',
             'variants.stock.required' => 'Stok varian wajib diisi.',
             'variants.stock.*.required' => 'Stok varian wajib diisi.',
@@ -195,6 +244,7 @@ class ShopController extends Controller
 
         // 3. Simpan Relasi Scent Notes
         $product->notes()->attach($request->notes);
+        
         return redirect()->route('shop')->with('success', 'Produk berhasil ditambahkan!');
     }
     public function update(Request $request, Product $product)

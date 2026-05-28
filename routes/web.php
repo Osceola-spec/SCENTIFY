@@ -17,6 +17,8 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\CustomerOrderController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\AdminBranchController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\MidtransNotificationController;
@@ -30,6 +32,7 @@ Route::get('/', function () {
 
 Route::get('/shop', [ShopController::class, 'show'])->name('shop');
 Route::get('/brands', [BrandController::class, 'publicIndex'])->name('brands.index');
+Route::get('/stores', [BranchController::class, 'index'])->name('stores.index');
 
 // API Chatbot & Webhook Midtrans (Jangan diberi middleware auth)
 Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
@@ -135,6 +138,23 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    // Manajemen Cabang (Branches)
+    Route::get('/branches', [AdminBranchController::class, 'index'])->name('admin.branches.index');
+    Route::get('/branches/create', [AdminBranchController::class, 'create'])->name('admin.branches.create');
+    Route::post('/branches', [AdminBranchController::class, 'store'])->name('admin.branches.store');
+    Route::get('/branches/{branch}', [AdminBranchController::class, 'show'])->name('admin.branches.show');
+    Route::get('/branches/{branch}/edit', [AdminBranchController::class, 'edit'])->name('admin.branches.edit');
+    Route::put('/branches/{branch}', [AdminBranchController::class, 'update'])->name('admin.branches.update');
+    Route::delete('/branches/{branch}', [AdminBranchController::class, 'destroy'])->name('admin.branches.destroy');
+
+    // Manajemen Promo / Flash Sale
+    Route::get('/promotions', [App\Http\Controllers\AdminPromotionController::class, 'index'])->name('admin.promotions.index');
+    Route::get('/promotions/create', [App\Http\Controllers\AdminPromotionController::class, 'create'])->name('admin.promotions.create');
+    Route::post('/promotions', [App\Http\Controllers\AdminPromotionController::class, 'store'])->name('admin.promotions.store');
+    Route::get('/promotions/{promotion}/edit', [App\Http\Controllers\AdminPromotionController::class, 'edit'])->name('admin.promotions.edit');
+    Route::put('/promotions/{promotion}', [App\Http\Controllers\AdminPromotionController::class, 'update'])->name('admin.promotions.update');
+    Route::delete('/promotions/{promotion}', [App\Http\Controllers\AdminPromotionController::class, 'destroy'])->name('admin.promotions.destroy');
 
     // Manajemen Pesanan oleh Admin
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');

@@ -10,10 +10,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "http-interop/http-factory-guzzle": "^1.2",
         "laravel/framework": "^13.7",
-        "laravel/reverb": "*",
+        "laravel/reverb": "^1.0",
+        "laravel/scout": "^11.2",
         "laravel/socialite": "*",
         "laravel/tinker": "^3.0",
+        "meilisearch/meilisearch-php": "^1.16",
         "midtrans/midtrans-php": "^2.6",
         "openai-php/laravel": "^0.19.1",
         "pusher/pusher-php-server": "^7.2"
@@ -90,7 +93,7 @@
             "php-http/discovery": true
         },
         "audit": {
-            "ignore": ["[PKSA-dw7n-x7f5-zf63]"]
+            "block-insecure": false
         }
     },
     "minimum-stability": "stable",

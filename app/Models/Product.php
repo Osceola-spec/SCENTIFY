@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
 use OpenAI\Laravel\Facades\OpenAI; // Tambahkan import ini
 use Illuminate\Support\Facades\Http; // Tambahkan ini untuk hit Hugging Face
 use Illuminate\Support\Facades\Log; // Untuk mencatat error jika API OpenAI gagal
 
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable;
     
     protected $fillable = [
         'brand_id', 'name', 'slug', 'category', 'gender_type', 
@@ -104,5 +105,25 @@ class Product extends Model
     public function averageRating(): float
     {
         return round($this->reviews()->avg('rating') ?? 0, 1);
+    }
+
+    /**
+     * Prepare the data array for Scout/Meilisearch indexing.
+     */
+    public function toSearchableArray()
+    {
+        $this->loadMissing(['brand', 'notes', 'variants']);
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'brand' => $this->brand?->name,
+            'category' => $this->category,
+            'gender_type' => $this->gender_type,
+            'description' => $this->description,
+            'search_context' => $this->search_context,
+            'notes' => $this->notes->pluck('name')->toArray(),
+            'variants' => $this->variants->map(fn($v) => ['size' => $v->size, 'price' => $v->price])->toArray(),
+        ];
     }
 }
