@@ -21,6 +21,7 @@ class ShopController extends Controller
 
             // ensure variable exists for the view in all code paths
             $activePromotion = null;
+            $upcomingPromotion = null;
 
 
         // 1. Mulai query dengan eager loading
@@ -143,7 +144,13 @@ class ShopController extends Controller
                 $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
             })->first();
 
-        return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotion'));
+        $upcomingPromotion = Promotion::where('is_active', true)
+            ->whereNotNull('starts_at')
+            ->where('starts_at', '>', $now)
+            ->orderBy('starts_at', 'asc')
+            ->first();
+
+        return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotion', 'upcomingPromotion'));
     }
 
     public function insert_product()

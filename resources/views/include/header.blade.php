@@ -70,7 +70,7 @@
                                 <i class="fas fa-user text-[10px] sm:text-xs"></i>
                             </div>
                         @endif
-                        <span class="text-xs font-semibold hidden md:block max-w-[100px] truncate">{{ Auth::user()->name }}</span>
+                        <span class="text-xs font-semibold max-w-[100px] truncate">{{ Auth::user()->username }}</span>
                         <i class="fas fa-chevron-down text-[8px] hidden md:block transition-transform duration-300 group-hover:rotate-180"></i>
                     </button>
                     

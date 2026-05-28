@@ -450,6 +450,17 @@
 <script>
     const isDarkMode = () => document.documentElement.classList.contains('dark');
 
+    // Active promotion data from server
+    const activePromo = @json($activePromotion ? ['discount_type' => $activePromotion->discount_type, 'discount_value' => (float)$activePromotion->discount_value] : null);
+
+    function calcDiscountedPrice(originalPrice) {
+        if (!activePromo) return null;
+        if (activePromo.discount_type === 'percent') {
+            return Math.max(0, Math.round(originalPrice * (1 - activePromo.discount_value / 100)));
+        }
+        return Math.max(0, Math.round(originalPrice - activePromo.discount_value));
+    }
+
     // Variable global untuk pencatatan modal varian produk
     let selectedVariantId = null;
     let maxVariantStock = 0;
@@ -578,8 +589,16 @@
                     vBtn.classList.remove('border-slate-200', 'dark:border-white/10', 'text-slate-800', 'dark:text-zinc-300');
                     vBtn.classList.add('bg-amber-500', 'text-white', 'border-amber-500', 'dark:text-black');
 
-                    const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v.price);
-                    document.getElementById('modalProductPrice').textContent = formattedPrice;
+                    const discountedPrice = calcDiscountedPrice(v.price);
+                    const priceEl = document.getElementById('modalProductPrice');
+                    if (discountedPrice !== null) {
+                        const fmtOrig = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v.price);
+                        const fmtDisc = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(discountedPrice);
+                        priceEl.innerHTML = `<span class="text-sm text-slate-400 line-through mr-2">${fmtOrig}</span><span>${fmtDisc}</span>`;
+                    } else {
+                        const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v.price);
+                        priceEl.textContent = formattedPrice;
+                    }
 
                     const stockStatus = document.getElementById('modalStockStatus');
                     stockStatus.textContent = `Stok: ${v.stock} tersedia`;
