@@ -7,6 +7,9 @@ use App\Models\Product;
 use App\Models\Brand;
 use App\Models\ScentNote;
 use App\Models\ProductImage;
+use Illuminate\Support\Str;
+use App\Events\ProductUpdated;
+use App\Events\ProductDeleted;
 
 class ProductController extends Controller
 {
@@ -36,7 +39,9 @@ class ProductController extends Controller
         $mainImageName = time() . '_' . $request->file('image')->getClientOriginalName();
         $request->file('image')->move(public_path('product_image'), $mainImageName);
 
-        $slug = \Str::slug($request->name) . '-' . time();
+        $slug = Str::slug($request->name) . '-' . time();
+
+        $searchContext = "Parfum {$request->name}, kategori {$request->category} untuk {$request->gender_type}. Deskripsi: {$request->description}";
 
         $product = Product::create([
             'brand_id'    => $request->brand_id,
@@ -46,6 +51,7 @@ class ProductController extends Controller
             'gender_type' => $request->gender_type,
             'description' => $request->description,
             'image_url'   => $mainImageName,
+            'search_context' => $searchContext,
         ]);
 
         // Simpan gambar utama ke product_images
@@ -83,6 +89,8 @@ class ProductController extends Controller
                 'stock' => $request->variants['stock'][$i],
             ]);
         }
+
+        broadcast(new \App\Events\ProductAdded($product));
 
         return redirect()->route('admin.inventory')
             ->with('success', 'Produk berhasil ditambahkan ke katalog!');
@@ -159,6 +167,7 @@ class ProductController extends Controller
         if ($request->has('notes')) {
             $product->notes()->sync($request->notes);
         }
+        broadcast(new ProductUpdated($product));
 
         return redirect()->route('admin.inventory')
             ->with('success', 'Produk berhasil diperbarui!');
@@ -166,9 +175,11 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $deletedId = $product->id;
         $product->delete();
+
+        broadcast(new ProductDeleted($deletedId));
+
         return redirect()->route('admin.inventory')->with('success', 'Produk berhasil dihapus.');
     }
-
-    
 }
