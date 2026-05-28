@@ -82,9 +82,31 @@ class CheckoutController extends Controller
         // Tarik data item terpilih dan kalkulasi harga dari session aman kita
         $checkoutData = session()->get('checkout_data');
 
+        // SISTEM BACKUP AUTOMATIS: Jika session checkout kosong (efek clear/pull), rakit kembali secara real-time
         if (!$checkoutData || empty($checkoutData['cart'])) {
-            \Log::info('REDIRECT: Data session checkout kosong');
-            return redirect()->route('cart.index')->with('error', 'Sesi checkout kosong atau kedaluwarsa. Silakan pilih ulang item dari keranjang.');
+            \Log::info('Session checkout_data kosong, mengaktifkan sistem backup otomatis...');
+            
+            $globalCart = session()->get('cart', []);
+            if (empty($globalCart)) {
+                \Log::info('REDIRECT: Keranjang belanja benar-benar kosong');
+                return redirect()->route('cart.index')->with('error', 'Sesi checkout kosong atau kedaluwarsa. Silakan pilih ulang item dari keranjang.');
+            }
+
+            $subtotal = 0;
+            foreach ($globalCart as $item) {
+                $subtotal += $item['price'] * $item['quantity'];
+            }
+            $shippingCost = 50000;
+            $taxAmount = $subtotal * 0.11;
+            $totalAmount = $subtotal + $shippingCost + $taxAmount;
+
+            $checkoutData = [
+                'cart' => $globalCart,
+                'subtotal' => $subtotal,
+                'shippingCost' => $shippingCost,
+                'taxAmount' => $taxAmount,
+                'totalAmount' => $totalAmount
+            ];
         }
 
         // Sinkronisasi paksa input email jika form me-read-only dan tidak terkirim di request
@@ -143,7 +165,7 @@ class CheckoutController extends Controller
                     'user_id'     => auth()->id(),
                     'label'       => 'Alamat ' . now()->format('d M Y'),
                     'first_name'  => $request->first_name,
-                    'last_name'   => $request->last_name,
+                    'last_name'   => $request->last_name ?? "", 
                     'phone'       => $request->phone,
                     'address'     => $request->address,
                     'city'        => $request->city,
@@ -152,7 +174,9 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            $fullAddress = $request->first_name . ' ' . $request->last_name . " | " .
+            // Gabungkan teks nama belakang dengan aman jika bernilai null
+            $lastNameText = $request->last_name ? ' ' . $request->last_name : '';
+            $fullAddress  = $request->first_name . $lastNameText . " | " .
                 $request->phone . " | " .
                 $request->address . ", " . $request->city . " " . $request->postal_code;
 
@@ -206,7 +230,7 @@ class CheckoutController extends Controller
                 ],
                 'customer_details' => [
                     'first_name' => $request->first_name,
-                    'last_name'  => $request->last_name,
+                    'last_name'  => $request->last_name ?? '',
                     'email'      => $request->email,
                     'phone'      => $request->phone,
                 ],

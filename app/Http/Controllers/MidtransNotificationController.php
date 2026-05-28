@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use Midtrans\Config;
 use Midtrans\Notification;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderConfirmationMail;
 
 class MidtransNotificationController extends Controller
 {
     public function handle(Request $request)
     {
-        // 1. Konfigurasi Midtrans (Sama dengan di CheckoutController)
+        // 1. Konfigurasi Midtrans
         Config::$serverKey    = env('MIDTRANS_SERVER_KEY');
         Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
         Config::$isSanitized  = true;
@@ -22,34 +24,48 @@ class MidtransNotificationController extends Controller
             $notif = new Notification();
 
             $transactionStatus = $notif->transaction_status;
-            $orderNumber       = $notif->order_id; // Ini mengambil ORD-XXXXXX Anda
+            $orderNumber       = $notif->order_id; 
             $paymentType       = $notif->payment_type;
 
-            // 3. Cari data Order di database Anda berdasarkan order_number
-            $order = Order::where('order_number', $orderNumber)->first();
+            // 3. Cari data Order di database beserta relasi user-nya agar lebih cepat
+            $order = Order::with('user')->where('order_number', $orderNumber)->first();
 
             if (!$order) {
                 return response()->json(['message' => 'Order tidak ditemukan'], 404);
             }
 
+            // 🌟 AMANKAN STATUS SEBELUM DATABASE DI-UPDATE (Solusi Bug)
+            $previousStatus = $order->status; 
+
             // 4. Logika Perubahan Status dari Pending ke Processing (Paid)
             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
                 
-                // Ubah status menjadi Processing atau Success sesuai kebutuhan Anda
+                // Ubah status order menjadi Processing di database
                 $order->update([
                     'status' => 'Processing', 
                     'payment_method' => $paymentType
                 ]);
                 
-                \Log::info("Order {$orderNumber} berhasil dibayar menggunakan {$paymentType}. Status: Processing.");
+                \Log::info("Order {$orderNumber} berhasil dibayar menggunakan {$paymentType}. Status lama: {$previousStatus} -> Status baru: Processing.");
+
+                // TRIGGER EMAIL: Kirim email HANYA jika status lamanya beneran bukan 'Processing'
+                if ($previousStatus !== 'Processing') {
+                    // Ambil email dari relasi user
+                    $customerEmail = $order->user->email ?? null;
+
+                    if ($customerEmail) {
+                        // Proses pengiriman email secara otomatis lewat Brevo
+                        Mail::to($customerEmail)->send(new OrderConfirmationMail($order));
+                        \Log::info("Email konfirmasi pesanan untuk Order {$orderNumber} berhasil dikirim ke {$customerEmail}.");
+                    } else {
+                        \Log::warning("Email tidak terkirim untuk Order {$orderNumber} karena data email user tidak ditemukan.");
+                    }
+                }
 
             } elseif ($transactionStatus == 'pending') {
                 $order->update(['status' => 'Pending']);
             } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
-                
-                // Opsional: Jika gagal/kedaluwarsa, kembalikan stok produk jika diperlukan
                 $order->update(['status' => 'Cancelled']);
-                
                 \Log::info("Order {$orderNumber} gagal atau kedaluwarsa.");
             }
 

@@ -75,7 +75,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
 
     // Proses Checkout & Pembayaran
-    // Ubah menjadi ANY:
     Route::any('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
@@ -84,6 +83,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-orders', [CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/my-orders/{id}', [CustomerOrderController::class, 'show'])->name('orders.show');
     Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
+    
+    // 🌟 RUTE PENYELESAIAN MIDTRANS KHUSUS DEMO LOCALHOST
+    Route::get('/payment/finished', [CustomerOrderController::class, 'paymentFinished'])->name('payment.finished');
         
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');

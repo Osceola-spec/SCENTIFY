@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB; // ✨ Ditambahkan untuk Query Builder aman
+
+// 🌟 IMPORT UNTUK KEPERLUAN EMAIL DI SINI
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderConfirmationMail;
 
 class CustomerOrderController extends Controller
 {
@@ -21,7 +26,8 @@ class CustomerOrderController extends Controller
             ->where('user_id', Auth::id())
             ->latest()
             ->when($request->query('status') === 'active', function ($q) {
-                $q->whereIn('status', ['Pending', 'Processing', 'Shipped']);
+                // Sesuai daftar di databasemu, status aktif adalah Pending, Paid, dan Shipped
+                $q->whereIn('status', ['Pending', 'Paid', 'Shipped']);
             })
             ->when(
                 $request->query('status') && !in_array($request->query('status'), ['all', 'active']),
@@ -32,8 +38,7 @@ class CustomerOrderController extends Controller
             ->paginate(5)
             ->withQueryString();
 
-        // Load review secara terpisah setelah collection terbentuk
-        // agar tidak mengganggu relasi lain
+        // Load review secara terpisah setelah collection terbentuk agar tidak mengganggu relasi lain
         $orders->each(function ($order) {
             $order->items->each(function ($item) {
                 $item->loadMissing('review');
@@ -72,23 +77,53 @@ class CustomerOrderController extends Controller
 
         // Pastikan hanya pesanan berstatus 'Pending' yang bisa dibatalkan
         if ($order->status !== 'Pending') {
-            // Jika menggunakan toast/sweetalert dari session, Anda bisa menyesuaikan flash message ini
             return back()->with('error', 'Hanya pesanan yang belum dibayar yang dapat dibatalkan.');
         }
 
-        // Ubah status menjadi Cancelled
-        $order->update([
-            'status' => 'Cancelled'
-        ]);
-
-        /* * OPSIONAL: Jika sistem Anda memotong stok (stock deduction) pada saat 
-         * checkout (bukan saat dibayar), jangan lupa kembalikan stoknya di sini.
-         * Contoh:
-         * foreach ($order->items as $item) {
-         * $item->variant->increment('stock', $item->quantity);
-         * }
-         */
+        // Ubah status menjadi Cancelled (Ada di ENUM databasemu)
+        DB::table('orders')
+            ->where('id', $id)
+            ->update([
+                'status' => 'Cancelled',
+                'updated_at' => now()
+            ]);
 
         return back()->with('success', 'Pesanan Anda berhasil dibatalkan.');
+    }
+
+    /**
+     * 🌟 METHOD KHUSUS DEMO: Dipanggil otomatis saat user sukses bayar di Midtrans
+     */
+    public function paymentFinished(Request $request)
+    {
+        // Tangkap nomor order dari parameter yang dikirim balik oleh Midtrans (?order_id=ORD-XXXX)
+        $orderNumber = $request->query('order_id');
+
+        if ($orderNumber) {
+            // Cari data ordernya di database lengkap dengan data usernya
+            $order = Order::with('user')->where('order_number', $orderNumber)->first();
+
+            // Jalankan kode ini HANYA jika status lamanya masih 'Pending'
+            if ($order && $order->status === 'Pending') {
+                
+                // 1. 🔥 AMAN: Mengubah status menjadi 'Paid' (Sesuai dengan opsi ENUM di tabel orders-mu)
+                DB::table('orders')
+                    ->where('order_number', $orderNumber)
+                    ->update([
+                        'status' => 'Paid', 
+                        'updated_at' => now()
+                    ]);
+
+                // 2. Kirim email nota otomatis via Brevo saat itu juga!
+                $customerEmail = $order->user->email ?? Auth::user()->email ?? null;
+                if ($customerEmail) {
+                    Mail::to($customerEmail)->send(new OrderConfirmationMail($order));
+                    \Log::info("Email sukses dikirim ke {$customerEmail} dari rute pengalihan sukses.");
+                }
+            }
+        }
+
+        // Alihkan halaman user ke daftar transaksi mereka dengan pesan sukses
+        return redirect()->route('orders.index')->with('success', 'Pembayaran Anda berhasil diverifikasi! Nota resmi telah dikirim ke email Anda.');
     }
 }

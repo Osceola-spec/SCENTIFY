@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
-
-<!DOCTYPE html>
 <html lang="id" class="scroll-smooth dark">
 
 <head>
