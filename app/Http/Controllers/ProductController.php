@@ -7,6 +7,9 @@ use App\Models\Product;
 use App\Models\Brand;
 use App\Models\ScentNote;
 use App\Models\ProductImage;
+use Illuminate\Support\Str;
+use App\Events\ProductUpdated;
+use App\Events\ProductDeleted;
 
 class ProductController extends Controller
 {
@@ -36,7 +39,9 @@ class ProductController extends Controller
         $mainImageName = time() . '_' . $request->file('image')->getClientOriginalName();
         $request->file('image')->move(public_path('product_image'), $mainImageName);
 
-        $slug = \Str::slug($request->name) . '-' . time();
+        $slug = Str::slug($request->name) . '-' . time();
+
+        $searchContext = "Parfum {$request->name}, kategori {$request->category} untuk {$request->gender_type}. Deskripsi: {$request->description}";
 
         $product = Product::create([
             'brand_id'    => $request->brand_id,
@@ -46,6 +51,7 @@ class ProductController extends Controller
             'gender_type' => $request->gender_type,
             'description' => $request->description,
             'image_url'   => $mainImageName,
+            'search_context' => $searchContext,
         ]);
 
         // Simpan gambar utama ke product_images
@@ -84,6 +90,8 @@ class ProductController extends Controller
             ]);
         }
 
+        broadcast(new \App\Events\ProductAdded($product));
+
         return redirect()->route('admin.inventory')
             ->with('success', 'Produk berhasil ditambahkan ke katalog!');
     }
@@ -106,6 +114,7 @@ class ProductController extends Controller
             'description'    => 'required|string',
             'image'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'extra_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'variants'       => 'nullable|array',
         ]);
 
         // Update gambar utama jika ada upload baru
@@ -117,7 +126,7 @@ class ProductController extends Controller
 
             // Update atau buat ulang primary image
             $product->images()->where('is_primary', true)->delete();
-            ProductImage::create([
+            \App\Models\ProductImage::create([
                 'product_id' => $product->id,
                 'image_url'  => $mainImageName,
                 'order'      => 0,
@@ -131,7 +140,7 @@ class ProductController extends Controller
             foreach ($request->file('extra_images') as $index => $file) {
                 $fileName = time() . '_' . ($index + 1) . '_' . $file->getClientOriginalName();
                 $file->move(public_path('product_image'), $fileName);
-                ProductImage::create([
+                \App\Models\ProductImage::create([
                     'product_id' => $product->id,
                     'image_url'  => $fileName,
                     'order'      => $lastOrder + $index + 1,
@@ -142,12 +151,13 @@ class ProductController extends Controller
 
         // Hapus gambar yang dipilih untuk dihapus
         if ($request->has('delete_images')) {
-            ProductImage::whereIn('id', $request->delete_images)
+            \App\Models\ProductImage::whereIn('id', $request->delete_images)
                 ->where('product_id', $product->id)
-                ->where('is_primary', false) // jangan hapus primary
+                ->where('is_primary', false)
                 ->delete();
         }
 
+        // Update data utama produk
         $product->update([
             'brand_id'    => $request->brand_id,
             'name'        => $request->name,
@@ -156,9 +166,54 @@ class ProductController extends Controller
             'description' => $request->description,
         ]);
 
+        // Update Notes (Aroma)
         if ($request->has('notes')) {
             $product->notes()->sync($request->notes);
         }
+
+        // ========================================================
+        // ✨ FIX BARU: UPDATE HARGA & VARIAN (Gaya Parallel Array)
+        // ========================================================
+        if ($request->has('variants') && isset($request->variants['price'])) {
+            // Ambil semua varian produk ini yang ada di database saat ini
+            $existingVariants = $product->variants;
+
+            foreach ($request->variants['price'] as $index => $price) {
+                $size = $request->variants['size'][$index] ?? null;
+                $stock = $request->variants['stock'][$index] ?? 0;
+
+                if (isset($existingVariants[$index])) {
+                    // 1. Jika varian lama ada di index ini -> UPDATE
+                    $existingVariants[$index]->update([
+                        'size'  => $size,
+                        'price' => $price,
+                        'stock' => $stock,
+                    ]);
+                } else {
+                    // 2. Jika admin menambah baris baru di UI -> CREATE
+                    \App\Models\ProductVariant::create([
+                        'product_id' => $product->id,
+                        'size'       => $size,
+                        'price'      => $price,
+                        'stock'      => $stock,
+                    ]);
+                }
+            }
+
+            // 3. Jika admin menghapus varian di UI -> DELETE sisa varian di database
+            if (count($existingVariants) > count($request->variants['price'])) {
+                for ($i = count($request->variants['price']); $i < count($existingVariants); $i++) {
+                    $existingVariants[$i]->delete();
+                }
+            }
+        }
+        // ========================================================
+
+        // Load ulang relasi agar WebSocket membawa data paling fresh
+        $product->load(['brand', 'variants']);
+
+        // Tembakkan sinyal ke WebSocket Reverb
+        broadcast(new \App\Events\ProductUpdated($product));
 
         return redirect()->route('admin.inventory')
             ->with('success', 'Produk berhasil diperbarui!');
@@ -166,9 +221,11 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $deletedId = $product->id;
         $product->delete();
+
+        broadcast(new ProductDeleted($deletedId));
+
         return redirect()->route('admin.inventory')->with('success', 'Produk berhasil dihapus.');
     }
-
-    
 }
