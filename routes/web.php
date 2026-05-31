@@ -79,6 +79,8 @@ Route::middleware(['auth'])->group(function () {
     Route::any('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
+    Route::get('/api/cities', [CheckoutController::class, 'searchCity'])->name('api.cities');
+    Route::post('/api/ongkir', [CheckoutController::class, 'getOngkir'])->name('api.ongkir');
     
     // Riwayat Pesanan Kustomer
     Route::get('/my-orders', [CustomerOrderController::class, 'index'])->name('orders.index');

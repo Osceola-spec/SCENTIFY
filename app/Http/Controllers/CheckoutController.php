@@ -9,6 +9,7 @@ use App\Models\ProductVariant;
 use App\Models\Address;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -128,9 +129,9 @@ class CheckoutController extends Controller
 
         $cart         = $checkoutData['cart'];
         $subtotal     = $checkoutData['subtotal'];
-        $shippingCost = $checkoutData['shippingCost'];
-        $taxAmount    = $checkoutData['taxAmount'];
-        $totalAmount  = $checkoutData['totalAmount'];
+        $shippingCost = (int) $request->input('shipping_cost', $checkoutData['shippingCost']);
+        $taxAmount    = round($subtotal * 0.11);
+        $totalAmount  = $subtotal + $shippingCost + $taxAmount;
 
         DB::beginTransaction();
         \Log::info('DB transaction started');
@@ -235,6 +236,40 @@ class CheckoutController extends Controller
             
             return redirect()->back()->withInput()->with('error', 'Gagal memproses transaksi: ' . $e->getMessage());
         }
+    }
+
+    private function rajaOngkirHeaders(): array
+    {
+        return ['key' => env('RAJAONGKIR_API_KEY')];
+    }
+
+    public function searchCity(Request $request)
+    {
+        $response = Http::withHeaders($this->rajaOngkirHeaders())
+            ->get(env('RAJAONGKIR_BASE_URL') . 'city');
+
+        $cities = collect($response->json('rajaongkir.results', []))
+            ->filter(fn($c) => str_contains(strtolower($c['city_name']), strtolower($request->q ?? '')))
+            ->values()
+            ->map(fn($c) => ['id' => $c['city_id'], 'text' => $c['type'] . ' ' . $c['city_name']]);
+
+        return response()->json($cities);
+    }
+
+    public function getOngkir(Request $request)
+    {
+        $request->validate(['destination' => 'required', 'courier' => 'required', 'weight' => 'integer|min:1']);
+
+        $response = Http::withHeaders($this->rajaOngkirHeaders())
+            ->post(env('RAJAONGKIR_BASE_URL') . 'cost', [
+                'origin'      => env('RAJAONGKIR_ORIGIN_CITY', 151),
+                'destination' => $request->destination,
+                'weight'      => $request->input('weight', 1000),
+                'courier'     => $request->courier,
+            ]);
+
+        $results = $response->json('rajaongkir.results.0.costs', []);
+        return response()->json($results);
     }
 
     /**

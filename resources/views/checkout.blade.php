@@ -106,6 +106,16 @@
                                        class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
                             </div>
                         </div>
+
+                        {{-- Layanan JNE --}}
+                        <div id="shipping_section" class="hidden space-y-2">
+                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Layanan JNE</label>
+                            <div id="service_list" class="space-y-2">
+                                <p class="text-xs text-slate-400 italic">Pilih alamat tersimpan untuk melihat ongkir.</p>
+                            </div>
+                            <input type="hidden" name="shipping_cost" id="shipping_cost_input" value="{{ $shippingCost }}">
+                            <input type="hidden" name="shipping_service" id="shipping_service_input">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,7 +157,7 @@
                         </div>
                         <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
                             <span>Biaya Pengiriman</span>
-                            <span class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
+                            <span id="shipping_display" class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400 pb-4 border-b border-slate-200 dark:border-white/5">
                             <span>Pajak Transaksi (11%)</span>
@@ -176,6 +186,91 @@
 
 @section('scripts')
 <script>
+    // ==========================================
+    // RAJAONGKIR: Auto-fetch JNE ongkir
+    // ==========================================
+    const subtotal = {{ $subtotal }};
+    const taxRate  = 0.11;
+
+    function fmt(n) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+    }
+
+    function updateTotals(shippingCost) {
+        const tax   = Math.round(subtotal * taxRate);
+        const total = subtotal + shippingCost + tax;
+        document.getElementById('shipping_display').textContent = fmt(shippingCost);
+        document.getElementById('shipping_cost_input').value = shippingCost;
+    }
+
+    function fetchJneOngkir(cityName) {
+        const serviceList    = document.getElementById('service_list');
+        const shippingSection = document.getElementById('shipping_section');
+
+        shippingSection.classList.remove('hidden');
+        serviceList.innerHTML = '<p class="text-xs text-slate-400 animate-pulse">Mengambil data ongkir JNE...</p>';
+
+        // Step 1: cari city_id berdasarkan nama kota
+        fetch(`/api/cities?q=${encodeURIComponent(cityName)}`)
+            .then(r => r.json())
+            .then(cities => {
+                if (!cities.length) {
+                    serviceList.innerHTML = '<p class="text-xs text-rose-400">Kota tidak ditemukan di RajaOngkir.</p>';
+                    return;
+                }
+                const cityId = cities[0].id;
+
+                // Step 2: fetch ongkir JNE
+                return fetch('/api/ongkir', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ destination: cityId, courier: 'jne', weight: 1000 })
+                }).then(r => r.json());
+            })
+            .then(services => {
+                if (!services) return;
+                serviceList.innerHTML = '';
+                if (!services.length) {
+                    serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk kota ini.</p>';
+                    return;
+                }
+                services.forEach((s, idx) => {
+                    const cost = s.cost[0]?.value ?? 0;
+                    const etd  = s.cost[0]?.etd ?? '-';
+                    const label = document.createElement('label');
+                    label.className = 'flex items-center justify-between p-3 border border-slate-200 dark:border-white/10 rounded-xl cursor-pointer hover:border-amber-500 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-500/10';
+                    label.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="_service_radio" value="${cost}" ${idx === 0 ? 'checked' : ''} class="text-amber-500 focus:ring-amber-500">
+                            <div>
+                                <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">${s.service}</span>
+                                <span class="text-xs text-slate-400 ml-2">${s.description}</span>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Estimasi: ${etd} hari</p>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-amber-600">${fmt(cost)}</span>
+                    `;
+                    label.querySelector('input').addEventListener('change', () => {
+                        document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
+                        updateTotals(cost);
+                    });
+                    serviceList.appendChild(label);
+
+                    // Auto-select first service
+                    if (idx === 0) {
+                        document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
+                        updateTotals(cost);
+                    }
+                });
+            })
+            .catch(() => {
+                serviceList.innerHTML = '<p class="text-xs text-rose-400">Gagal mengambil data ongkir.</p>';
+            });
+    }
+
     console.log('=== CHECKOUT ADDRESS SELECTOR INIT ===');
 
     function initializeAddressSelector() {
@@ -228,6 +323,13 @@
                 fields.address.value = addr ? addr.address : '';
                 fields.city.value = addr ? addr.city : '';
                 fields.postal_code.value = addr ? addr.postal_code : '';
+
+                // Auto-fetch JNE ongkir jika kota tersedia
+                if (addr && addr.city) {
+                    fetchJneOngkir(addr.city);
+                } else {
+                    document.getElementById('shipping_section').classList.add('hidden');
+                }
 
                 console.log('Values set. New values:');
                 console.log({
