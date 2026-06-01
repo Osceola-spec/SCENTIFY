@@ -10,6 +10,8 @@ use App\Models\Address;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Models\Province;
+use App\Models\City;
 
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -64,14 +66,27 @@ class CheckoutController extends Controller
             'totalAmount' => $totalAmount,
         ]);
 
+        $provinces = Province::orderBy('name', 'asc')->get();
+
         // Kirim $selectedCart sebagai variabel 'cart' ke Blade agar foreach ($cart as $item) tidak error
         return view('checkout', [
             'cart' => $selectedCart,
             'subtotal' => $subtotal,
             'shippingCost' => $shippingCost,
             'taxAmount' => $taxAmount,
-            'totalAmount' => $totalAmount
+            'totalAmount' => $totalAmount,      // <-- ERROR DI SINI
+            'provinces' => $provinces
         ]);
+    }
+
+
+    public function getCities($province_id)
+    {
+        // Mengambil data kota yang memiliki province_id sesuai dengan yang dipilih
+        $cities = City::where('province_id', $province_id)->orderBy('name', 'asc')->get();
+        
+        // Kembalikan dalam format JSON
+        return response()->json($cities);
     }
 
     // 2. Memproses Simpan Pesanan (Place Order) & Auto-Save Alamat

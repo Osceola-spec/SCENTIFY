@@ -2,7 +2,6 @@
 
 @section('content')
 @php
-    // Langsung ambil dari kolom database yang baru
     $autoFirstName = auth()->user()->first_name ?? '';
     $autoLastName = auth()->user()->last_name ?? '';
 @endphp
@@ -96,24 +95,39 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Kota / Kabupaten <span class="text-rose-500">*</span></label>
-                                <input type="text" name="city" id="city" required placeholder="Contoh: Jakarta Selatan"
-                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Provinsi <span class="text-rose-500">*</span></label>
+                                <select name="province_id" id="province_id" required
+                                        class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
+                                    <option value="">-- Pilih Provinsi --</option>
+                                    @if(isset($provinces))
+                                        @foreach($provinces as $prov)
+                                            <option value="{{ $prov->id }}">{{ $prov->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Kode Pos <span class="text-rose-500">*</span></label>
-                                <input type="text" name="postal_code" id="postal_code" required placeholder="12345"
-                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Kota / Kabupaten <span class="text-rose-500">*</span></label>
+                                <select name="city_id" id="city_id" required disabled
+                                        class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
+                                    <option value="">-- Pilih Kota/Kabupaten --</option>
+                                </select>
+                                <input type="hidden" name="city" id="city_name">
                             </div>
                         </div>
 
-                        {{-- Layanan JNE --}}
+                        <div>
+                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Kode Pos <span class="text-rose-500">*</span></label>
+                            <input type="text" name="postal_code" id="postal_code" required placeholder="12345"
+                                   class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                        </div>
+
                         <div id="shipping_section" class="hidden space-y-2">
                             <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Layanan JNE</label>
                             <div id="service_list" class="space-y-2">
-                                <p class="text-xs text-slate-400 italic">Pilih alamat tersimpan untuk melihat ongkir.</p>
+                                <p class="text-xs text-slate-400 italic">Pilih alamat/kota untuk melihat ongkir.</p>
                             </div>
-                            <input type="hidden" name="shipping_cost" id="shipping_cost_input" value="{{ $shippingCost }}">
+                            <input type="hidden" name="shipping_cost" id="shipping_cost_input" value="{{ $shippingCost ?? 0 }}">
                             <input type="hidden" name="shipping_service" id="shipping_service_input">
                         </div>
                     </div>
@@ -157,7 +171,7 @@
                         </div>
                         <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
                             <span>Biaya Pengiriman</span>
-                            <span id="shipping_display" class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($shippingCost, 0, ',', '.') }}</span>
+                            <span id="shipping_display" class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($shippingCost ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400 pb-4 border-b border-slate-200 dark:border-white/5">
                             <span>Pajak Transaksi (11%)</span>
@@ -166,7 +180,7 @@
                         
                         <div class="flex justify-between items-center pt-2 mb-6">
                             <h5 class="text-base font-serif font-bold text-slate-900 dark:text-white">Total Pembayaran</h5>
-                            <h4 class="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($totalAmount, 0, ',', '.') }}</h4>
+                            <h4 id="total_display" class="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($totalAmount, 0, ',', '.') }}</h4>
                         </div>
                     </div>
 
@@ -186,9 +200,6 @@
 
 @section('scripts')
 <script>
-    // ==========================================
-    // RAJAONGKIR: Auto-fetch JNE ongkir
-    // ==========================================
     const subtotal = {{ $subtotal }};
     const taxRate  = 0.11;
 
@@ -198,216 +209,218 @@
 
     function updateTotals(shippingCost) {
         const tax   = Math.round(subtotal * taxRate);
-        const total = subtotal + shippingCost + tax;
-        document.getElementById('shipping_display').textContent = fmt(shippingCost);
-        document.getElementById('shipping_cost_input').value = shippingCost;
+        let total;
+
+        if (shippingCost === null || shippingCost === undefined) {
+            // Shipping not selected yet
+            document.getElementById('shipping_display').textContent = '-';
+            total = subtotal + tax;
+            document.getElementById('shipping_cost_input').value = 0;
+        } else {
+            total = subtotal + shippingCost + tax;
+            document.getElementById('shipping_display').textContent = fmt(shippingCost);
+            document.getElementById('shipping_cost_input').value = shippingCost;
+        }
+
+        document.getElementById('total_display').textContent = fmt(total);
     }
 
-    function fetchJneOngkir(cityName) {
+    // Mengambil ongkos kirim ke RajaOngkir berdasarkan City ID langsung
+    function fetchJneOngkir(cityId) {
+        if (!cityId) return;
+
         const serviceList    = document.getElementById('service_list');
         const shippingSection = document.getElementById('shipping_section');
 
         shippingSection.classList.remove('hidden');
         serviceList.innerHTML = '<p class="text-xs text-slate-400 animate-pulse">Mengambil data ongkir JNE...</p>';
 
-        // Step 1: cari city_id berdasarkan nama kota
-        fetch(`/api/cities?q=${encodeURIComponent(cityName)}`)
-            .then(r => r.json())
-            .then(cities => {
-                if (!cities.length) {
-                    serviceList.innerHTML = '<p class="text-xs text-rose-400">Kota tidak ditemukan di RajaOngkir.</p>';
-                    return;
-                }
-                const cityId = cities[0].id;
-
-                // Step 2: fetch ongkir JNE
-                return fetch('/api/ongkir', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ destination: cityId, courier: 'jne', weight: 1000 })
-                }).then(r => r.json());
-            })
-            .then(services => {
-                if (!services) return;
-                serviceList.innerHTML = '';
-                if (!services.length) {
-                    serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk kota ini.</p>';
-                    return;
-                }
-                services.forEach((s, idx) => {
-                    const cost = s.cost[0]?.value ?? 0;
-                    const etd  = s.cost[0]?.etd ?? '-';
-                    const label = document.createElement('label');
-                    label.className = 'flex items-center justify-between p-3 border border-slate-200 dark:border-white/10 rounded-xl cursor-pointer hover:border-amber-500 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-500/10';
-                    label.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <input type="radio" name="_service_radio" value="${cost}" ${idx === 0 ? 'checked' : ''} class="text-amber-500 focus:ring-amber-500">
-                            <div>
-                                <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">${s.service}</span>
-                                <span class="text-xs text-slate-400 ml-2">${s.description}</span>
-                                <p class="text-[10px] text-slate-400 mt-0.5">Estimasi: ${etd} hari</p>
-                            </div>
+        fetch('/api/ongkir', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ destination: cityId, courier: 'jne', weight: 1000 })
+        })
+        .then(r => r.json())
+        .then(services => {
+            if (!services) return;
+            serviceList.innerHTML = '';
+            if (!services.length) {
+                serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk kota ini.</p>';
+                return;
+            }
+            services.forEach((s, idx) => {
+                const cost = s.cost[0]?.value ?? 0;
+                const etd  = s.cost[0]?.etd ?? '-';
+                const label = document.createElement('label');
+                label.className = 'flex items-center justify-between p-3 border border-slate-200 dark:border-white/10 rounded-xl cursor-pointer hover:border-amber-500 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-500/10';
+                label.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="radio" name="_service_radio" value="${cost}" ${idx === 0 ? 'checked' : ''} class="text-amber-500 focus:ring-amber-500">
+                        <div>
+                            <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">${s.service}</span>
+                            <span class="text-xs text-slate-400 ml-2">${s.description}</span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Estimasi: ${etd} hari</p>
                         </div>
-                        <span class="text-sm font-bold text-amber-600">${fmt(cost)}</span>
-                    `;
-                    label.querySelector('input').addEventListener('change', () => {
-                        document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
-                        updateTotals(cost);
-                    });
-                    serviceList.appendChild(label);
-
-                    // Auto-select first service
-                    if (idx === 0) {
-                        document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
-                        updateTotals(cost);
-                    }
+                    </div>
+                    <span class="text-sm font-bold text-amber-600">${fmt(cost)}</span>
+                `;
+                label.querySelector('input').addEventListener('change', () => {
+                    document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
+                    updateTotals(cost);
                 });
-            })
-            .catch(() => {
-                serviceList.innerHTML = '<p class="text-xs text-rose-400">Gagal mengambil data ongkir.</p>';
+                serviceList.appendChild(label);
+
+                if (idx === 0) {
+                    document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
+                    updateTotals(cost);
+                }
             });
+        })
+        .catch(() => {
+            serviceList.innerHTML = '<p class="text-xs text-rose-400">Gagal mengambil data ongkir.</p>';
+        });
     }
 
-    console.log('=== CHECKOUT ADDRESS SELECTOR INIT ===');
+    // Logic untuk memuat data kota via API internal ketika user memilih dropdown provinsi
+    document.getElementById('province_id').addEventListener('change', function() {
+        const provinceId = this.value;
+        const citySelect = document.getElementById('city_id');
+        
+        citySelect.innerHTML = '<option value="">-- Loading... --</option>';
+        citySelect.disabled = true;
+
+        if (provinceId) {
+            fetch(`/api/cities/${provinceId}`)
+                .then(r => {
+                    if (!r.ok) throw new Error('Network response was not ok');
+                    return r.json();
+                })
+                .then(cities => {
+                    citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+                    cities.forEach(city => {
+                        citySelect.innerHTML += `<option value="${city.id}" data-name="${city.type} ${city.name}" data-postal="${city.postal_code}">${city.type} ${city.name}</option>`;
+                    });
+                    citySelect.disabled = false;
+                })
+                .catch(() => {
+                    citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+                    citySelect.disabled = true;
+                });
+        } else {
+            citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+        }
+    });
+
+    document.getElementById('city_id').addEventListener('change', function() {
+        const cityId = this.value;
+        if(cityId) {
+            const selectedOption = this.options[this.selectedIndex];
+            document.getElementById('city_name').value = selectedOption.getAttribute('data-name');
+            document.getElementById('postal_code').value = selectedOption.getAttribute('data-postal');
+            
+            fetchJneOngkir(cityId);
+        }
+    });
 
     function initializeAddressSelector() {
         const savedSelect = document.getElementById('savedAddressSelect');
-        if (!savedSelect) {
-            console.error('savedAddressSelect element tidak ditemukan!');
-            return;
-        }
-
-        // Data dari Laravel
+        if (!savedSelect) return;
 
         const defaultFirstName = @json($autoFirstName);
         const defaultLastName = @json($autoLastName);
         const defaultEmail = @json(auth()->user()->email ?? '');
         const addresses = @json(auth()->user()->addresses->keyBy('id'));
-        console.log('Default values:', { defaultFirstName, defaultLastName, defaultEmail });
-        console.log('Available addresses:', addresses);
 
         function fillAddress(addr) {
-            console.log('=== FILLING ADDRESS ===');
-            console.log('Address data:', addr);
+            const fields = {
+                address_id: document.getElementById('address_id'),
+                first_name: document.getElementById('first_name'),
+                last_name: document.getElementById('last_name'),
+                email: document.getElementById('email'),
+                phone: document.getElementById('phone'),
+                address: document.getElementById('address'),
+                postal_code: document.getElementById('postal_code'),
+                province_id: document.getElementById('province_id'),
+                city_id: document.getElementById('city_id'),
+                city_name: document.getElementById('city_name')
+            };
+
+            fields.address_id.value = addr ? addr.id : 'new';
+            fields.first_name.value = addr ? addr.first_name : defaultFirstName;
+            fields.last_name.value = addr ? addr.last_name : defaultLastName;
+            fields.email.value = defaultEmail;
+            fields.phone.value = addr ? addr.phone : '';
+            fields.address.value = addr ? addr.address : '';
+            fields.postal_code.value = addr ? addr.postal_code : '';
             
-            try {
-                // Get all form fields
-                const fields = {
-                    address_id: document.getElementById('address_id'),
-                    first_name: document.getElementById('first_name'),
-                    last_name: document.getElementById('last_name'),
-                    email: document.getElementById('email'),
-                    phone: document.getElementById('phone'),
-                    address: document.getElementById('address'),
-                    city: document.getElementById('city'),
-                    postal_code: document.getElementById('postal_code')
-                };
+            // Mengisi otomatis data provinsi & kota jika tersimpan di database alamat
+            if (addr && addr.province_id) {
+                fields.province_id.value = addr.province_id;
+            } else {
+                fields.province_id.value = '';
+            }
+            
+            fields.city_name.value = addr ? addr.city : '';
 
-                // Verify all fields exist
-                for (let key in fields) {
-                    if (!fields[key]) {
-                        console.error(`Field not found: ${key}`);
-                        return;
-                    }
-                }
+            const disabled = !!addr;
+            const editableFields = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
+            
+            editableFields.forEach(key => {
+                fields[key].disabled = disabled; 
+            });
 
-                // Set values
-                fields.address_id.value = addr ? addr.id : 'new';
-                fields.first_name.value = addr ? addr.first_name : defaultFirstName;
-                fields.last_name.value = addr ? addr.last_name : defaultLastName;
-                fields.email.value = defaultEmail;
-                fields.phone.value = addr ? addr.phone : '';
-                fields.address.value = addr ? addr.address : '';
-                fields.city.value = addr ? addr.city : '';
-                fields.postal_code.value = addr ? addr.postal_code : '';
-
-                // Auto-fetch JNE ongkir jika kota tersedia
-                if (addr && addr.city) {
-                    fetchJneOngkir(addr.city);
-                } else {
-                    document.getElementById('shipping_section').classList.add('hidden');
-                }
-
-                console.log('Values set. New values:');
-                console.log({
-                    address_id: fields.address_id.value,
-                    first_name: fields.first_name.value,
-                    last_name: fields.last_name.value,
-                    email: fields.email.value,
-                    phone: fields.phone.value,
-                    address: fields.address.value,
-                    city: fields.city.value,
-                    postal_code: fields.postal_code.value
-                });
-
-                // Set readonly state
-                const disabled = !!addr;
-                const editableFields = ['first_name', 'last_name', 'phone', 'address', 'city', 'postal_code'];
-                
-                editableFields.forEach(key => {
-                    fields[key].readOnly = disabled;
-                    console.log(`Field ${key} readonly: ${disabled}`);
-                });
-
-            } catch (error) {
-                console.error('Error in fillAddress:', error);
+            if (addr && addr.city) {
+                document.getElementById('shipping_section').classList.remove('hidden');
+                document.getElementById('service_list').innerHTML = '<p class="text-xs text-amber-500">Mengambil ongkir tersimpan... silakan lanjut bayar.</p>';
+                updateTotals({{ $shippingCost ?? 0 }});
+            } else {
+                document.getElementById('shipping_section').classList.add('hidden');
             }
         }
 
-        // Add change listener
-        savedSelect.addEventListener('change', function(e) {
+        savedSelect.addEventListener('change', function() {
             const val = this.value;
-            console.log('=== DROPDOWN CHANGED ===');
-            console.log('Selected value:', val);
-            
-            if (val === 'new') {
-                console.log('Filling with new address (empty)');
-                fillAddress(null);
-            } else if (addresses[val]) {
-                console.log('Filling with address:', addresses[val]);
-                fillAddress(addresses[val]);
-            } else {
-                console.warn('Address ID not found in addresses object:', val);
-                console.warn('Available IDs:', Object.keys(addresses));
-            }
+            if (val === 'new') fillAddress(null);
+            else if (addresses[val]) fillAddress(addresses[val]);
         });
 
-        // Initialize with default address
         try {
             @php $default = auth()->user()->addresses->firstWhere('is_default', true); @endphp
             @if($default)
-                const defaultAddressId = '{{ $default->id }}';
-                console.log('Setting default address ID:', defaultAddressId);
-                savedSelect.value = defaultAddressId;
-                
-                if (addresses[defaultAddressId]) {
-                    console.log('Found default address in object');
-                    fillAddress(addresses[defaultAddressId]);
-                } else {
-                    console.warn('Default address not in addresses object');
-                }
+                savedSelect.value = '{{ $default->id }}';
+                fillAddress(addresses['{{ $default->id }}']);
             @else
-                console.log('No default address, initializing empty');
                 fillAddress(null);
             @endif
         } catch (err) {
-            console.error('Error in initialization:', err);
+            console.error(err);
         }
-
-        console.log('=== INITIALIZATION COMPLETE ===');
     }
 
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        console.log('DOM still loading, waiting for DOMContentLoaded');
-        document.addEventListener('DOMContentLoaded', initializeAddressSelector);
-    } else {
-        console.log('DOM already loaded, initializing now');
+    // PENGAMAT SUBMIT FORM: Mengaktifkan kembali field disabled tepat sebelum submit agar datanya ikut terkirim ke backend
+    document.getElementById('checkoutForm').addEventListener('submit', function() {
+        const fieldsToEnable = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
+        fieldsToEnable.forEach(key => {
+            const el = document.getElementById(key);
+            if (el) el.disabled = false;
+        });
+    });
+
+    // Inisialisasi tampilan biaya pengiriman awal: '-' sebelum user memilih kota
+    const initialShipping = @json($shippingCost ?? null);
+
+    document.addEventListener('DOMContentLoaded', function() {
         initializeAddressSelector();
-    }
+        if (initialShipping === null) {
+            // Tampilkan '-' untuk shipping dan hitung total tanpa ongkir
+            updateTotals(null);
+        } else {
+            updateTotals(initialShipping);
+        }
+    });
 </script>
 @endsection
 @endsection

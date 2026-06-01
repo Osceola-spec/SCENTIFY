@@ -51,6 +51,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login_auth', [AuthController::class, 'login_auth'])->name('login.auth');
     Route::get('/register', [AuthController::class, 'show_register'])->name('register');
     Route::post('/register_auth', [AuthController::class, 'register_auth'])->name('register.auth');
+    Route::get('/verify-email', [AuthController::class, 'show_verify'])->name('verify.email');
+    Route::post('/verify-email', [AuthController::class, 'verify_email_post'])->name('verify.email.post');
+    Route::post('/verify-email/resend', [AuthController::class, 'resend_otp'])->name('resend.otp');
 });
 
 
@@ -169,3 +172,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/customers', [App\Http\Controllers\AdminCustomerController::class, 'index'])->name('admin.customers.index');
     Route::get('/customers/{user}', [App\Http\Controllers\AdminCustomerController::class, 'show'])->name('admin.customers.show');
 });
+
+Route::get('/api/cities/{province_id}', [CheckoutController::class, 'getCities']);

@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             ProductSeeder::class,
             ReviewAndOrderSeeder::class,
+            RegionSeeder::class,
+                // Tambahkan seeder lainnya di sini
+                // Contoh: StoreSeeder::class,
             // Jika ada seeder lain seperti StoreSeeder, masukkan di sini
         ]);
     }
