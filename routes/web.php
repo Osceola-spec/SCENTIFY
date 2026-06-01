@@ -22,6 +22,9 @@ use App\Http\Controllers\AdminBranchController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\MidtransNotificationController;
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\AdminPromotionController;
+use App\Http\Controllers\AdminCustomerController;
 
 // ==========================================
 // RUTE PUBLIK (BISA DIAKSES SIAPA SAJA)
@@ -38,8 +41,8 @@ Route::get('/stores', [BranchController::class, 'index'])->name('stores.index');
 Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
 Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
 
-// ✨ PINDAH KE SINI: Rute API RajaOngkir dijadikan publik agar Fetch AJAX lancar jaya
-Route::get('/api/cities/{province_id}', [CheckoutController::class, 'getCities']);
+// Rute API Lokasi Wilayah (RajaOngkir) untuk Fetch AJAX Dropdown Halaman Checkout
+Route::get('/api/cities/{province_id}', [CheckoutController::class, 'getCities'])->name('checkout.getCities');
 Route::post('/api/ongkir', [CheckoutController::class, 'getOngkir'])->name('api.ongkir');
 
 // Rute Login Google
@@ -72,9 +75,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
     
     // Manajemen Alamat Pengguna
-    Route::post('/profile/addresses', [\App\Http\Controllers\AddressController::class, 'store'])->name('addresses.store');
-    Route::put('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'update'])->name('addresses.update');
-    Route::delete('/profile/addresses/{address}', [\App\Http\Controllers\AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::post('/profile/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::put('/profile/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
+    Route::delete('/profile/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
     
     // Keranjang Belanja (Cart)
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -85,9 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::any('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
-    Route::get('/api/cities', [CheckoutController::class, 'searchCity'])->name('api.cities');
-    
-    // 💡 Catatan: Route::post('/api/ongkir') yang duplikat di sini sudah dihapus & dipindah ke atas
+    Route::get('/api/cities-search', [CheckoutController::class, 'searchCity'])->name('api.cities.search');
     
     // Riwayat Pesanan Kustomer
     Route::get('/my-orders', [CustomerOrderController::class, 'index'])->name('orders.index');
@@ -161,12 +162,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::delete('/branches/{branch}', [AdminBranchController::class, 'destroy'])->name('admin.branches.destroy');
 
     // Manajemen Promo / Flash Sale
-    Route::get('/promotions', [App\Http\Controllers\AdminPromotionController::class, 'index'])->name('admin.promotions.index');
-    Route::get('/promotions/create', [App\Http\Controllers\AdminPromotionController::class, 'create'])->name('admin.promotions.create');
-    Route::post('/promotions', [App\Http\Controllers\AdminPromotionController::class, 'store'])->name('admin.promotions.store');
-    Route::get('/promotions/{promotion}/edit', [App\Http\Controllers\AdminPromotionController::class, 'edit'])->name('admin.promotions.edit');
-    Route::put('/promotions/{promotion}', [App\Http\Controllers\AdminPromotionController::class, 'update'])->name('admin.promotions.update');
-    Route::delete('/promotions/{promotion}', [App\Http\Controllers\AdminPromotionController::class, 'destroy'])->name('admin.promotions.destroy');
+    Route::get('/promotions', [AdminPromotionController::class, 'index'])->name('admin.promotions.index');
+    Route::get('/promotions/create', [AdminPromotionController::class, 'create'])->name('admin.promotions.create');
+    Route::post('/promotions', [AdminPromotionController::class, 'store'])->name('admin.promotions.store');
+    Route::get('/promotions/{promotion}/edit', [AdminPromotionController::class, 'edit'])->name('admin.promotions.edit');
+    Route::put('/promotions/{promotion}', [AdminPromotionController::class, 'update'])->name('admin.promotions.update');
+    Route::delete('/promotions/{promotion}', [AdminPromotionController::class, 'destroy'])->name('admin.promotions.destroy');
 
     // Manajemen Pesanan oleh Admin
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
@@ -174,9 +175,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
 
     // Manajemen Pelanggan (Customers)
-    Route::get('/customers', [App\Http\Controllers\AdminCustomerController::class, 'index'])->name('admin.customers.index');
-    Route::get('/customers/{user}', [App\Http\Controllers\AdminCustomerController::class, 'show'])->name('admin.customers.show');
+    Route::get('/customers', [AdminCustomerController::class, 'index'])->name('admin.customers.index');
+    Route::get('/customers/{user}', [AdminCustomerController::class, 'show'])->name('admin.customers.show');
 });
-
-// Pastikan strukturnya seperti ini dan tidak terhalang middleware auth jika diakses via ajax diluar login (atau masukkan dalam group auth)
-Route::get('/get-cities/{province_id}', [App\Http\Controllers\CheckoutController::class, 'getCities'])->name('checkout.getCities');

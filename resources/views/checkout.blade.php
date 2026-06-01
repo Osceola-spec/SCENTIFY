@@ -118,7 +118,7 @@
                             </div>
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Kota / Kabupaten <span class="text-rose-500">*</span></label>
-                                <select name="city_id" id="city_id" required disabled
+                                <select name="city_id" id="city_id" required 
                                         class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
                                     <option value="">-- Pilih Kota/Kabupaten --</option>
                                 </select>
@@ -207,11 +207,12 @@
         </div>
     </form>
 </div>
+@endsection
 
 @section('scripts')
 <script>
     const subtotal = {{ $subtotal }};
-    const totalWeight = {{ $totalWeight ?? 1000 }}; // Ambil data berat terhitung dari server
+    const totalWeight = {{ $totalWeight ?? 1000 }}; 
     const taxRate  = 0.11;
 
     function fmt(n) {
@@ -245,7 +246,7 @@
         shippingSection.classList.remove('hidden');
         serviceList.innerHTML = '<p class="text-xs text-amber-500 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Mengambil data ongkir JNE real-time...</p>';
 
-        fetch('/api/ongkir', {
+        fetch("{{ route('api.ongkir') }}", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -255,7 +256,6 @@
         })
         .then(r => r.json())
         .then(data => {
-            // FIX: Sekarang membaca pattern object { success: true, costs: [...] }
             if (!data.success || !data.costs || data.costs.length === 0) {
                 serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk wilayah ini.</p>';
                 updateTotals(null);
@@ -286,7 +286,6 @@
                 });
                 serviceList.appendChild(label);
 
-                // Set default pilihan pertama otomatis
                 if (idx === 0) {
                     document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
                     updateTotals(cost);
@@ -311,16 +310,18 @@
         updateTotals(null);
 
         if (provinceId) {
-            fetch(`/api/cities/${provinceId}`)
+            // SINKRONISASI: Mengarah ke URL rute /api/cities/{id} yang publik di web.php
+            fetch("{{ url('/api/cities') }}/" + provinceId)
                 .then(r => r.json())
                 .then(cities => {
                     citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
                     cities.forEach(city => {
-                        citySelect.innerHTML += `<option value="${city.city_id || city.id}" data-name="${city.type} ${city.name}" data-postal="${city.postal_code}">${city.type} ${city.name}</option>`;
+                        citySelect.innerHTML += `<option value="${city.id}" data-name="${city.name}">${city.name}</option>`;
                     });
                     citySelect.disabled = false;
                 })
-                .catch(() => {
+                .catch((err) => {
+                    console.error(err);
                     citySelect.innerHTML = '<option value="">-- Gagal memuat data kota --</option>';
                 });
         } else {
@@ -334,7 +335,6 @@
         if(cityId) {
             const selectedOption = this.options[this.selectedIndex];
             document.getElementById('city_name').value = selectedOption.getAttribute('data-name');
-            document.getElementById('postal_code').value = selectedOption.getAttribute('data-postal');
             fetchJneOngkir(cityId);
         }
     });
@@ -374,12 +374,10 @@
             if (addr && addr.province_id) {
                 fields.province_id.value = addr.province_id;
                 
-                // Rakit kota sementara untuk alamat tersimpan agar ID-nya terbaca sistem
                 const citySelect = fields.city_id;
-                citySelect.innerHTML = `<option value="${addr.city_id || addr.city}" data-name="${addr.city}" data-postal="${addr.postal_code}" selected>${addr.city}</option>`;
+                citySelect.innerHTML = `<option value="${addr.city_id || addr.city}" data-name="${addr.city}" selected>${addr.city}</option>`;
                 fields.city_name.value = addr.city;
                 
-                // Tembakkan API JNE langsung dari ID Kota tersimpan di alamat lama!
                 fetchJneOngkir(addr.city_id || addr.city);
             } else {
                 fields.province_id.value = '';
@@ -389,7 +387,6 @@
                 updateTotals(null);
             }
 
-            // Ganti disabled menjadi properti biasa agar tidak bermasalah saat dibaca form CSS Tailwind
             const isReadonly = !!addr;
             const targetFields = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
             targetFields.forEach(key => {
@@ -403,7 +400,6 @@
             else if (addresses[val]) fillAddress(addresses[val]);
         });
 
-        // Load alamat default pas pertama kali halaman dibuka
         const defaultAddrObj = @json(auth()->user()->addresses->firstWhere('is_default', true));
         if(defaultAddrObj) {
             savedSelect.value = defaultAddrObj.id;
@@ -413,7 +409,6 @@
         }
     }
 
-    // Buka proteksi field disabled sebelum form dikirim ke controller agar tidak bernilai NULL
     document.getElementById('checkoutForm').addEventListener('submit', function(e) {
         const fieldsToEnable = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
         fieldsToEnable.forEach(key => {
@@ -431,32 +426,5 @@
     document.addEventListener('DOMContentLoaded', function() {
         initializeAddressSelector();
     });
-
-    document.getElementById('province_select').addEventListener('change', function() {
-        var provinceId = this.value;
-        var citySelect = document.getElementById('city_select');
-        
-        // Kosongkan dulu dropdown kota
-        citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
-        
-        if (provinceId) {
-            // Ambil data ke route getCities
-            fetch('/get-cities/' + provinceId) // Sesuaikan URL ini dengan URL Route kamu
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(function(city) {
-                        var option = document.createElement('option');
-                        option.value = city.id; // Ini akan mengirimkan ID Kota
-                        option.text = city.name; // Ini yang tampil di layar user
-                        citySelect.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching cities:', error);
-                    alert('Gagal memuat data kota. Silakan coba lagi.');
-                });
-        }
-    });
 </script>
-@endsection
 @endsection
