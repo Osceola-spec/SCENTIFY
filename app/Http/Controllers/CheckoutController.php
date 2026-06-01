@@ -34,6 +34,7 @@ class CheckoutController extends Controller
         // Filter session cart HANYA untuk item yang dipilih
         $selectedCart = [];
         $subtotal = 0;
+        $totalWeight = 0; // Tambahan hitung berat total paket
 
         foreach ($selectedIds as $id) {
             if (isset($cart[$id])) {
@@ -46,6 +47,9 @@ class CheckoutController extends Controller
                 
                 $selectedCart[$id] = $item;
                 $subtotal += $item['price'] * $item['quantity'];
+                
+                // Asumsi per produk berbobot 500 gram (opsional, sesuaikan dengan DB jika ada)
+                $totalWeight += ($item['weight'] ?? 500) * $item['quantity'];
             }
         }
 
@@ -53,8 +57,9 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang.');
         }
 
-        $shippingCost = 50000;
-        $taxAmount = $subtotal * 0.11;
+        // Default awal ongkir diatur 0 sebelum kurir dipilih di Ajax
+        $shippingCost = 0;
+        $taxAmount = round($subtotal * 0.11);
         $totalAmount = $subtotal + $shippingCost + $taxAmount;
 
         // Amankan data kalkulasi & item terpilih ke dalam Session agar bisa dibaca aman di fungsi process()
@@ -64,29 +69,45 @@ class CheckoutController extends Controller
             'shippingCost' => $shippingCost,
             'taxAmount' => $taxAmount,
             'totalAmount' => $totalAmount,
+            'totalWeight' => $totalWeight, // Simpan info berat
         ]);
 
         $provinces = Province::orderBy('name', 'asc')->get();
 
-        // Kirim $selectedCart sebagai variabel 'cart' ke Blade agar foreach ($cart as $item) tidak error
+        // Cari tahu apakah user punya alamat default untuk parsing awal kota tujuan di View
+        $defaultAddress = Address::where('user_id', auth()->id())->where('is_default', true)->first();
+
         return view('checkout', [
             'cart' => $selectedCart,
             'subtotal' => $subtotal,
             'shippingCost' => $shippingCost,
             'taxAmount' => $taxAmount,
-            'totalAmount' => $totalAmount,      // <-- ERROR DI SINI
-            'provinces' => $provinces
+            'totalAmount' => $totalAmount,
+            'provinces' => $provinces,
+            'totalWeight' => $totalWeight,
+            'defaultAddress' => $defaultAddress
         ]);
     }
 
-
     public function getCities($province_id)
     {
-        // Mengambil data kota yang memiliki province_id sesuai dengan yang dipilih
-        $cities = City::where('province_id', $province_id)->orderBy('name', 'asc')->get();
+        // Mengambil data kota berdasarkan province_id
+        $cities = City::where('province_id', $province_id)
+                    ->orderBy('name', 'asc')
+                    ->get();
         
-        // Kembalikan dalam format JSON
-        return response()->json($cities);
+        // BACKUP: Jika tabel di DB kamu ternyata menggunakan kolom 'city_name' bukan 'name'
+        if ($cities->isEmpty()) {
+            $cities = City::where('province_id', $province_id)->get();
+        }
+
+        // Transformasi data agar JavaScript (seperti Select2 atau dropdown biasa) pasti menerima ID dan Nama
+        $results = $cities->map(fn($city) => [
+            'id'   => $city->id ?? $city->city_id ?? $city->id,
+            'name' => $city->name ?? $city->city_name ?? $city->title
+        ]);
+        
+        return response()->json($results);
     }
 
     // 2. Memproses Simpan Pesanan (Place Order) & Auto-Save Alamat
@@ -98,7 +119,7 @@ class CheckoutController extends Controller
         // Tarik data item terpilih dan kalkulasi harga dari session aman kita
         $checkoutData = session()->get('checkout_data');
 
-        // SISTEM BACKUP AUTOMATIS: Jika session checkout kosong (efek clear/pull), rakit kembali secara real-time
+        // SISTEM BACKUP OTOMATIS: Jika session checkout kosong, rakit kembali secara real-time
         if (!$checkoutData || empty($checkoutData['cart'])) {
             \Log::info('Session checkout_data kosong, mengaktifkan sistem backup otomatis...');
             
@@ -112,8 +133,8 @@ class CheckoutController extends Controller
             foreach ($globalCart as $item) {
                 $subtotal += $item['price'] * $item['quantity'];
             }
-            $shippingCost = 50000;
-            $taxAmount = $subtotal * 0.11;
+            $shippingCost = (int) $request->input('shipping_cost', 0);
+            $taxAmount = round($subtotal * 0.11);
             $totalAmount = $subtotal + $shippingCost + $taxAmount;
 
             $checkoutData = [
@@ -156,19 +177,21 @@ class CheckoutController extends Controller
 
         // Aturan Validasi Pengiriman Data
         $request->validate([
-            'address_id'  => 'required',
-            'first_name'  => 'required|string|max:255',
-            'last_name'   => 'nullable|string|max:255',
-            'email'       => 'required|email',
-            'phone'       => 'required|string|min:8|max:20',
-            'address'     => 'required|string',
-            'city'        => 'required|string|max:255',
-            'postal_code' => 'required|string|max:10',
+            'address_id'    => 'required',
+            'first_name'    => 'required|string|max:255',
+            'last_name'     => 'nullable|string|max:255',
+            'email'         => 'required|email',
+            'phone'         => 'required|string|min:8|max:20',
+            'address'       => 'required|string',
+            'city'          => 'required|string|max:255',
+            'postal_code'   => 'required|string|max:10',
+            'shipping_cost' => 'required|numeric|min:0', 
         ]);
 
+        // RE-CALCULATE TOTAL AMOUNT AGAR SELALU SINKRON DENGAN REQ ONGKIR TERBARU
         $cart         = $checkoutData['cart'];
         $subtotal     = $checkoutData['subtotal'];
-        $shippingCost = (int) $request->input('shipping_cost', $checkoutData['shippingCost']);
+        $shippingCost = (int) $request->input('shipping_cost');
         $taxAmount    = round($subtotal * 0.11);
         $totalAmount  = $subtotal + $shippingCost + $taxAmount;
 
@@ -208,6 +231,7 @@ class CheckoutController extends Controller
                 'order_number'     => 'ORD-' . strtoupper(Str::random(8)),
                 'subtotal'         => $subtotal,
                 'tax_amount'       => $taxAmount,
+                'shipping_amount'  => $shippingCost, // PASTIKAN KOLOM INI ADA DI TABEL ORDERS KAMU
                 'total_amount'     => $totalAmount,
                 'status'           => 'Pending',
                 'shipping_address' => $fullAddress,
@@ -219,15 +243,15 @@ class CheckoutController extends Controller
             foreach ($cart as $variantId => $item) {
                 OrderItem::create([
                     'order_id'           => $order->id,
-                    'product_variant_id' => $item['variant_id'],
+                    'product_variant_id' => $item['variant_id'] ?? $variantId,
                     'quantity'           => $item['quantity'],
                     'price_at_purchase'  => $item['price'],
                 ]);
 
-                $variant = ProductVariant::find($item['variant_id']);
+                $variant = ProductVariant::find($item['variant_id'] ?? $variantId);
                 if ($variant) {
                     if ($variant->stock < $item['quantity']) {
-                        throw new \Exception("Stok untuk produk " . $item['product_name'] . " tidak mencukupi.");
+                        throw new \Exception("Stok untuk produk " . ($item['product_name'] ?? 'Pilihan') . " tidak mencukupi.");
                     }
                     $variant->decrement('stock', $item['quantity']);
                     \Log::info('Stock decremented for variant ID: ' . $variant->id);
@@ -253,6 +277,22 @@ class CheckoutController extends Controller
                     'last_name'  => $request->last_name ?? '',
                     'email'      => $request->email,
                     'phone'      => $request->phone,
+                    'billing_address' => [
+                        'first_name'   => $request->first_name,
+                        'last_name'    => $request->last_name ?? '',
+                        'phone'        => $request->phone,
+                        'address'      => $request->address,
+                        'city'         => $request->city,
+                        'postal_code'  => $request->postal_code,
+                    ],
+                    'shipping_address' => [
+                        'first_name'   => $request->first_name,
+                        'last_name'    => $request->last_name ?? '',
+                        'phone'        => $request->phone,
+                        'address'      => $request->address,
+                        'city'         => $request->city,
+                        'postal_code'  => $request->postal_code,
+                    ]
                 ],
             ];
 
@@ -301,23 +341,37 @@ class CheckoutController extends Controller
 
     public function getOngkir(Request $request)
     {
-        $request->validate(['destination' => 'required', 'courier' => 'required', 'weight' => 'integer|min:1']);
+        $request->validate([
+            'destination' => 'required', 
+            'courier'     => 'required', 
+            'weight'      => 'required|integer|min:1'
+        ]);
 
-        $response = Http::withHeaders($this->rajaOngkirHeaders())
-            ->post(env('RAJAONGKIR_BASE_URL') . 'cost', [
-                'origin'      => env('RAJAONGKIR_ORIGIN_CITY', 151),
-                'destination' => $request->destination,
-                'weight'      => $request->input('weight', 1000),
-                'courier'     => $request->courier,
+        try {
+            $response = Http::withHeaders($this->rajaOngkirHeaders())
+                ->post(env('RAJAONGKIR_BASE_URL') . 'cost', [
+                    'origin'      => env('RAJAONGKIR_ORIGIN_CITY', 151), 
+                    'destination' => $request->destination,
+                    'weight'      => $request->weight,
+                    'courier'     => $request->courier,
+                ]);
+
+            if ($response->failed()) {
+                return response()->json(['error' => 'Gagal mengambil data dari RajaOngkir'], 500);
+            }
+
+            $results = $response->json('rajaongkir.results.0.costs', []);
+            
+            return response()->json([
+                'success' => true,
+                'costs'   => $results
             ]);
 
-        $results = $response->json('rajaongkir.results.0.costs', []);
-        return response()->json($results);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
-    /**
-     * Menangani opsi bayar nanti dari halaman payment.
-     */
     public function payLater(Order $order)
     {
         if ($order->user_id !== auth()->id()) {

@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 customClass: { popup: 'rounded-xl shadow-xl' }
             });
         } else {
-            alert(message);
+            Swal.fire({ icon: 'error', title: 'Gagal!', text: message, confirmButtonColor: '#f59e0b' });
         }
     }
 });

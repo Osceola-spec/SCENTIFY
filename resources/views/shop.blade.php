@@ -839,28 +839,38 @@
         }
 
         function confirmDelete(id, name) {
-            if (confirm(`Apakah Anda yakin ingin menghapus produk "${name}"?`)) {
-                document.getElementById(`delete-form-${id}`).submit();
-            }
+            Swal.fire({
+                icon: 'warning',
+                title: 'Hapus Produk?',
+                text: `Produk "${name}" akan dihapus permanen.`,
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then(result => {
+                if (result.isConfirmed) document.getElementById(`delete-form-${id}`).submit();
+            });
         }
 
         function showLoginAlert(loginUrl) {
-            alert('Silakan login terlebih dahulu untuk melakukan pembelian.');
-            window.location.href = loginUrl;
+            Swal.fire({
+                icon: 'info',
+                title: 'Login Diperlukan',
+                text: 'Silakan login terlebih dahulu untuk melakukan pembelian.',
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'Login Sekarang'
+            }).then(() => window.location.href = loginUrl);
         }
 
         function shareProduct(name, event) {
             event.preventDefault();
             event.stopPropagation();
             if (navigator.share) {
-                navigator.share({
-                    title: name,
-                    text: `Lihat koleksi parfum premium: ${name}`,
-                    url: window.location.href
-                }).catch(console.error);
+                navigator.share({ title: name, text: `Lihat koleksi parfum premium: ${name}`, url: window.location.href }).catch(console.error);
             } else {
                 navigator.clipboard.writeText(window.location.href)
-                    .then(() => alert('Tautan produk berhasil disalin ke clipboard!'))
+                    .then(() => Swal.fire({ icon: 'success', title: 'Tersalin!', text: 'Tautan produk berhasil disalin ke clipboard!', timer: 2000, showConfirmButton: false, toast: true, position: 'top-end' }))
                     .catch(err => console.error('Gagal menyalin tautan:', err));
             }
         }

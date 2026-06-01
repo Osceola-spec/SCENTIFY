@@ -32,14 +32,6 @@
                 </div>
             @endif
 
-            @if (session('success'))
-                <div
-                    class="mb-6 p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl flex items-center gap-3 text-emerald-600 dark:text-emerald-400 text-sm font-medium shadow-sm">
-                    <i class="fas fa-check-circle"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-
             <div
                 class="glass-card rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-2xl overflow-hidden bg-white/70 dark:bg-darkcard/70">
                 <div

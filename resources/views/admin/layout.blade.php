@@ -184,5 +184,14 @@
         }
     </script>
     @yield('scripts')
+
+    <script>
+        @if(session('success'))
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
+        @endif
+        @if(session('error'))
+            Swal.fire({ icon: 'error', title: 'Gagal!', text: @json(session('error')), toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true });
+        @endif
+    </script>
 </body>
 </html>

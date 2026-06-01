@@ -17,12 +17,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-xl text-sm font-medium">
-            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-        </div>
-    @endif
-
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
         @if($promotions->isEmpty())
             <div class="flex flex-col items-center justify-center p-12 text-center">

@@ -38,28 +38,6 @@
         </span>
     </div>
 
-    {{-- Alert Success / Error --}}
-    @if (session('success'))
-        <div class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-5 py-4 text-sm font-medium">
-            <i class="fas fa-check-circle text-emerald-500"></i> {{ session('success') }}
-        </div>
-    @endif
-    @if (session('error'))
-        <div class="flex items-center gap-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-5 py-4 text-sm font-medium">
-            <i class="fas fa-exclamation-circle text-rose-500"></i> {{ session('error') }}
-        </div>
-    @endif
-    @if ($errors->any())
-        <div class="flex items-start gap-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-5 py-4 text-sm font-medium">
-            <i class="fas fa-exclamation-circle text-rose-500 mt-0.5"></i>
-            <ul class="space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- Kolom Kiri: Info Pesanan & Produk --}}

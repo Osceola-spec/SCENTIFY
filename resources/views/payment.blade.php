@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const snapToken = "{{ $snapToken }}";
             
             if (!snapToken || snapToken === "") {
-                alert("Error: Snap Token dari server kosong!");
+                Swal.fire({ icon: 'error', title: 'Error!', text: 'Snap Token dari server kosong!', confirmButtonColor: '#f59e0b' });
                 btn.innerHTML = originalText;
                 btn.classList.remove('opacity-75', 'pointer-events-none', 'scale-95');
                 return;

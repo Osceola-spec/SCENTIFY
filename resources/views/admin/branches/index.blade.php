@@ -33,10 +33,6 @@
                     'email' => $b->email,
                 ]);
             @endphp
-            @if(session('success'))
-                <div class="mb-4 p-3 bg-emerald-50 text-emerald-700 rounded">{{ session('success') }}</div>
-            @endif
-
             @if($branches->isEmpty())
                 <div class="p-8 text-center text-slate-500">Belum ada cabang.</div>
             @else

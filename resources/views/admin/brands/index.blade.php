@@ -15,14 +15,6 @@
         </div>
     </div>
 
-    <!-- Alert Success - Custom Tailwind Styling -->
-    @if (session('success'))
-        <div class="p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl flex items-center gap-3 text-emerald-600 dark:text-emerald-400 text-sm font-medium shadow-sm">
-            <i class="fas fa-check-circle"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-
     <!-- Main Grid Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
