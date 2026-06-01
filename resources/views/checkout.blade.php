@@ -25,6 +25,16 @@
         <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Penyelesaian <span class="italic text-amber-500 font-normal">Pesanan</span></h1>
     </div>
 
+    @if ($errors->any())
+        <div class="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl text-sm">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" class="reveal">
         @csrf
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -47,7 +57,7 @@
                                     <option value="new" selected>+ Tambah alamat pengiriman baru...</option>
                                     @foreach(auth()->user()->addresses as $addr)
                                         <option value="{{ $addr->id }}">
-                                            {{ $addr->first_name }} {{ $addr->last_name ? $addr->last_name . ' - ' : '' }}{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}
+                                            [{{ $addr->label ?? 'Alamat' }}] {{ $addr->first_name }} {{ $addr->last_name ? $addr->last_name . ' - ' : '' }}{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -65,12 +75,12 @@
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nama Depan (Penerima) <span class="text-rose-500">*</span></label>
                                 <input type="text" name="first_name" id="first_name" value="{{ $autoFirstName }}" required
-                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nama Belakang (Penerima)</label>
                                 <input type="text" name="last_name" id="last_name" value="{{ $autoLastName }}"
-                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
                             </div>
                         </div>
 
@@ -83,14 +93,14 @@
                             <div>
                                 <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Nomor WhatsApp <span class="text-rose-500">*</span></label>
                                 <input type="text" name="phone" id="phone" required placeholder="08123456789"
-                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                       class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Alamat Lengkap <span class="text-rose-500">*</span></label>
                             <textarea name="address" id="address" rows="3" required placeholder="Nama Jalan, Gedung, No. Rumah, RT/RW"
-                                      class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none placeholder-slate-300 read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed"></textarea>
+                                      class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none placeholder-slate-300 disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed"></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -119,15 +129,15 @@
                         <div>
                             <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Kode Pos <span class="text-rose-500">*</span></label>
                             <input type="text" name="postal_code" id="postal_code" required placeholder="12345"
-                                   class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all read-only:bg-slate-50 read-only:dark:bg-zinc-800/80 read-only:text-slate-400 read-only:cursor-not-allowed">
+                                   class="w-full px-4 py-3.5 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-zinc-300 text-sm focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all disabled:bg-slate-50 disabled:dark:bg-zinc-800/80 disabled:text-slate-400 disabled:cursor-not-allowed">
                         </div>
 
-                        <div id="shipping_section" class="hidden space-y-2">
-                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Layanan JNE</label>
+                        <div id="shipping_section" class="hidden space-y-2 pt-4 border-t border-slate-100 dark:border-white/5">
+                            <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-2 font-bold">Layanan JNE (Real-time)</label>
                             <div id="service_list" class="space-y-2">
-                                <p class="text-xs text-slate-400 italic">Pilih alamat/kota untuk melihat ongkir.</p>
+                                <p class="text-xs text-slate-400 italic">Pilih alamat/kota untuk memuat ongkos kirim.</p>
                             </div>
-                            <input type="hidden" name="shipping_cost" id="shipping_cost_input" value="{{ $shippingCost ?? 0 }}">
+                            <input type="hidden" name="shipping_cost" id="shipping_cost_input" value="0">
                             <input type="hidden" name="shipping_service" id="shipping_service_input">
                         </div>
                     </div>
@@ -171,7 +181,7 @@
                         </div>
                         <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
                             <span>Biaya Pengiriman</span>
-                            <span id="shipping_display" class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($shippingCost ?? 0, 0, ',', '.') }}</span>
+                            <span id="shipping_display" class="font-semibold text-slate-800 dark:text-zinc-200">-</span>
                         </div>
                         <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400 pb-4 border-b border-slate-200 dark:border-white/5">
                             <span>Pajak Transaksi (11%)</span>
@@ -201,6 +211,7 @@
 @section('scripts')
 <script>
     const subtotal = {{ $subtotal }};
+    const totalWeight = {{ $totalWeight ?? 1000 }}; // Ambil data berat terhitung dari server
     const taxRate  = 0.11;
 
     function fmt(n) {
@@ -208,16 +219,15 @@
     }
 
     function updateTotals(shippingCost) {
-        const tax   = Math.round(subtotal * taxRate);
+        const tax = Math.round(subtotal * taxRate);
         let total;
 
-        if (shippingCost === null || shippingCost === undefined) {
-            // Shipping not selected yet
+        if (shippingCost === null || shippingCost === undefined || shippingCost === 0) {
             document.getElementById('shipping_display').textContent = '-';
             total = subtotal + tax;
             document.getElementById('shipping_cost_input').value = 0;
         } else {
-            total = subtotal + shippingCost + tax;
+            total = subtotal + parseInt(shippingCost) + tax;
             document.getElementById('shipping_display').textContent = fmt(shippingCost);
             document.getElementById('shipping_cost_input').value = shippingCost;
         }
@@ -225,15 +235,15 @@
         document.getElementById('total_display').textContent = fmt(total);
     }
 
-    // Mengambil ongkos kirim ke RajaOngkir berdasarkan City ID langsung
+    // Mengambil data tarif kurir JNE dari RajaOngkir
     function fetchJneOngkir(cityId) {
         if (!cityId) return;
 
-        const serviceList    = document.getElementById('service_list');
+        const serviceList = document.getElementById('service_list');
         const shippingSection = document.getElementById('shipping_section');
 
         shippingSection.classList.remove('hidden');
-        serviceList.innerHTML = '<p class="text-xs text-slate-400 animate-pulse">Mengambil data ongkir JNE...</p>';
+        serviceList.innerHTML = '<p class="text-xs text-amber-500 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Mengambil data ongkir JNE real-time...</p>';
 
         fetch('/api/ongkir', {
             method: 'POST',
@@ -241,17 +251,19 @@
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
             },
-            body: JSON.stringify({ destination: cityId, courier: 'jne', weight: 1000 })
+            body: JSON.stringify({ destination: cityId, courier: 'jne', weight: totalWeight })
         })
         .then(r => r.json())
-        .then(services => {
-            if (!services) return;
-            serviceList.innerHTML = '';
-            if (!services.length) {
-                serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk kota ini.</p>';
+        .then(data => {
+            // FIX: Sekarang membaca pattern object { success: true, costs: [...] }
+            if (!data.success || !data.costs || data.costs.length === 0) {
+                serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk wilayah ini.</p>';
+                updateTotals(null);
                 return;
             }
-            services.forEach((s, idx) => {
+            
+            serviceList.innerHTML = '';
+            data.costs.forEach((s, idx) => {
                 const cost = s.cost[0]?.value ?? 0;
                 const etd  = s.cost[0]?.etd ?? '-';
                 const label = document.createElement('label');
@@ -260,71 +272,74 @@
                     <div class="flex items-center gap-3">
                         <input type="radio" name="_service_radio" value="${cost}" ${idx === 0 ? 'checked' : ''} class="text-amber-500 focus:ring-amber-500">
                         <div>
-                            <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">${s.service}</span>
-                            <span class="text-xs text-slate-400 ml-2">${s.description}</span>
-                            <p class="text-[10px] text-slate-400 mt-0.5">Estimasi: ${etd} hari</p>
+                            <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">JNE ${s.service}</span>
+                            <span class="text-xs text-slate-400 ml-2">(${s.description})</span>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Estimasi pengiriman: ${etd} Hari</p>
                         </div>
                     </div>
                     <span class="text-sm font-bold text-amber-600">${fmt(cost)}</span>
                 `;
+                
                 label.querySelector('input').addEventListener('change', () => {
                     document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
                     updateTotals(cost);
                 });
                 serviceList.appendChild(label);
 
+                // Set default pilihan pertama otomatis
                 if (idx === 0) {
                     document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
                     updateTotals(cost);
                 }
             });
         })
-        .catch(() => {
-            serviceList.innerHTML = '<p class="text-xs text-rose-400">Gagal mengambil data ongkir.</p>';
+        .catch(err => {
+            console.error(err);
+            serviceList.innerHTML = '<p class="text-xs text-rose-400">Gagal terhubung ke API RajaOngkir.</p>';
+            updateTotals(null);
         });
     }
 
-    // Logic untuk memuat data kota via API internal ketika user memilih dropdown provinsi
+    // Mengambil data kota otomatis ketika Provinsi berubah
     document.getElementById('province_id').addEventListener('change', function() {
         const provinceId = this.value;
         const citySelect = document.getElementById('city_id');
         
-        citySelect.innerHTML = '<option value="">-- Loading... --</option>';
+        citySelect.innerHTML = '<option value="">-- Loading Data Kota... --</option>';
         citySelect.disabled = true;
+        document.getElementById('shipping_section').classList.add('hidden');
+        updateTotals(null);
 
         if (provinceId) {
             fetch(`/api/cities/${provinceId}`)
-                .then(r => {
-                    if (!r.ok) throw new Error('Network response was not ok');
-                    return r.json();
-                })
+                .then(r => r.json())
                 .then(cities => {
                     citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
                     cities.forEach(city => {
-                        citySelect.innerHTML += `<option value="${city.id}" data-name="${city.type} ${city.name}" data-postal="${city.postal_code}">${city.type} ${city.name}</option>`;
+                        citySelect.innerHTML += `<option value="${city.city_id || city.id}" data-name="${city.type} ${city.name}" data-postal="${city.postal_code}">${city.type} ${city.name}</option>`;
                     });
                     citySelect.disabled = false;
                 })
                 .catch(() => {
-                    citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
-                    citySelect.disabled = true;
+                    citySelect.innerHTML = '<option value="">-- Gagal memuat data kota --</option>';
                 });
         } else {
             citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
         }
     });
 
+    // Menembak hitungan ongkir saat Kota dipilih
     document.getElementById('city_id').addEventListener('change', function() {
         const cityId = this.value;
         if(cityId) {
             const selectedOption = this.options[this.selectedIndex];
             document.getElementById('city_name').value = selectedOption.getAttribute('data-name');
             document.getElementById('postal_code').value = selectedOption.getAttribute('data-postal');
-            
             fetchJneOngkir(cityId);
         }
     });
 
+    // Handler Switch Alamat Baru vs Alamat Lama Terdaftar
     function initializeAddressSelector() {
         const savedSelect = document.getElementById('savedAddressSelect');
         if (!savedSelect) return;
@@ -356,29 +371,30 @@
             fields.address.value = addr ? addr.address : '';
             fields.postal_code.value = addr ? addr.postal_code : '';
             
-            // Mengisi otomatis data provinsi & kota jika tersimpan di database alamat
             if (addr && addr.province_id) {
                 fields.province_id.value = addr.province_id;
+                
+                // Rakit kota sementara untuk alamat tersimpan agar ID-nya terbaca sistem
+                const citySelect = fields.city_id;
+                citySelect.innerHTML = `<option value="${addr.city_id || addr.city}" data-name="${addr.city}" data-postal="${addr.postal_code}" selected>${addr.city}</option>`;
+                fields.city_name.value = addr.city;
+                
+                // Tembakkan API JNE langsung dari ID Kota tersimpan di alamat lama!
+                fetchJneOngkir(addr.city_id || addr.city);
             } else {
                 fields.province_id.value = '';
-            }
-            
-            fields.city_name.value = addr ? addr.city : '';
-
-            const disabled = !!addr;
-            const editableFields = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
-            
-            editableFields.forEach(key => {
-                fields[key].disabled = disabled; 
-            });
-
-            if (addr && addr.city) {
-                document.getElementById('shipping_section').classList.remove('hidden');
-                document.getElementById('service_list').innerHTML = '<p class="text-xs text-amber-500">Mengambil ongkir tersimpan... silakan lanjut bayar.</p>';
-                updateTotals({{ $shippingCost ?? 0 }});
-            } else {
+                fields.city_id.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+                fields.city_id.disabled = true;
                 document.getElementById('shipping_section').classList.add('hidden');
+                updateTotals(null);
             }
+
+            // Ganti disabled menjadi properti biasa agar tidak bermasalah saat dibaca form CSS Tailwind
+            const isReadonly = !!addr;
+            const targetFields = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
+            targetFields.forEach(key => {
+                if(fields[key]) fields[key].disabled = isReadonly;
+            });
         }
 
         savedSelect.addEventListener('change', function() {
@@ -387,38 +403,58 @@
             else if (addresses[val]) fillAddress(addresses[val]);
         });
 
-        try {
-            @php $default = auth()->user()->addresses->firstWhere('is_default', true); @endphp
-            @if($default)
-                savedSelect.value = '{{ $default->id }}';
-                fillAddress(addresses['{{ $default->id }}']);
-            @else
-                fillAddress(null);
-            @endif
-        } catch (err) {
-            console.error(err);
+        // Load alamat default pas pertama kali halaman dibuka
+        const defaultAddrObj = @json(auth()->user()->addresses->firstWhere('is_default', true));
+        if(defaultAddrObj) {
+            savedSelect.value = defaultAddrObj.id;
+            fillAddress(defaultAddrObj);
+        } else {
+            fillAddress(null);
         }
     }
 
-    // PENGAMAT SUBMIT FORM: Mengaktifkan kembali field disabled tepat sebelum submit agar datanya ikut terkirim ke backend
-    document.getElementById('checkoutForm').addEventListener('submit', function() {
+    // Buka proteksi field disabled sebelum form dikirim ke controller agar tidak bernilai NULL
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
         const fieldsToEnable = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
         fieldsToEnable.forEach(key => {
             const el = document.getElementById(key);
             if (el) el.disabled = false;
         });
+        
+        const costInput = document.getElementById('shipping_cost_input').value;
+        if(parseInt(costInput) === 0 || costInput === "") {
+            e.preventDefault();
+            alert('Silakan pilih salah satu layanan pengiriman JNE terlebih dahulu!');
+        }
     });
-
-    // Inisialisasi tampilan biaya pengiriman awal: '-' sebelum user memilih kota
-    const initialShipping = @json($shippingCost ?? null);
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeAddressSelector();
-        if (initialShipping === null) {
-            // Tampilkan '-' untuk shipping dan hitung total tanpa ongkir
-            updateTotals(null);
-        } else {
-            updateTotals(initialShipping);
+    });
+
+    document.getElementById('province_select').addEventListener('change', function() {
+        var provinceId = this.value;
+        var citySelect = document.getElementById('city_select');
+        
+        // Kosongkan dulu dropdown kota
+        citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+        
+        if (provinceId) {
+            // Ambil data ke route getCities
+            fetch('/get-cities/' + provinceId) // Sesuaikan URL ini dengan URL Route kamu
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(function(city) {
+                        var option = document.createElement('option');
+                        option.value = city.id; // Ini akan mengirimkan ID Kota
+                        option.text = city.name; // Ini yang tampil di layar user
+                        citySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching cities:', error);
+                    alert('Gagal memuat data kota. Silakan coba lagi.');
+                });
         }
     });
 </script>

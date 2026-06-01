@@ -38,6 +38,10 @@ Route::get('/stores', [BranchController::class, 'index'])->name('stores.index');
 Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
 Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
 
+// ✨ PINDAH KE SINI: Rute API RajaOngkir dijadikan publik agar Fetch AJAX lancar jaya
+Route::get('/api/cities/{province_id}', [CheckoutController::class, 'getCities']);
+Route::post('/api/ongkir', [CheckoutController::class, 'getOngkir'])->name('api.ongkir');
+
 // Rute Login Google
 Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->name('google.login');
 Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);
@@ -82,14 +86,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/pay-later/{order}', [CheckoutController::class, 'payLater'])->name('checkout.pay-later');
     Route::get('/api/cities', [CheckoutController::class, 'searchCity'])->name('api.cities');
-    Route::post('/api/ongkir', [CheckoutController::class, 'getOngkir'])->name('api.ongkir');
+    
+    // 💡 Catatan: Route::post('/api/ongkir') yang duplikat di sini sudah dihapus & dipindah ke atas
     
     // Riwayat Pesanan Kustomer
     Route::get('/my-orders', [CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/my-orders/{id}', [CustomerOrderController::class, 'show'])->name('orders.show');
     Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
     
-    // 🌟 RUTE PENYELESAIAN MIDTRANS KHUSUS DEMO LOCALHOST
+    // RUTE PENYELESAIAN MIDTRANS KHUSUS DEMO LOCALHOST
     Route::get('/payment/finished', [CustomerOrderController::class, 'paymentFinished'])->name('payment.finished');
         
     // Wishlist
@@ -173,4 +178,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/customers/{user}', [App\Http\Controllers\AdminCustomerController::class, 'show'])->name('admin.customers.show');
 });
 
-Route::get('/api/cities/{province_id}', [CheckoutController::class, 'getCities']);
+// Pastikan strukturnya seperti ini dan tidak terhalang middleware auth jika diakses via ajax diluar login (atau masukkan dalam group auth)
+Route::get('/get-cities/{province_id}', [App\Http\Controllers\CheckoutController::class, 'getCities'])->name('checkout.getCities');
