@@ -356,20 +356,40 @@
             fields.address.value = addr ? addr.address : '';
             fields.postal_code.value = addr ? addr.postal_code : '';
             
-            // Mengisi otomatis data provinsi & kota jika tersimpan di database alamat
-            if (addr && addr.province_id) {
-                fields.province_id.value = addr.province_id;
-            } else {
-                fields.province_id.value = '';
-            }
-            
             fields.city_name.value = addr ? addr.city : '';
 
             const disabled = !!addr;
             const editableFields = ['first_name', 'last_name', 'phone', 'address', 'postal_code', 'province_id', 'city_id'];
-            
+
+            // Mengisi otomatis data provinsi & kota jika tersimpan di database alamat
+            if (addr && addr.province_id) {
+                fields.province_id.value = addr.province_id;
+                fields.city_id.innerHTML = '<option value="">-- Loading... --</option>';
+                fields.city_id.disabled = true;
+
+                fetch(`/api/cities/${addr.province_id}`)
+                    .then(r => r.json())
+                    .then(cities => {
+                        fields.city_id.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+                        cities.forEach(city => {
+                            fields.city_id.innerHTML += `<option value="${city.id}" data-name="${city.type} ${city.name}" data-postal="${city.postal_code}">${city.type} ${city.name}</option>`;
+                        });
+                        if (addr.city_id) {
+                            fields.city_id.value = addr.city_id;
+                        }
+                        fields.city_id.disabled = disabled;
+                    })
+                    .catch(() => {
+                        fields.city_id.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+                        fields.city_id.disabled = disabled;
+                    });
+            } else {
+                fields.province_id.value = '';
+                fields.city_id.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+            }
+
             editableFields.forEach(key => {
-                fields[key].disabled = disabled; 
+                if (key !== 'city_id') fields[key].disabled = disabled;
             });
 
             if (addr && addr.city) {

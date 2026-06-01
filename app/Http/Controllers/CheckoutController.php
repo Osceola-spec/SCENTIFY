@@ -145,6 +145,8 @@ class CheckoutController extends Controller
                     'phone'       => $addr->phone,
                     'address'     => $addr->address,
                     'city'        => $addr->city,
+                    'province_id' => $addr->province_id,
+                    'city_id'     => $addr->city_id,
                     'postal_code' => $addr->postal_code,
                 ]);
             } else {
@@ -185,6 +187,8 @@ class CheckoutController extends Controller
                     'phone'       => $request->phone,
                     'address'     => $request->address,
                     'city'        => $request->city,
+                    'province_id' => $request->province_id,
+                    'city_id'     => $request->city_id,
                     'postal_code' => $request->postal_code,
                     'is_default'  => auth()->user()->addresses()->count() === 0,
                 ]);

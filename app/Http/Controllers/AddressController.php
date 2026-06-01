@@ -16,11 +16,13 @@ class AddressController extends Controller
             'phone' => 'required|string|max:30',
             'address' => 'required|string',
             'city' => 'required|string|max:100',
+            'province_id' => 'nullable|string|max:20',
+            'city_id' => 'nullable|string|max:20',
             'postal_code' => 'required|string|max:20',
             'is_default' => 'nullable|boolean',
         ]);
 
-        $data = $request->only(['label','first_name','last_name','phone','address','city','postal_code']);
+        $data = $request->only(['label','first_name','last_name','phone','address','city','province_id','city_id','postal_code']);
         $data['user_id'] = auth()->id();
         $data['is_default'] = $request->has('is_default') ? true : false;
 
@@ -52,11 +54,13 @@ class AddressController extends Controller
             'phone' => 'required|string|max:30',
             'address' => 'required|string',
             'city' => 'required|string|max:100',
+            'province_id' => 'nullable|string|max:20',
+            'city_id' => 'nullable|string|max:20',
             'postal_code' => 'required|string|max:20',
             'is_default' => 'nullable|boolean',
         ]);
 
-        $data = $request->only(['label','first_name','last_name','phone','address','city','postal_code']);
+        $data = $request->only(['label','first_name','last_name','phone','address','city','province_id','city_id','postal_code']);
         $data['is_default'] = $request->has('is_default') ? true : false;
 
         if ($data['is_default']) {
