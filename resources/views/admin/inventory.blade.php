@@ -137,12 +137,11 @@
                                                 <i class="fas fa-edit text-xs"></i>
                                             </a>
                                             
-                                            <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="inline m-0 p-0">
+                                            <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="form-delete inline m-0 p-0">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini dari katalog?')"
-                                                        class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm"
+                                                <button type="button" data-name="{{ $product->name }}"
+                                                        class="btn-delete w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm"
                                                         title="Hapus Produk">
                                                     <i class="fas fa-trash-alt text-xs"></i>
                                                 </button>
@@ -165,3 +164,39 @@
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('.form-delete');
+                const productName = this.getAttribute('data-name');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: `Produk "${productName}" akan dipindahkan ke tempat sampah!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0f172a',
+                    cancelButtonColor: '#ff2a5f',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-[1.5rem] shadow-2xl border border-slate-100',
+                        confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
+                        cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
+@endpush

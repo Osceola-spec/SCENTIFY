@@ -867,10 +867,22 @@
             event.preventDefault();
             event.stopPropagation();
             if (navigator.share) {
-                navigator.share({ title: name, text: `Lihat koleksi parfum premium: ${name}`, url: window.location.href }).catch(console.error);
+                navigator.share({
+                    title: name,
+                    text: `Lihat koleksi parfum premium: ${name}`,
+                    url: window.location.href
+                }).catch(console.error);
             } else {
                 navigator.clipboard.writeText(window.location.href)
-                    .then(() => Swal.fire({ icon: 'success', title: 'Tersalin!', text: 'Tautan produk berhasil disalin ke clipboard!', timer: 2000, showConfirmButton: false, toast: true, position: 'top-end' }))
+                    .then(() => Swal.fire({
+                        icon: 'success',
+                        title: 'Tersalin!',
+                        text: 'Tautan produk berhasil disalin ke clipboard!',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end'
+                    }))
                     .catch(err => console.error('Gagal menyalin tautan:', err));
             }
         }
@@ -1024,12 +1036,23 @@
                 console.log("🔥 SINYAL TAMBAH DITERIMA:", e);
 
                 Swal.fire({
-                    icon: 'info',
-                    title: '✨ Rilis Baru!',
-                    html: `Koleksi terbaru <b>${e.product.name}</b> baru saja ditambahkan ke katalog kami!`,
+                    icon: 'success',
+                    title: 'Produk Baru Tersedia!',
+                    // FIX 1: Mengubah e.product.product_name menjadi e.product.name
+                    text: `${e.product.name} telah ditambahkan ke toko.`,
+                    position: 'top-end',
+                    toast: true,
                     showConfirmButton: false,
-                    timer: 3000,
+                    timer: 4000,
                     timerProgressBar: true,
+                    // FIX 2: Menurunkan posisi sedalam 90px agar lolos dari kejaran header & z-index super tinggi
+                    didOpen: (toast) => {
+                        toast.style.marginTop = '90px';
+                        const container = document.querySelector('.swal2-container');
+                        if (container) container.style.zIndex = '99999';
+                    },
+                    background: document.documentElement.classList.contains('dark') ? '#1e1e2e' : '#ffffff',
+                    color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0f172a',
                 });
 
                 const container = document.getElementById('product-container');
@@ -1111,7 +1134,17 @@
                         title: 'Produk Ditarik',
                         text: 'Satu produk baru saja dihapus dari katalog.',
                         showConfirmButton: false,
-                        timer: 3000
+                        timer: 3000,
+                        timerProgressBar: true,
+                        // Menurunkan posisi agar berada di bawah header & di layer paling depan
+                        didOpen: (toast) => {
+                            toast.style.marginTop = '90px';
+                            const container = document.querySelector('.swal2-container');
+                            if (container) container.style.zIndex = '99999';
+                        },
+                        background: document.documentElement.classList.contains('dark') ? '#1e1e2e' :
+                            '#ffffff',
+                        color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0f172a',
                     });
                 }
             });
@@ -1196,7 +1229,17 @@
                         title: 'Katalog Diperbarui',
                         text: `${e.product.name} baru saja diperbarui.`,
                         showConfirmButton: false,
-                        timer: 3000
+                        timer: 3000,
+                        timerProgressBar: true,
+                        // PERBAIKAN DI SINI: Menurunkan posisi agar aman dari tindihan header
+                        didOpen: (toast) => {
+                            toast.style.marginTop = '90px';
+                            const container = document.querySelector('.swal2-container');
+                            if (container) container.style.zIndex = '99999';
+                        },
+                        background: document.documentElement.classList.contains('dark') ? '#1e1e2e' :
+                            '#ffffff',
+                        color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0f172a',
                     });
                 }
             });

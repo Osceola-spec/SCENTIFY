@@ -73,6 +73,6 @@ class BranchController extends Controller
     public function destroy(Branch $branch)
     {
         $branch->delete();
-        return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil dihapus.');
+        return redirect()->back()->with('success', 'Cabang berhasil dipindahkan ke tempat sampah!');
     }
 }

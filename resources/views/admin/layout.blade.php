@@ -193,5 +193,6 @@
             Swal.fire({ icon: 'error', title: 'Gagal!', text: @json(session('error')), toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true });
         @endif
     </script>
+    @stack('scripts')
 </body>
 </html>

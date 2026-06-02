@@ -71,10 +71,10 @@
                                             <a href="{{ route('admin.branches.edit', $branch->id) }}" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 flex items-center justify-center transition-all shadow-sm" title="Edit Cabang">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </a>
-                                            <form action="{{ route('admin.branches.destroy', $branch->id) }}" method="POST" class="inline">
+                                            <form action="{{ route('admin.branches.destroy', $branch->id) }}" method="POST" class="form-delete inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Hapus cabang ini?')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm" title="Hapus Cabang">
+                                                <button type="button" data-name="{{ $branch->name }}" class="btn-delete w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm" title="Hapus Cabang">
                                                     <i class="fas fa-trash-alt text-xs"></i>
                                                 </button>
                                             </form>
@@ -106,4 +106,38 @@
     </div>
 
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('.form-delete');
+                const branchName = this.getAttribute('data-name');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: `Cabang "${branchName}" akan dipindahkan ke tempat sampah!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0f172a',
+                    cancelButtonColor: '#ff2a5f',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-[1.5rem] shadow-2xl border border-slate-100',
+                        confirmButton: 'rounded-xl px-5 py-2.5 font-bold',
+                        cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
 @endsection

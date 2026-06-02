@@ -371,7 +371,6 @@
             fields.address.value = addr ? addr.address : '';
             fields.postal_code.value = addr ? addr.postal_code : '';
             
-<<<<<<< HEAD
             fields.city_name.value = addr ? addr.city : '';
 
             const disabled = !!addr;
@@ -413,20 +412,6 @@
                 document.getElementById('service_list').innerHTML = '<p class="text-xs text-amber-500">Mengambil ongkir tersimpan... silakan lanjut bayar.</p>';
                 updateTotals({{ $shippingCost ?? 0 }});
             } else {
-=======
-            if (addr && addr.province_id) {
-                fields.province_id.value = addr.province_id;
-                
-                const citySelect = fields.city_id;
-                citySelect.innerHTML = `<option value="${addr.city_id || addr.city}" data-name="${addr.city}" selected>${addr.city}</option>`;
-                fields.city_name.value = addr.city;
-                
-                fetchJneOngkir(addr.city_id || addr.city);
-            } else {
-                fields.province_id.value = '';
-                fields.city_id.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
-                fields.city_id.disabled = true;
->>>>>>> 23117737aaa5d1514970ed54c2a70801606a95e7
                 document.getElementById('shipping_section').classList.add('hidden');
                 updateTotals(null);
             }

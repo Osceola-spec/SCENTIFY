@@ -226,6 +226,6 @@ class ProductController extends Controller
 
         broadcast(new ProductDeleted($deletedId));
 
-        return redirect()->route('admin.inventory')->with('success', 'Produk berhasil dihapus.');
+        return redirect()->back()->with('success', 'Produk berhasil dipindahkan ke tempat sampah!');
     }
 }

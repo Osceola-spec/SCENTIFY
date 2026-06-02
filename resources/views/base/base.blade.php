@@ -256,6 +256,35 @@
         .pulse-ring {
             animation: pulse-ring 3s ease-in-out infinite;
         }
+
+        @keyframes chatbot-heartbeat {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+            14%       { transform: scale(1.08); }
+            28%       { transform: scale(1); }
+            42%       { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            70%       { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .animate-pulse-slow {
+            animation: chatbot-heartbeat 2s ease-in-out infinite;
+        }
+
+        #chatbot-window {
+            transform-origin: bottom right;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+        }
+
+        #chatbot-window.chatbot-closed {
+            transform: scale(0.85) translateY(12px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #chatbot-window.chatbot-open {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
     </style>
 </head>
 
@@ -269,6 +298,55 @@
     <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 z-50 transition-all duration-100 w-0"></div>
 
     <div id="cursor-glow" class="fixed top-0 left-0 w-80 h-80 bg-amber-500/20 dark:bg-amber-500/30 rounded-full blur-[80px] pointer-events-none z-0 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block mix-blend-multiply dark:mix-blend-screen transition-opacity duration-300"></div>
+
+    <!-- AI Chatbot Floating Widget -->
+    <div id="chatbot-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <!-- Chat Window -->
+        <div id="chatbot-window" class="chatbot-closed w-[340px] sm:w-[380px] bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="max-height: 520px;">
+            <!-- Header -->
+            <div class="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 shrink-0">
+                <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-white font-bold text-sm leading-tight">Scenty</p>
+                    <p class="text-amber-100 text-[10px]">AI Parfum Assistant</p>
+                </div>
+                <button onclick="toggleChatbot()" class="text-white/80 hover:text-white transition-colors p-1">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <!-- Messages -->
+            <div id="chatbot-messages" class="flex-1 overflow-y-auto p-4 space-y-3" style="min-height: 280px; max-height: 360px;">
+                <div class="flex gap-2">
+                    <div class="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-robot text-white text-[9px]"></i>
+                    </div>
+                    <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 max-w-[80%]">
+                        Halo! Saya Scenty 🌸 Butuh rekomendasi parfum atau info produk? Saya siap membantu!
+                    </div>
+                </div>
+            </div>
+            <!-- Input -->
+            <div class="px-3 py-3 border-t border-slate-100 dark:border-white/5 shrink-0">
+                <div class="flex gap-2 items-center">
+                    <input id="chatbot-input" type="text" placeholder="Tanya Scenty..." maxlength="300"
+                        class="flex-1 bg-slate-100 dark:bg-zinc-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-zinc-200 placeholder-slate-400 dark:placeholder-zinc-500 outline-none border border-transparent focus:border-amber-400 transition-colors"
+                        onkeydown="if(event.key==='Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()" id="chatbot-send-btn"
+                        class="w-8 h-8 rounded-xl bg-amber-500 hover:bg-amber-600 flex items-center justify-center transition-colors shrink-0">
+                        <i class="fas fa-paper-plane text-white text-[11px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button onclick="toggleChatbot()" class="w-14 h-14 rounded-full bg-white dark:bg-zinc-800 shadow-xl hover:scale-110 transition-transform duration-300 flex items-center justify-center relative group animate-pulse-slow border border-amber-200 dark:border-amber-500/30">
+            <i id="chatbot-icon" class="fas fa-robot text-amber-500 text-xl"></i>
+            <span class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white dark:border-darkcard pulse-ring"></span>
+        </button>
+    </div>
 
     <button onclick="toggleTheme()" class="fixed bottom-6 left-6 z-50 p-4 rounded-full bg-white dark:bg-zinc-800 shadow-xl border border-gray-200 dark:border-white/10 hover:scale-110 hover:border-amber-400 transition-all duration-300 group">
         <i class="fas fa-sun text-amber-400 text-xl hidden dark:block group-hover:rotate-90 transition-transform"></i>
@@ -723,20 +801,107 @@
         }
     </script>
 
+    <script>
+        function toggleChatbot() {
+            const win = document.getElementById('chatbot-window');
+            const icon = document.getElementById('chatbot-icon');
+            const isClosed = win.classList.contains('chatbot-closed');
+            
+            if (isClosed) {
+                win.classList.remove('chatbot-closed');
+                win.classList.add('chatbot-open');
+                icon.className = 'fas fa-times text-amber-500 text-xl';
+                setTimeout(() => document.getElementById('chatbot-input').focus(), 300);
+            } else {
+                win.classList.remove('chatbot-open');
+                win.classList.add('chatbot-closed');
+                icon.className = 'fas fa-robot text-amber-500 text-xl';
+            }
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatbot-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const messages = document.getElementById('chatbot-messages');
+            const sendBtn = document.getElementById('chatbot-send-btn');
+
+            // Append user bubble
+            messages.innerHTML += `
+                <div class="flex gap-2 justify-end">
+                    <div class="bg-amber-500 rounded-2xl rounded-tr-sm px-3 py-2 text-xs text-white max-w-[80%]">${msg.replace(/</g,'&lt;')}</div>
+                </div>`;
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Loading bubble
+            const loadingId = 'chat-loading-' + Date.now();
+            messages.innerHTML += `
+                <div id="${loadingId}" class="flex gap-2">
+                    <div class="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-robot text-white text-[9px]"></i>
+                    </div>
+                    <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-400 dark:text-zinc-500">
+                        <i class="fas fa-circle-notch fa-spin"></i> Scenty sedang berpikir...
+                    </div>
+                </div>`;
+            messages.scrollTop = messages.scrollHeight;
+            sendBtn.disabled = true;
+            input.disabled = true;
+
+            try {
+                const res = await fetch('/api/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                const reply = data.reply || data.message || 'Maaf, terjadi kesalahan.';
+
+                document.getElementById(loadingId)?.remove();
+                messages.innerHTML += `
+                    <div class="flex gap-2">
+                        <div class="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-robot text-white text-[9px]"></i>
+                        </div>
+                        <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 max-w-[80%] whitespace-pre-wrap">${reply.replace(/</g,'&lt;')}</div>
+                    </div>`;
+            } catch (e) {
+                document.getElementById(loadingId)?.remove();
+                messages.innerHTML += `
+                    <div class="flex gap-2">
+                        <div class="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-robot text-white text-[9px]"></i>
+                        </div>
+                        <div class="bg-rose-50 dark:bg-rose-500/10 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-rose-600 dark:text-rose-400 max-w-[80%]">Koneksi bermasalah. Coba lagi ya Kak.</div>
+                    </div>`;
+            } finally {
+                sendBtn.disabled = false;
+                input.disabled = false;
+                input.focus();
+                messages.scrollTop = messages.scrollHeight;
+            }
+        }
+    </script>
+
     @yield('scripts')
 
     <script>
         @if(session('success'))
-            Swal.fire({ icon: 'success', title: 'Berhasil!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
+            Swal.fire({ icon: 'success', title: 'Berhasil!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top' });
         @endif
         @if(session('error'))
-            Swal.fire({ icon: 'error', title: 'Gagal!', text: @json(session('error')), toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true });
+            Swal.fire({ icon: 'error', title: 'Gagal!', text: @json(session('error')), toast: true, position: 'top', showConfirmButton: false, timer: 4000, timerProgressBar: true });
         @endif
         @if(session('warning'))
-            Swal.fire({ icon: 'warning', title: 'Perhatian!', text: @json(session('warning')), toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true });
+            Swal.fire({ icon: 'warning', title: 'Perhatian!', text: @json(session('warning')), toast: true, position: 'top', showConfirmButton: false, timer: 4000, timerProgressBar: true });
         @endif
         @if(session('info'))
-            Swal.fire({ icon: 'info', title: 'Info', text: @json(session('info')), toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
+            Swal.fire({ icon: 'info', title: 'Info', text: @json(session('info')), toast: true, position: 'top', showConfirmButton: false, timer: 3000, timerProgressBar: true });
         @endif
     </script>
 </body>
