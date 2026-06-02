@@ -149,7 +149,7 @@
         }, 300);
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+
 <script>
     (function(){
         const branchesData = Array.from(document.querySelectorAll('.tilt-card')).map(el => ({

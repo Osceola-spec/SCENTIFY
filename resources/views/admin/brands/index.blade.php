@@ -207,7 +207,7 @@
 <!-- =========================================================================
      SCRIPTS & SWEETALERT INTEGRATIONS
      ========================================================================= -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     // FUNGSI MODAL DI KANVAS (Dengan transisi scale & opacity Tailwind)
     function openEditBrandModal(id) {
