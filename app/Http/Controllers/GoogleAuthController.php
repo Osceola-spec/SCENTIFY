@@ -51,7 +51,7 @@ class GoogleAuthController extends Controller
                     'username' => $username,
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
-                    'role' => 'user',
+                    'role' => 'customer',
                 ]);
                 Auth::login($newUser);
             }
