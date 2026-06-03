@@ -40,8 +40,14 @@ class GoogleAuthController extends Controller
                     $username = $baseUsername . $i++;
                 }
 
+                $nameParts = explode(' ', $googleUser->name, 2);
+                $firstName = $nameParts[0];
+                $lastName = $nameParts[1] ?? '';
+
                 $newUser = User::create([
                     'name' => $googleUser->name,
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
                     'username' => $username,
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
