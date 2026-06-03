@@ -75,9 +75,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [ProfileController::class, 'logout'])->name('logout');
     
     // Manajemen Alamat Pengguna
+    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
     Route::post('/profile/addresses', [AddressController::class, 'store'])->name('addresses.store');
     Route::put('/profile/addresses/{address}', [AddressController::class, 'update'])->name('addresses.update');
     Route::delete('/profile/addresses/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::put('/profile/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.setDefault');
     
     // Keranjang Belanja (Cart)
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

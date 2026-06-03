@@ -87,6 +87,10 @@
                                 <i class="far fa-user w-4 text-center"></i> Profil Saya
                             </a>
                             
+                            <a href="{{ route('addresses.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-300 hover:text-amber-500">
+                                <i class="fas fa-map-marker-alt w-4 text-center"></i> Alamat Saya
+                            </a>
+                            
                             @if(Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-300 hover:text-amber-500">
                                     <i class="fas fa-shield-alt w-4 text-center"></i> Panel Admin
@@ -144,6 +148,9 @@
             
             <a href="{{ route('profile') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
                 <i class="far fa-user w-4 text-center text-slate-400"></i> Profil Saya
+            </a>
+            <a href="{{ route('addresses.index') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
+                <i class="fas fa-map-marker-alt w-4 text-center text-slate-400"></i> Alamat Saya
             </a>
             @if(Auth::user()->role === 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">

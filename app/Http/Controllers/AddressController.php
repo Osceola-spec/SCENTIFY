@@ -7,6 +7,13 @@ use App\Models\Address;
 
 class AddressController extends Controller
 {
+    public function index()
+    {
+        $addresses = auth()->user()->addresses()->orderBy('is_default', 'desc')->orderBy('created_at', 'desc')->get();
+        $provinces = \App\Models\Province::orderBy('name')->get();
+        return view('addresses.index', compact('addresses', 'provinces'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -33,35 +40,41 @@ class AddressController extends Controller
 
         Address::create($data);
 
-        return redirect()->back()->with('success', 'Alamat berhasil disimpan.');
+        return redirect()->route('addresses.index')->with('success', 'Alamat berhasil disimpan.');
     }
 
     public function destroy(Address $address)
     {
-        $this->authorize('delete', $address);
+        abort_if($address->user_id !== auth()->id(), 403);
         $address->delete();
-        return redirect()->back()->with('success', 'Alamat dihapus.');
+        return redirect()->route('addresses.index')->with('success', 'Alamat dihapus.');
     }
 
     public function update(Request $request, Address $address)
     {
-        $this->authorize('update', $address);
+        abort_if($address->user_id !== auth()->id(), 403);
+
+        // Normalize: form uses edit_ prefix
+        $input = [];
+        foreach (['label','first_name','last_name','phone','address','city','province_id','city_id','postal_code','is_default'] as $field) {
+            $input[$field] = $request->input('edit_'.$field, $request->input($field));
+        }
+        $request->merge($input);
 
         $request->validate([
             'label' => 'nullable|string|max:100',
             'first_name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
+            'last_name' => 'nullable|string|max:100',
             'phone' => 'required|string|max:30',
             'address' => 'required|string',
             'city' => 'required|string|max:100',
             'province_id' => 'nullable|string|max:20',
             'city_id' => 'nullable|string|max:20',
             'postal_code' => 'required|string|max:20',
-            'is_default' => 'nullable|boolean',
         ]);
 
-        $data = $request->only(['label','first_name','last_name','phone','address','city','province_id','city_id','postal_code']);
-        $data['is_default'] = $request->has('is_default') ? true : false;
+        $data = collect($input)->only(['label','first_name','last_name','phone','address','city','province_id','city_id','postal_code'])->toArray();
+        $data['is_default'] = !empty($input['is_default']);
 
         if ($data['is_default']) {
             Address::where('user_id', auth()->id())->update(['is_default' => false]);
@@ -69,6 +82,14 @@ class AddressController extends Controller
 
         $address->update($data);
 
-        return redirect()->back()->with('success', 'Alamat diperbarui.');
+        return redirect()->route('addresses.index')->with('success', 'Alamat diperbarui.');
+    }
+
+    public function setDefault(Address $address)
+    {
+        abort_if($address->user_id !== auth()->id(), 403);
+        Address::where('user_id', auth()->id())->update(['is_default' => false]);
+        $address->update(['is_default' => true]);
+        return redirect()->route('addresses.index')->with('success', 'Alamat utama diperbarui.');
     }
 }
