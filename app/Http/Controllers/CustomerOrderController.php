@@ -19,22 +19,27 @@ class CustomerOrderController extends Controller
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
+        // 1. Tangkap filter status dari URL, jika kosong default ke 'processing'
+        $statusFilter = $request->query('status', 'processing');
+
         $orders = Order::with([
                 'items.variant.product.brand',
                 'items.variant.product.images',
             ])
             ->where('user_id', Auth::id())
-            ->latest()
-            ->when($request->query('status') === 'active', function ($q) {
-                // Sesuai daftar di databasemu, status aktif adalah Pending, Paid, dan Shipped
-                $q->whereIn('status', ['Pending', 'Paid', 'Shipped']);
+            ->orderBy('created_at', 'desc') // Mengunci urutan dari yang paling baru
+            ->when($statusFilter === 'processing', function ($q) {
+                // Dalam Proses = Sudah dibayar atau sedang dikirim kurir
+                $q->whereIn('status', ['Paid', 'Shipped']);
             })
-            ->when(
-                $request->query('status') && !in_array($request->query('status'), ['all', 'active']),
-                function ($q) use ($request) {
-                    $q->where('status', $request->query('status'));
-                }
-            )
+            ->when($statusFilter === 'unpaid', function ($q) {
+                // Perlu Dibayar = Masih pending menunggu pembayaran
+                $q->where('status', 'Pending');
+            })
+            ->when($statusFilter === 'history', function ($q) {
+                // Riwayat = Selesai diterima atau dibatalkan
+                $q->whereIn('status', ['Completed', 'Cancelled']);
+            })
             ->paginate(5)
             ->withQueryString();
 
@@ -125,5 +130,56 @@ class CustomerOrderController extends Controller
 
         // Alihkan halaman user ke daftar transaksi mereka dengan pesan sukses
         return redirect()->route('orders.index')->with('success', 'Pembayaran Anda berhasil diverifikasi! Nota resmi telah dikirim ke email Anda.');
+    }
+
+    /**
+     * Mengarahkan pesanan Pending ke halaman pembayaran dengan Snap Token Baru
+     */
+    public function payNow($order_number)
+    {
+        if (!\Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+
+        // 1. Ambil detail order
+        $order = Order::with(['items.variant.product', 'user'])
+            ->where('order_number', $order_number)
+            ->where('user_id', \Auth::id())
+            ->firstOrFail();
+
+        if ($order->status !== 'Pending') {
+            return redirect()->route('orders.index')->with('error', 'Pesanan ini sudah diproses atau dibatalkan.');
+        }
+
+        // 2. Konfigurasi SDK Midtrans (Gunakan Config bawaan atau manually set jika tidak ada class config)
+        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+        \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+        \Midtrans\Config::$isSanitized = true;
+        \Midtrans\Config::$is3ds = true;
+
+        // 3. Susun parameter transaksi untuk Midtrans
+        $params = [
+            'transaction_details' => [
+                'order_id' => $order->order_number,
+                'gross_amount' => (int) $order->total_amount,
+            ],
+            'customer_details' => [
+                'first_name' => $order->user->name ?? 'Pelanggan Scentify',
+                'email' => $order->user->email,
+            ],
+        ];
+
+        // 4. Generate atau dapatkan Snap Token Baru secara aman
+        try {
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
+        } catch (\Exception $e) {
+            // Jika token gagal digenerate karena order_id duplikat di sandbox Midtrans, 
+            // Anda bisa mengakali dengan menambahkan suffix timestamp, namun untuk production pastikan order_id unik.
+            \Log::error('Midtrans Error: ' . $e->getMessage());
+            return redirect()->route('orders.index')->with('error', 'Gagal terhubung ke gateway pembayaran: ' . $e->getMessage());
+        }
+
+        // 5. Lempar variabel $order dan $snapToken ke view
+        return view('payment', compact('order', 'snapToken'));
     }
 }

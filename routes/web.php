@@ -94,6 +94,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-orders', [CustomerOrderController::class, 'index'])->name('orders.index');
     Route::get('/my-orders/{id}', [CustomerOrderController::class, 'show'])->name('orders.show');
     Route::put('/orders/{id}/cancel', [CustomerOrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{order_number}/pay', [CustomerOrderController::class, 'payNow'])->name('orders.pay');
+    Route::get('/orders/payment/finished', [CustomerOrderController::class, 'paymentFinished'])->name('orders.payment_finished');
     
     // RUTE PENYELESAIAN MIDTRANS KHUSUS DEMO LOCALHOST
     Route::get('/payment/finished', [CustomerOrderController::class, 'paymentFinished'])->name('payment.finished');

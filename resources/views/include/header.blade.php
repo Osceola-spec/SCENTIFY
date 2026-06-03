@@ -23,7 +23,7 @@
                 <span>Stores</span>
                 <span class="absolute bottom-0 left-0 h-[1.5px] bg-amber-500 transition-all duration-300 {{ request()->routeIs('stores.index') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
             </a>
-            <a href="{{ route('orders.index') }}" class="hover:text-amber-500 transition-colors duration-300 relative py-1 group {{ request()->routeIs('orders.index') ? 'text-amber-500' : '' }}">
+            <a href="{{ route('orders.index', ['status' => 'processing']) }}" class="hover:text-amber-500 transition-colors duration-300 relative py-1 group {{ request()->routeIs('orders.index') ? 'text-amber-500' : '' }}">
                 <span>My Orders</span>
                 <span class="absolute bottom-0 left-0 h-[1.5px] bg-amber-500 transition-all duration-300 {{ request()->routeIs('orders.index') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
             </a>

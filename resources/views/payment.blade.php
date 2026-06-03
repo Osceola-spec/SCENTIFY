@@ -16,7 +16,7 @@
                 <i class="fas fa-check text-3xl sm:text-4xl text-emerald-500 relative z-10"></i>
             </div>
 
-            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-slate-950 dark:text-white mb-2">Pesanan Berhasil Dibuat!</h2>
+            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-slate-950 dark:text-white mb-2">Selesaikan Pembayaran</h2>
             <p class="text-sm text-slate-500 dark:text-zinc-400 mb-8 flex justify-center items-center gap-2">
                 Nomor Pesanan: 
                 <span class="font-mono font-bold text-slate-800 dark:text-zinc-200 px-2.5 py-1 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-white/5 rounded-md">
@@ -38,12 +38,12 @@
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 mt-4">
-                <button id="pay-button" class="flex-1 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-base shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2">
+                <button id="pay-button" class="flex-1 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-base shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 cursor-pointer">
                     Bayar Sekarang
                 </button>
-                <a href="{{ route('checkout.pay-later', $order->id) }}"
+                <a href="{{ route('orders.index') }}"
                    class="flex-1 py-4 rounded-xl border border-amber-400 text-amber-500 bg-white dark:bg-darkcard/80 hover:bg-amber-50 dark:hover:bg-amber-900/10 font-bold text-base shadow-lg transition-all duration-200 text-center flex items-center justify-center"
-                   onclick="return confirm('Apakah Anda yakin ingin membayar pesanan ini nanti?')">
+                   onclick="return confirm('Apakah Anda yakin ingin membayar pesanan ini nanti? Anda bisa mengakses kembali halaman ini melalui menu My Orders.')">
                     Bayar Nanti
                 </a>
             </div>
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function() {
             btn.innerHTML = '<i class="fas fa-spinner fa-spin text-lg"></i> Menyiapkan Gateway...';
             btn.classList.add('opacity-75', 'pointer-events-none', 'scale-95');
 
-            // 2. Panggil token Midtrans
+            // 2. Ambil token Midtrans yang dikirim dari controller
             const snapToken = "{{ $snapToken }}";
             
             if (!snapToken || snapToken === "") {
@@ -83,11 +83,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
-            // 3. Jalankan SNAP Midtrans
+            // 3. Jalankan Layar Pop-Up SNAP Midtrans
             snap.pay(snapToken, {
                 onSuccess: function(result) {
                     console.log(result);
-                    window.location.href = "{{ route('payment.finished') }}?order_id=" + result.order_id;
+                    // Diarahkan ke CustomerOrderController@paymentFinished
+                    window.location.href = "{{ route('orders.payment_finished') }}?order_id=" + result.order_id;
                 },
                 onPending: function(result) {
                     console.log(result);
@@ -96,9 +97,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         title: 'Menunggu Pembayaran!',
                         text: 'Selesaikan instruksi pembayaran pada channel yang Anda pilih.',
                         confirmButtonColor: '#f59e0b'
+                    }).then(() => {
+                        window.location.href = "{{ route('orders.index') }}";
                     });
-                    btn.innerHTML = originalText;
-                    btn.classList.remove('opacity-75', 'pointer-events-none', 'scale-95');
                 },
                 onError: function(result) {
                     console.log(result);
@@ -123,8 +124,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
         };
-    } else {
-        console.error("Tombol dengan ID 'pay-button' tidak ditemukan di halaman ini!");
     }
 });
 </script>

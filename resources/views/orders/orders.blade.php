@@ -3,11 +3,9 @@
 @section('content')
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-32 relative z-10">
     
-    <!-- Ambient Glow Orbs -->
     <div class="absolute top-[10%] left-[5%] w-[250px] h-[250px] bg-amber-500/10 dark:bg-amber-500/5 rounded-full animate-float pointer-events-none filter blur-[80px] -z-10"></div>
     <div class="absolute bottom-[20%] right-[5%] w-[300px] h-[300px] bg-purple-500/10 dark:bg-purple-900/5 rounded-full animate-float pointer-events-none filter blur-[80px] -z-10" style="animation-delay: 2s;"></div>
 
-    <!-- Breadcrumb -->
     <nav class="mb-8 reveal">
         <ol class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500">
             <li><a href="{{ route('home') }}" class="hover:text-amber-500 transition-colors">Home</a></li>
@@ -16,7 +14,6 @@
         </ol>
     </nav>
 
-    <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-slate-200 dark:border-white/5 reveal">
         <div>
             <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Riwayat Transaksi</span>
@@ -26,29 +23,41 @@
             </p>
         </div>
         
-        <!-- Filter Cepat (Opsional Visual) -->
-        <div class="flex gap-2">
-            <a href="?status=all" class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ !request('status') || request('status') == 'all' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">Semua</a>
-            <a href="?status=active" class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ request('status') == 'active' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">Berlangsung</a>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="?status=processing" 
+            class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ !request('status') || request('status') == 'processing' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black shadow-lg shadow-amber-500/10' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">
+                Dalam Proses
+            </a>
+
+            <a href="?status=unpaid" 
+            class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ request('status') == 'unpaid' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black shadow-lg shadow-amber-500/10' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">
+                Perlu Dibayar
+            </a>
+
+            <a href="?status=history" 
+            class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ request('status') == 'history' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black shadow-lg shadow-amber-500/10' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">
+                Riwayat
+            </a>
         </div>
     </div>
 
-    <!-- Daftar Pesanan -->
     <div class="space-y-6 sm:space-y-8">
         @forelse($orders ?? [] as $order)
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-200 dark:border-white/5 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden reveal group relative">
                 
-                <!-- Hover Glow Effect -->
                 <div class="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/0 to-amber-500/0 group-hover:from-amber-500/5 group-hover:via-transparent group-hover:to-transparent transition-all duration-500 pointer-events-none"></div>
 
-                <!-- Card Header -->
                 <div class="px-5 sm:px-8 py-4 sm:py-5 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-zinc-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div class="flex flex-wrap items-center gap-4 sm:gap-6">
-                        <div>
-                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">No. Pesanan</p>
-                            <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">#{{ $order->order_number }}</p>
+                        <div class="flex items-center gap-3">
+                            <div>
+                                <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">No. Pesanan</p>
+                                <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">#{{ $order->order_number }}</p>
+                            </div>
                         </div>
+                        
                         <div class="hidden sm:block w-px h-8 bg-slate-200 dark:bg-white/10"></div>
+                        
                         <div>
                             <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Tanggal Pembelian</p>
                             <p class="text-xs sm:text-sm font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
@@ -57,7 +66,6 @@
                         </div>
                     </div>
 
-                    <!-- Status Badge -->
                     @php
                         $statusClass = match($order->status) {
                             'Pending' => 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
@@ -84,30 +92,22 @@
                     </div>
                 </div>
 
-                <!-- Card Body (Items) -->
                 <div class="p-5 sm:p-8">
-                    <div class="space-y-4">
-                        <!-- Tampilkan max 2 item pertama agar card tidak terlalu panjang -->
+                    <div class="space-y-5">
                         @foreach($order->items->take(2) as $item)
                             @php
                                 $variant     = $item->variant;
                                 $product     = $variant?->product;
                                 $productName = $product?->name ?? null;
                                 $imgRaw      = $product?->image_url ?? null;
-
-                                $imgSrc = $imgRaw
-                                    ? asset('product_image/' . $imgRaw)  // ← sesuaikan folder ini
-                                    : null;
+                                $imgSrc      = $imgRaw ? asset('product_image/' . $imgRaw) : null;
                             @endphp
 
                             <div class="flex items-center gap-4 sm:gap-6">
                                 {{-- Gambar --}}
                                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl overflow-hidden bg-slate-100 dark:bg-zinc-800 shrink-0 border border-slate-200 dark:border-white/5 flex items-center justify-center">
                                     @if($imgSrc)
-                                        <img src="{{ $imgSrc }}"
-                                            alt="{{ $productName }}"
-                                            class="w-full h-full object-cover"
-                                            onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-slate-300 dark:text-zinc-600\'><i class=\'fas fa-spray-can text-2xl\'></i></div>'">
+                                        <img src="{{ $imgSrc }}" alt="{{ $productName }}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-slate-300 dark:text-zinc-600\'><i class=\'fas fa-spray-can text-2xl\'></i></div>'">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-slate-300 dark:text-zinc-600">
                                             <i class="fas fa-spray-can text-2xl"></i>
@@ -126,7 +126,6 @@
                                             | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
                                         </p>
                                     @else
-                                        {{-- Data lama tanpa referensi produk --}}
                                         <h4 class="text-sm font-medium text-slate-400 dark:text-zinc-500 italic line-clamp-1">
                                             Produk tidak tersedia
                                         </h4>
@@ -152,69 +151,63 @@
                     </div>
                 </div>
 
-                <!-- Card Footer (Total & Actions) -->
-                {{-- Ganti bagian Card Footer --}}
-            <div class="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-zinc-900/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Total Pembayaran</p>
-                    <p class="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
-                </div>
+                <div class="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-zinc-900/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Total Pembayaran</p>
+                        <p class="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
+                    </div>
 
-                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-
-                    {{-- Badge status review (hanya untuk Completed) --}}
-                    @if ($order->status === 'Completed')
-                        @php
-                            $totalItems    = $order->items->count();
-                            $reviewedItems = $order->items->filter(fn($i) => $i->review)->count();
-                        @endphp
-                        @if ($reviewedItems === $totalItems && $totalItems > 0)
-                            <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                                <i class="fas fa-star"></i> Sudah Diulas
-                            </span>
-                        @else
-                            <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
-                                <i class="far fa-star"></i> {{ $reviewedItems }}/{{ $totalItems }} Diulas
-                            </span>
+                    <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                        {{-- Badge status review (hanya untuk Completed) --}}
+                        @if ($order->status === 'Completed')
+                            @php
+                                $totalItems    = $order->items->count();
+                                $reviewedItems = $order->items->filter(fn($i) => $i->review)->count();
+                            @endphp
+                            @if ($reviewedItems === $totalItems && $totalItems > 0)
+                                <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                                    <i class="fas fa-star"></i> Sudah Diulas
+                                </span>
+                            @else
+                                <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
+                                    <i class="far fa-star"></i> {{ $reviewedItems }}/{{ $totalItems }} Diulas
+                                </span>
+                            @endif
                         @endif
-                    @endif
 
-                   @if ($order->status === 'Pending')
-                        <form id="cancel-form-{{ $order->id }}" action="{{ route('orders.cancel', $order->id) }}" method="POST" class="hidden">
-                            @csrf
-                            @method('PUT')
-                        </form>
+                        @if ($order->status === 'Pending')
+                            <form id="cancel-form-{{ $order->id }}" action="{{ route('orders.cancel', $order->id) }}" method="POST" class="hidden">
+                                @csrf
+                                @method('PUT')
+                            </form>
 
-                        <button type="button" onclick="cancelOrder('{{ $order->id }}', '{{ $order->order_number }}')"
-                                class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-center">
-                            Batalkan
-                        </button>
+                            <button type="button" onclick="cancelOrder('{{ $order->id }}', '{{ $order->order_number }}')"
+                                    class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-center">
+                                Batalkan
+                            </button>
 
-                        <button onclick="payNow('{{ $order->order_number }}')"
-                                class="flex-1 sm:flex-none px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-center">
-                            Bayar Sekarang
-                        </button>
-                    @elseif ($order->status === 'Shipped' && $order->tracking_number)
-                        <button onclick="trackOrder('{{ $order->tracking_number }}')"
-                                class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 text-center">
-                            Lacak Resi
-                        </button>
-                    @endif
+                            <button onclick="payNow('{{ $order->order_number }}')"
+                                    class="flex-1 sm:flex-none px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-center">
+                                Bayar Sekarang
+                            </button>
+                        @elseif ($order->status === 'Shipped' && $order->tracking_number)
+                            <button onclick="trackOrder('{{ $order->tracking_number }}')"
+                                    class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 text-center">
+                                Lacak Resi
+                            </button>
+                        @endif
 
-                    <a href="{{ route('orders.show', $order->id) }}"
-                    class="flex-1 sm:flex-none px-5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-amber-500 dark:hover:text-amber-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all text-center">
-                        Detail
-                    </a>
+                        <a href="{{ route('orders.show', $order->id) }}"
+                           class="flex-1 sm:flex-none px-5 py-2.5 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-700 hover:text-amber-500 dark:hover:text-amber-400 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all text-center">
+                            Detail
+                        </a>
+                    </div>
                 </div>
-            </div>
-
             </div>
         @empty
-            <!-- Tampilan Kosong (Empty State) -->
             <div class="text-center py-20 reveal">
                 <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-6 text-slate-300 dark:text-zinc-600 shadow-inner relative">
                     <i class="fas fa-box-open text-4xl sm:text-5xl"></i>
-                    <!-- Dekorasi Sparkle -->
                     <i class="fas fa-star text-amber-400 absolute top-4 right-4 text-xs animate-pulse"></i>
                 </div>
                 <h3 class="font-serif text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Belum Ada Riwayat Pesanan</h3>
@@ -227,17 +220,14 @@
             </div>
         @endforelse
 
-        <!-- Custom Pagination -->
         @if(isset($orders) && method_exists($orders, 'links'))
             <div class="mt-12 pt-8 border-t border-slate-200 dark:border-white/5 flex justify-center custom-pagination reveal">
-                {{ $orders->links('pagination::bootstrap-5') }}
+                {{ $orders->links('pagination::tailwind') }}
             </div>
         @endif
     </div>
-
 </div>
 
-<!-- Style khusus pagination agar selaras dengan tema (Disesuaikan dari cart/shop) -->
 <style>
     .custom-pagination .page-link {
         color: inherit;
@@ -267,12 +257,11 @@
     }
 </style>
 
-<!-- Interaksi Kustom Halaman Order -->
 <script>
     function payNow(orderNumber) {
         Swal.fire({
             title: 'Lanjutkan Pembayaran?',
-            text: `Anda akan diarahkan ke gerbang pembayaran untuk pesanan #${orderNumber}.`,
+            text: `Anda akan diarahkan ke halaman pembayaran untuk pesanan #${orderNumber}.`,
             icon: 'info',
             showCancelButton: true,
             confirmButtonColor: '#f59e0b',
@@ -287,27 +276,31 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Di Laravel sesungguhnya, arahkan ke rute pembayaran:
-                // window.location.href = `/payment/${orderNumber}`;
                 Swal.fire({
                     title: 'Memproses...',
-                    text: 'Membuka gerbang pembayaran Scentify Payment...',
+                    text: 'Membuka gerbang pembayaran Scentify...',
                     icon: 'success',
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 1200,
                     customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]' }
                 });
+
+                // Setelah SweetAlert sukses selesai, arahkan ke URL Route penangan pembayaran
+                setTimeout(() => {
+                    window.location.href = `/orders/${orderNumber}/pay`;
+                }, 1000);
             }
         });
     }
+
     function cancelOrder(orderId, orderNumber) {
         Swal.fire({
             title: 'Batalkan Pesanan?',
             text: `Apakah Anda yakin ingin membatalkan pesanan #${orderNumber}? Tindakan ini tidak dapat dikembalikan.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444', // Warna Rose 500
-            cancelButtonColor: '#64748b', // Warna Slate 500
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
             confirmButtonText: 'Ya, Batalkan',
             cancelButtonText: 'Kembali',
             reverseButtons: true,
@@ -318,7 +311,6 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Tampilkan loading sebentar sebelum submit
                 Swal.fire({
                     title: 'Memproses...',
                     text: 'Sedang membatalkan pesanan Anda.',
@@ -329,8 +321,6 @@
                     },
                     customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]' }
                 });
-                
-                // Submit form pembatalan
                 document.getElementById(`cancel-form-${orderId}`).submit();
             }
         });

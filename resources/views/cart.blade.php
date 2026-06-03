@@ -1,6 +1,16 @@
 @extends('base.base')
 
 @section('content')
+<form id="hiddenBulkDeleteForm" action="" method="POST" class="hidden">
+    @csrf
+    @method('DELETE')
+    <input type="hidden" name="cart_ids" id="hiddenCartIds">
+</form>
+
+<form id="hiddenCheckoutForm" action="{{ route('checkout') }}" method="POST" class="hidden">
+    @csrf
+</form>
+
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
     <nav class="mb-8 reveal">
         <ol class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500">
@@ -162,13 +172,14 @@
                         </div>
                     </div>
 
-                    <div class="mt-8 space-y-3">
+                    <div class="mt-8 space-y-3 relative z-50">
                         <button type="button" id="checkoutBtn" onclick="submitCheckout()"
-                           class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 shadow-lg active:scale-95 transition-all">
+                           class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 shadow-lg active:scale-95 transition-all cursor-pointer">
                             Lanjutkan ke Checkout
                         </button>
+                        
                         <a href="{{ route('shop') }}"
-                           class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-850 transition-all">
+                           class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 rounded-xl hover:bg-white dark:hover:bg-zinc-900 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500 dark:hover:border-amber-400 transition-all cursor-pointer shadow-sm">
                             Belanja Lagi
                         </a>
                     </div>
@@ -189,18 +200,7 @@
     @endif
 </div>
 
-<form id="hiddenBulkDeleteForm" action="" method="POST" class="hidden">
-    @csrf
-    @method('DELETE')
-    <input type="hidden" name="cart_ids" id="hiddenCartIds">
-</form>
-
-<form id="hiddenCheckoutForm" action="{{ route('checkout') }}" method="POST" class="hidden">
-    @csrf
-</form>
-
 <style>
-    /* Menghilangkan panah spinner bawaan browser pada input type number */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
         -webkit-appearance: none; 
@@ -212,11 +212,10 @@
 </style>
 
 <script>
-    // 1. Update order summary calculations dynamically
     function updateOrderSummary() {
         const checkboxes = document.querySelectorAll('.item-checkbox');
-        let selectedCount = 0; // Total jenis item
-        let totalUnits = 0;    // Total botol fisik
+        let selectedCount = 0;
+        let totalUnits = 0;   
         let selectedTotal = 0;
 
         checkboxes.forEach(chk => {
@@ -231,14 +230,12 @@
             }
         });
 
-        // Format subtotal ke rupiah
         const formattedTotal = new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR',
             maximumFractionDigits: 0
         }).format(selectedTotal);
 
-        // Update DOM
         const selectedCountEl = document.getElementById('selected-count');
         const selectedSubtotalEl = document.getElementById('selected-subtotal');
         const estimatedTotalEl = document.getElementById('estimated-total');
@@ -249,12 +246,10 @@
         if (selectedSubtotalEl) selectedSubtotalEl.innerText = formattedTotal;
         if (estimatedTotalEl) estimatedTotalEl.innerText = formattedTotal;
 
-        // Atur status "Pilih Semua" checkbox utama
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = (selectedCount > 0 && selectedCount === checkboxes.length);
         }
 
-        // Kunci tombol checkout jika tidak ada item terpilih
         if (checkoutBtn) {
             if (selectedCount === 0) {
                 checkoutBtn.classList.add('opacity-50', 'pointer-events-none');
@@ -266,7 +261,6 @@
         }
     }
 
-    // 2. Increment/Decrement Spinner Logic
     function updateCartQuantity(id, change) {
         const desktopInput = document.getElementById('qty-desktop-' + id);
         const mobileInput = document.getElementById('qty-mobile-' + id);
@@ -278,17 +272,14 @@
         let newQty = currentQty + change;
         if (newQty < 1) newQty = 1;
         
-        // Perbarui Input Visual
         if(desktopInput) desktopInput.value = newQty;
         if(mobileInput) mobileInput.value = newQty;
         
-        // Kalkulasi Ulang Harga Item
         const checkbox = document.querySelector(`.item-checkbox[value="${id}"]`);
         if(checkbox) {
             const basePrice = Number(checkbox.dataset.basePrice);
             const newTotal = basePrice * newQty;
             
-            // Simpan harga baru di atribut data checkbox
             checkbox.dataset.price = newTotal;
             
             const formattedTotal = new Intl.NumberFormat('id-ID', {
@@ -297,19 +288,16 @@
                 maximumFractionDigits: 0
             }).format(newTotal);
             
-            // Perbarui label Total Harga produk
             const totalDesktop = document.getElementById('total-desktop-' + id);
             const priceMobile = document.getElementById('price-mobile-' + id);
             
             if(totalDesktop) totalDesktop.innerText = formattedTotal;
             if(priceMobile) priceMobile.innerText = formattedTotal;
             
-            // Paksa pembaruan keranjang agar jika dicentang, ringkasan berubah otomatis
             updateOrderSummary();
         }
     }
 
-    // 3. Toggle select/deselect all item checkboxes
     function toggleSelectAll(selectAll) {
         const checkboxes = document.querySelectorAll('.item-checkbox');
         checkboxes.forEach(chk => {
@@ -318,7 +306,6 @@
         updateOrderSummary();
     }
 
-    // 4. Confirm Delete Dialog for Single Item
     function confirmItemDelete(cartId, productName) {
         Swal.fire({
             title: 'Keluarkan dari Keranjang?',
@@ -337,16 +324,12 @@
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Eksekusi form desktop atau mobile
-                const formDesktop = document.getElementById('delete-form-desktop-' + cartId);
-                const formMobile = document.getElementById('delete-form-mobile-' + cartId);
-                if (formDesktop) formDesktop.submit();
-                else if (formMobile) formMobile.submit();
+                const form = document.getElementById('delete-form-desktop-' + cartId) || document.getElementById('delete-form-mobile-' + cartId);
+                if (form) form.submit();
             }
         });
     }
 
-    // 5. Confirm Delete Dialog for Checked Items
     function confirmBulkDelete() {
         const checkboxes = document.querySelectorAll('.item-checkbox');
         const selectedIds = [];
@@ -393,13 +376,10 @@
         });
     }
 
-    // 6. Submit Checkout Handler
-    // 6. Submit Checkout Handler
     function submitCheckout() {
         const checkboxes = document.querySelectorAll('.item-checkbox');
         const checkoutForm = document.getElementById('hiddenCheckoutForm');
         
-        // Hapus input sebelumnya KECUALI token CSRF
         checkoutForm.querySelectorAll('input:not([name="_token"])').forEach(el => el.remove());
 
         checkboxes.forEach(chk => {
@@ -408,7 +388,6 @@
                 const qtyInput = document.getElementById('qty-desktop-' + id) || document.getElementById('qty-mobile-' + id);
                 const qty = qtyInput ? qtyInput.value : 1;
 
-                // Injeksi data item yang dipilih
                 const inputId = document.createElement('input');
                 inputId.type = 'hidden';
                 inputId.name = 'checkout_items[]';
@@ -427,7 +406,6 @@
         checkoutForm.submit();
     }
 
-    // Jalankan kalkulasi total saat halaman pertama kali dimuat
     document.addEventListener('DOMContentLoaded', updateOrderSummary);
 </script>
 @endsection
