@@ -33,12 +33,19 @@ class GoogleAuthController extends Controller
                 Auth::login($user);
             } else {
                 // Jika belum ada, buat akun baru secara otomatis
+                $baseUsername = strtolower(str_replace(' ', '', $googleUser->name));
+                $username = $baseUsername;
+                $i = 1;
+                while (User::where('username', $username)->exists()) {
+                    $username = $baseUsername . $i++;
+                }
+
                 $newUser = User::create([
                     'name' => $googleUser->name,
+                    'username' => $username,
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
-                    'role' => 'user', // Atur role default
-                    // password sengaja dikosongkan karena lewat Google
+                    'role' => 'user',
                 ]);
                 Auth::login($newUser);
             }
