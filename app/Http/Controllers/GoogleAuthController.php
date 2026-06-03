@@ -20,7 +20,7 @@ class GoogleAuthController extends Controller
     public function callback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
             // Cek apakah user ini sudah pernah login/terdaftar sebelumnya
             $user = User::where('email', $googleUser->email)->first();
