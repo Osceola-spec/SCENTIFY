@@ -98,6 +98,49 @@
                         Dengan mendaftar, Anda menyetujui <a href="#" class="underline hover:text-amber-500 transition-colors">Syarat & Ketentuan</a> serta <a href="#" class="underline hover:text-amber-500 transition-colors">Kebijakan Privasi</a> Scentify.
                     </p>
                 </form>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        const form = document.querySelector('form[action="{{ route('register.auth') }}"]');
+                        if (!form) return;
+                        const pwd = form.querySelector('input[name="password"]');
+                        const pwdc = form.querySelector('input[name="password_confirmation"]');
+                        const submit = form.querySelector('button[type="submit"]');
+                        if (!pwd || !pwdc || !submit) return;
+
+                        const errorEl = document.createElement('p');
+                        errorEl.className = 'text-rose-500 text-[10px] sm:text-xs mt-2 pl-2 flex items-center gap-1.5 font-medium';
+                        errorEl.style.display = 'none';
+                        errorEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Password and confirmation must match.';
+                        pwdc.parentNode.appendChild(errorEl);
+
+                        function validate(){
+                            if (pwd.value && pwdc.value && pwd.value !== pwdc.value){
+                                errorEl.style.display = 'flex';
+                                pwd.classList.add('border-rose-500');
+                                pwdc.classList.add('border-rose-500');
+                                submit.disabled = true;
+                                submit.classList.add('opacity-50','cursor-not-allowed');
+                                return false;
+                            } else {
+                                errorEl.style.display = 'none';
+                                pwd.classList.remove('border-rose-500');
+                                pwdc.classList.remove('border-rose-500');
+                                submit.disabled = false;
+                                submit.classList.remove('opacity-50','cursor-not-allowed');
+                                return true;
+                            }
+                        }
+
+                        pwd.addEventListener('input', validate);
+                        pwdc.addEventListener('input', validate);
+                        form.addEventListener('submit', function(e){
+                            if (!validate()){
+                                e.preventDefault();
+                                pwdc.focus();
+                            }
+                        });
+                    });
+                </script>
             </div>
 
             <!-- Sisi Kanan: Gambar Estetik & Narasi (Sembunyi di Mobile) -->

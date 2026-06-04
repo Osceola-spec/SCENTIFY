@@ -137,6 +137,13 @@
             z-index: 99999 !important;
         }
 
+        /* Ensure SweetAlert overlays appear above fixed header */
+        .swal2-container,
+        .swal2-backdrop,
+        .swal2-popup {
+            z-index: 1000000 !important;
+        }
+
         .light .glass-card {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(20px);

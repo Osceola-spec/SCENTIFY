@@ -47,7 +47,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'username' => 'nullable|string|max:20|unique:users,username',
-            'password' => 'required|string|min:8',
+            // Require confirmation field named `password_confirmation` in the form
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         // 1. Logika pembuatan username otomatis & aman dari limit 20 karakter
