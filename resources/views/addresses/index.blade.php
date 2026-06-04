@@ -9,15 +9,15 @@
         <ol class="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500">
             <li><a href="{{ route('home') }}" class="hover:text-amber-500 transition-colors">Home</a></li>
             <li><span class="mx-2">/</span></li>
-            <li><a href="{{ route('profile') }}" class="hover:text-amber-500 transition-colors">Profil</a></li>
+            <li><a href="{{ route('profile') }}" class="hover:text-amber-500 transition-colors">Profile</a></li>
             <li><span class="mx-2">/</span></li>
-            <li class="text-amber-500 font-semibold">Alamat Saya</li>
+            <li class="text-amber-500 font-semibold">My Addresses</li>
         </ol>
     </nav>
 
     <div class="mb-10 reveal">
-        <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Kelola Pengiriman</span>
-        <h1 class="text-3xl md:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Alamat <span class="italic text-amber-500 font-normal">Saya</span></h1>
+        <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Manage Shipping</span>
+        <h1 class="text-3xl md:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Addresses <span class="italic text-amber-500 font-normal">My</span></h1>
     </div>
 
     @if(session('success'))
@@ -32,12 +32,12 @@
         </div>
     @endif
 
-    <!-- Daftar Alamat -->
+    <!-- Address List -->
     <div class="space-y-4 mb-8 reveal">
         @forelse($addresses as $addr)
         <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-2xl border {{ $addr->is_default ? 'border-amber-500/40' : 'border-slate-200 dark:border-white/5' }} p-5 sm:p-6 shadow-md relative">
-            @if($addr->is_default)
-                <span class="absolute top-4 right-4 text-[9px] font-mono uppercase tracking-widest bg-amber-500 text-black px-2.5 py-1 rounded-full font-bold">Utama</span>
+                @if($addr->is_default)
+                <span class="absolute top-4 right-4 text-[9px] font-mono uppercase tracking-widest bg-amber-500 text-black px-2.5 py-1 rounded-full font-bold">Primary</span>
             @endif
             <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -45,7 +45,7 @@
                 </div>
                 <div class="flex-grow min-w-0">
                     <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <span class="text-xs font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold">{{ $addr->label ?? 'Alamat' }}</span>
+                        <span class="text-xs font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold">{{ $addr->label ?? 'Address' }}</span>
                     </div>
                     <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $addr->first_name }} {{ $addr->last_name }}</p>
                     <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{{ $addr->phone }}</p>
@@ -57,19 +57,19 @@
                 <form action="{{ route('addresses.setDefault', $addr) }}" method="POST" class="m-0">
                     @csrf @method('PUT')
                     <button type="submit" class="text-[10px] font-mono uppercase tracking-widest text-slate-500 hover:text-amber-500 transition-colors border border-slate-200 dark:border-white/10 hover:border-amber-500 px-3 py-1.5 rounded-lg">
-                        <i class="fas fa-star mr-1"></i> Jadikan Utama
+                        <i class="fas fa-star mr-1"></i> Set as Default
                     </button>
                 </form>
                 @endif
-                <button onclick="openEditModal({{ $addr->id }})" 
+                    <button onclick="openEditModal({{ $addr->id }})" 
                         data-addr="{{ json_encode($addr) }}"
                         class="text-[10px] font-mono uppercase tracking-widest text-slate-500 hover:text-amber-500 transition-colors border border-slate-200 dark:border-white/10 hover:border-amber-500 px-3 py-1.5 rounded-lg">
                     <i class="fas fa-pen mr-1"></i> Edit
                 </button>
-                <form action="{{ route('addresses.destroy', $addr) }}" method="POST" class="m-0" onsubmit="return confirm('Hapus alamat ini?')">
+                    <form action="{{ route('addresses.destroy', $addr) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this address?')">
                     @csrf @method('DELETE')
                     <button type="submit" class="text-[10px] font-mono uppercase tracking-widest text-rose-400 hover:text-rose-500 transition-colors border border-rose-200/50 dark:border-rose-500/20 hover:border-rose-400 px-3 py-1.5 rounded-lg">
-                        <i class="fas fa-trash mr-1"></i> Hapus
+                        <i class="fas fa-trash mr-1"></i> Delete
                     </button>
                 </form>
             </div>
@@ -79,17 +79,17 @@
             <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-map-marker-alt text-slate-300 dark:text-zinc-600 text-xl"></i>
             </div>
-            <p class="text-sm text-slate-400 dark:text-zinc-500">Belum ada alamat tersimpan.</p>
-            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Tambahkan alamat pengiriman untuk mempercepat proses checkout.</p>
+            <p class="text-sm text-slate-400 dark:text-zinc-500">No saved addresses.</p>
+            <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Add a shipping address to speed up the checkout process.</p>
         </div>
         @endforelse
     </div>
 
     <!-- Tombol Tambah Alamat -->
     <div class="reveal">
-        <button onclick="document.getElementById('addModal').classList.remove('hidden')"
+            <button onclick="document.getElementById('addModal').classList.remove('hidden')"
                 class="flex items-center gap-2 px-6 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs tracking-widest uppercase hover:bg-amber-500 dark:hover:bg-amber-400 transition-all shadow-lg">
-            <i class="fas fa-plus"></i> Tambah Alamat Baru
+                <i class="fas fa-plus"></i> Add New Address
         </button>
     </div>
 </div>
@@ -99,7 +99,7 @@
     <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div class="p-6 sm:p-8">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Tambah Alamat Baru</h3>
+                <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Add New Address</h3>
                 <button onclick="document.getElementById('addModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
                     <i class="fas fa-times text-lg"></i>
                 </button>
@@ -108,8 +108,8 @@
                 @csrf
                 @include('addresses._form', ['address' => null, 'provinces' => $provinces])
                 <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Simpan</button>
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Batal</button>
+                    <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Save</button>
+                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
                 </div>
             </form>
         </div>
@@ -121,7 +121,7 @@
     <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         <div class="p-6 sm:p-8">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Edit Alamat</h3>
+                <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Edit Address</h3>
                 <button onclick="document.getElementById('editModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
                     <i class="fas fa-times text-lg"></i>
                 </button>
@@ -130,8 +130,8 @@
                 @csrf @method('PUT')
                 @include('addresses._form', ['address' => null, 'provinces' => $provinces, 'prefix' => 'edit_'])
                 <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Perbarui</button>
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Batal</button>
+                    <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Update</button>
+                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
                 </div>
             </form>
         </div>
@@ -167,7 +167,7 @@ function openEditModal(id) {
         fetch(`/api/cities/${addr.province_id}`)
             .then(r => r.json())
             .then(cities => {
-                citySel.innerHTML = '<option value="">-- Pilih Kota --</option>';
+                citySel.innerHTML = '<option value="">-- Select City --</option>';
                 cities.forEach(c => {
                     citySel.innerHTML += `<option value="${c.id}" ${c.id == addr.city_id ? 'selected' : ''}>${c.name}</option>`;
                 });
@@ -190,12 +190,12 @@ document.querySelector('[name="edit_province_id"]')?.addEventListener('change', 
 });
 
 function loadCities(provinceId, citySelect, cityHidden) {
-    if (!provinceId) { citySelect.innerHTML = '<option value="">-- Pilih Kota --</option>'; return; }
+    if (!provinceId) { citySelect.innerHTML = '<option value="">-- Select City --</option>'; return; }
     citySelect.innerHTML = '<option>Loading...</option>';
     fetch(`/api/cities/${provinceId}`)
         .then(r => r.json())
         .then(cities => {
-            citySelect.innerHTML = '<option value="">-- Pilih Kota/Kabupaten --</option>';
+            citySelect.innerHTML = '<option value="">-- Select City/District --</option>';
             cities.forEach(c => {
                 citySelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
             });

@@ -1,4 +1,37 @@
 <header id="navbar" class="fixed w-full z-40 top-0 transition-all duration-300 py-4 sm:py-5 px-4 sm:px-8 bg-transparent" style="pointer-events: auto;">
+    <style>
+        /* Smooth mobile menu collapse/expand */
+        .mobile-menu {
+            overflow: hidden;
+            transition: max-height 320ms cubic-bezier(.2,.9,.2,1), opacity 250ms ease, padding 250ms ease;
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .mobile-menu.mobile-menu-open {
+            max-height: 1000px; /* large enough for content */
+            opacity: 1;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        /* Profile dropdown: click-to-toggle (works on mobile) */
+        .profile-dropdown {
+            transform-origin: top right;
+            transform: translateY(-6px) scale(.98);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: transform 180ms ease, opacity 180ms ease, visibility 180ms;
+        }
+        .profile-dropdown.open {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+    </style>
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
         <!-- Logo -->
         <a href="{{ route('home') }}" class="shrink-0 text-2xl font-serif tracking-widest uppercase hover:scale-105 transition-transform duration-300">
@@ -60,8 +93,8 @@
 
             <!-- User Profile / Auth Section -->
             @auth
-                <div class="relative group ml-1">
-                    <button type="button" class="flex items-center gap-2 focus:outline-none hover:text-amber-500 transition-colors px-2 py-1.5 rounded-xl">
+                <div class="relative ml-1" data-profile-wrapper id="profile-menu-wrapper">
+                    <button type="button" onclick="toggleProfileDropdown(event)" aria-expanded="false" aria-controls="profile-dropdown-menu" class="flex items-center gap-2 focus:outline-none hover:text-amber-500 transition-colors px-2 py-1.5 rounded-xl">
                         @if(Auth::user()->profile_picture)
                             <img src="{{ asset('images/' . Auth::user()->profile_picture) }}" alt="Profile" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 dark:border-white/10 object-cover shadow-sm transition-transform group-hover:scale-105 shrink-0">
                         @else
@@ -74,21 +107,21 @@
                     </button>
                     
                     <!-- Dropdown Menu Profil -->
-                    <div class="absolute right-0 top-full w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pt-2">
+                    <div id="profile-dropdown-menu" class="absolute right-0 top-full w-56 profile-dropdown z-50 pt-2" role="menu">
                         <div class="bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-2">
                             
                             <!-- Header Info -->
                             <div class="px-3 py-3 border-b border-slate-100 dark:border-white/5 mb-2">
-                                <p class="text-[10px] uppercase font-mono text-slate-400 dark:text-zinc-500">Masuk sebagai</p>
+                                <p class="text-[10px] uppercase font-mono text-slate-400 dark:text-zinc-500">Signed in as</p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-white truncate mt-0.5">{{ Auth::user()->name }}</p>
                             </div>
                             
                             <a href="{{ route('profile') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-300 hover:text-amber-500">
-                                <i class="far fa-user w-4 text-center"></i> Profil Saya
+                                <i class="far fa-user w-4 text-center"></i> My Profile
                             </a>
                             
                             <a href="{{ route('addresses.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-300 hover:text-amber-500">
-                                <i class="fas fa-map-marker-alt w-4 text-center"></i> Alamat Saya
+                                <i class="fas fa-map-marker-alt w-4 text-center"></i> My Addresses
                             </a>
                             
                             @if(Auth::user()->role === 'admin')
@@ -102,7 +135,7 @@
                             <form action="{{ route('logout') }}" method="POST" class="m-0">
                                 @csrf
                                 <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors text-left">
-                                    <i class="fas fa-sign-out-alt w-4 text-center"></i> Keluar
+                                    <i class="fas fa-sign-out-alt w-4 text-center"></i> Sign Out
                                 </button>
                             </form>
                         </div>
@@ -122,8 +155,8 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden mt-3 bg-white/95 dark:bg-darkbg/95 backdrop-blur-xl border border-slate-200 dark:border-white/5 py-5 px-5 space-y-1 rounded-2xl shadow-2xl">
-        <a href="{{ route('home') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Beranda</a>
+    <div id="mobile-menu" class="mobile-menu mobile-menu-collapsed md:hidden mt-3 bg-white/95 dark:bg-darkbg/95 backdrop-blur-xl border border-slate-200 dark:border-white/5 px-5 space-y-1 rounded-2xl shadow-2xl" aria-hidden="true">
+        <a href="{{ route('home') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Home</a>
         <a href="{{ route('shop') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Shop</a>
         <a href="{{ route('brands.index') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Brands</a>
         <a href="{{ route('stores.index') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Stores</a>
@@ -141,16 +174,16 @@
                     </div>
                 @endif
                 <div class="min-w-0">
-                    <p class="text-[10px] uppercase font-mono text-slate-400 dark:text-zinc-500">Masuk sebagai</p>
+                    <p class="text-[10px] uppercase font-mono text-slate-400 dark:text-zinc-500">Signed in as</p>
                     <p class="font-bold text-sm text-slate-900 dark:text-white truncate">{{ Auth::user()->name }}</p>
                 </div>
             </div>
             
-            <a href="{{ route('profile') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
-                <i class="far fa-user w-4 text-center text-slate-400"></i> Profil Saya
+                <a href="{{ route('profile') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
+                <i class="far fa-user w-4 text-center text-slate-400"></i> My Profile
             </a>
             <a href="{{ route('addresses.index') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
-                <i class="fas fa-map-marker-alt w-4 text-center text-slate-400"></i> Alamat Saya
+                <i class="fas fa-map-marker-alt w-4 text-center text-slate-400"></i> My Addresses
             </a>
             @if(Auth::user()->role === 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
@@ -161,7 +194,7 @@
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="w-full flex items-center gap-3 font-medium text-sm text-rose-500 hover:text-rose-600 transition-colors py-2.5 px-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-500/10 text-left">
-                    <i class="fas fa-sign-out-alt w-4 text-center"></i> Keluar
+                    <i class="fas fa-sign-out-alt w-4 text-center"></i> Sign Out
                 </button>
             </form>
         @else

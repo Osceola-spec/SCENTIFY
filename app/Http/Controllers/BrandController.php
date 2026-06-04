@@ -32,7 +32,7 @@ class BrandController extends Controller
             'logo_url' => $logoPath,
         ]);
 
-        return redirect()->back()->with('success', 'Brand baru berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'New brand added successfully!');
     }
 
     // ========================================================
@@ -64,7 +64,7 @@ class BrandController extends Controller
         // Update data ke database
         $brand->update($data);
 
-        return redirect()->back()->with('success', 'Data brand berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Brand data updated successfully!');
     }
 
     // ========================================================

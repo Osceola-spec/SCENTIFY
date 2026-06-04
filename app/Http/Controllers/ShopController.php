@@ -245,7 +245,7 @@ class ShopController extends Controller
         // 3. Simpan Relasi Scent Notes
         $product->notes()->attach($request->notes);
         
-        return redirect()->route('shop')->with('success', 'Produk berhasil ditambahkan!');
+        return redirect()->route('shop')->with('success', 'Product successfully added!');
     }
     public function update(Request $request, Product $product)
     {
@@ -334,13 +334,13 @@ class ShopController extends Controller
         // 3. Update Scent Notes
         $product->notes()->sync($request->notes);
 
-        return redirect()->route('shop')->with('success', 'Produk berhasil diperbarui!');
+        return redirect()->route('shop')->with('success', 'Product successfully updated!');
     }
 
     public function destroy(Product $product)
     {
         if (auth()->user()?->role !== 'admin') {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus produk.');
+            return redirect()->back()->with('error', 'You do not have permission to delete this product.');
         }
 
         $product->delete();

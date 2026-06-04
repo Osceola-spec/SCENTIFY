@@ -21,6 +21,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\AdminBranchController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\ScentController;
 use App\Http\Controllers\MidtransNotificationController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AdminPromotionController;
@@ -39,6 +40,7 @@ Route::get('/stores', [BranchController::class, 'index'])->name('stores.index');
 
 // API Chatbot & Webhook Midtrans (Jangan diberi middleware auth)
 Route::post('/api/chatbot', [ChatbotController::class, 'chat']);
+Route::get('/api/scent-recommendations', [ScentController::class, 'recommendations']);
 Route::post('/midtrans/notification', [MidtransNotificationController::class, 'handle']);
 
 // Rute API Lokasi Wilayah (RajaOngkir) untuk Fetch AJAX Dropdown Halaman Checkout

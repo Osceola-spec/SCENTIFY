@@ -44,7 +44,7 @@ class ReviewController extends Controller
         ])->first();
 
         if ($existing) {
-            return response()->json(['message' => 'Anda sudah memberikan ulasan untuk produk ini.'], 409);
+            return response()->json(['message' => 'You have already reviewed this product.'], 409);
         }
 
         $review = Review::create([
@@ -57,7 +57,7 @@ class ReviewController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Ulasan berhasil disimpan!',
+            'message' => 'Review saved successfully!',
             'review'  => $review,
         ]);
     }

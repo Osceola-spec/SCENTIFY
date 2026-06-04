@@ -18,34 +18,34 @@
             <li><span class="mx-2">/</span></li>
             <li><a href="{{ route('shop') }}" class="hover:text-amber-500 transition-colors">Shop</a></li>
             <li><span class="mx-2">/</span></li>
-            <li class="text-amber-500 font-semibold">Keranjang</li>
+            <li class="text-amber-500 font-semibold">Cart</li>
         </ol>
     </nav>
 
-    <h1 class="text-3xl md:text-5xl font-serif mb-8 text-slate-950 dark:text-white reveal">Keranjang Belanja Anda</h1>
+    <h1 class="text-3xl md:text-5xl font-serif mb-8 text-slate-950 dark:text-white reveal">Your Shopping Cart</h1>
 
     @if (count($cart) > 0)
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div class="lg:col-span-8 space-y-6 reveal">
                 <div class="glass-card p-4 rounded-2xl flex items-center justify-between border border-slate-200 dark:border-white/5">
-                    <label class="flex items-center group cursor-pointer text-sm font-semibold text-slate-700 dark:text-zinc-300">
+                        <label class="flex items-center group cursor-pointer text-sm font-semibold text-slate-700 dark:text-zinc-300">
                         <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" checked
                                class="rounded border-slate-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-500 bg-transparent mr-3 w-5 h-5 transition-colors cursor-pointer">
-                        <span>Pilih Semua (<span id="total-items-count">{{ count($cart) }}</span> item)</span>
+                        <span>Select All (<span id="total-items-count">{{ count($cart) }}</span> items)</span>
                     </label>
                     <button onclick="confirmBulkDelete()" class="text-xs font-mono uppercase text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-1.5">
-                        <i class="fas fa-trash-alt text-xs"></i> Hapus Terpilih
+                        <i class="fas fa-trash-alt text-xs"></i> Remove Selected
                     </button>
                 </div>
 
                 <div class="glass-card rounded-3xl border border-slate-200 dark:border-white/5 shadow-lg overflow-hidden">
                     
                     <div class="hidden sm:grid grid-cols-12 gap-4 px-6 py-4 bg-slate-50 dark:bg-zinc-800/50 border-b border-slate-200 dark:border-white/5 text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 font-bold items-center">
-                        <div class="col-span-5 pl-2">Produk</div>
-                        <div class="col-span-2 text-center">Harga Satuan</div>
-                        <div class="col-span-2 text-center">Kuantitas</div>
+                        <div class="col-span-5 pl-2">Product</div>
+                        <div class="col-span-2 text-center">Unit Price</div>
+                        <div class="col-span-2 text-center">Quantity</div>
                         <div class="col-span-2 text-right">Total</div>
-                        <div class="col-span-1 text-right">Aksi</div>
+                        <div class="col-span-1 text-right">Actions</div>
                     </div>
 
                     <div class="divide-y divide-slate-200 dark:divide-white/5">
@@ -71,7 +71,7 @@
                                             <h4 class="text-sm font-serif font-bold text-slate-900 dark:text-white mt-0.5 truncate">
                                                 {{ $item['product_name'] }}
                                             </h4>
-                                            <p class="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">Ukuran: <span class="font-semibold">{{ $item['size'] }}</span></p>
+                                            <p class="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">Size: <span class="font-semibold">{{ $item['size'] }}</span></p>
                                         </div>
                                     </div>
                                 </div>
@@ -145,29 +145,29 @@
 
             <div class="lg:col-span-4 reveal">
                 <div class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-white/5 shadow-2xl lg:sticky lg:top-28">
-                    <h3 class="font-serif text-xl font-semibold tracking-wide mb-6 pb-4 border-b border-slate-200 dark:border-white/10">Ringkasan Belanja</h3>
+                    <h3 class="font-serif text-xl font-semibold tracking-wide mb-6 pb-4 border-b border-slate-200 dark:border-white/10">Order Summary</h3>
 
                     <div class="space-y-4">
                         <div class="flex justify-between items-center text-sm">
-                            <span class="text-slate-500 dark:text-zinc-400">Terpilih (<span id="selected-count">0</span> unit)</span>
+                            <span class="text-slate-500 dark:text-zinc-400">Selected (<span id="selected-count">0</span> items)</span>
                             <span id="selected-subtotal" class="font-bold text-slate-900 dark:text-white">Rp 0</span>
                         </div>
 
                         @if($totalDiscount > 0)
                         <div class="flex justify-between items-center text-sm">
                             <span class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                                <i class="fas fa-tag text-xs"></i> Hemat Diskon
+                                <i class="fas fa-tag text-xs"></i> Discount
                             </span>
                             <span id="discount-amount" class="font-bold text-emerald-600 dark:text-emerald-400">- Rp {{ number_format($totalDiscount, 0, ',', '.') }}</span>
                         </div>
                         @endif
 
                         <div class="text-[11px] text-slate-400 dark:text-zinc-500 italic pb-6 border-b border-slate-200 dark:border-white/10 leading-relaxed">
-                            * Biaya pengiriman dan pajak akan dihitung secara detail pada halaman penyelesaian checkout.
+                            * Shipping and taxes will be calculated in detail on the checkout page.
                         </div>
 
                         <div class="flex justify-between items-center pt-4">
-                            <h5 class="font-serif text-lg font-bold text-slate-900 dark:text-white">Estimasi Total</h5>
+                            <h5 class="font-serif text-lg font-bold text-slate-900 dark:text-white">Estimated Total</h5>
                             <h4 id="estimated-total" class="text-2xl font-black text-amber-600 dark:text-amber-400">Rp 0</h4>
                         </div>
                     </div>
@@ -175,12 +175,12 @@
                     <div class="mt-8 space-y-3 relative z-50">
                         <button type="button" id="checkoutBtn" onclick="submitCheckout()"
                            class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 shadow-lg active:scale-95 transition-all cursor-pointer">
-                            Lanjutkan ke Checkout
+                            Proceed to Checkout
                         </button>
                         
                         <a href="{{ route('shop') }}"
                            class="block w-full text-center py-4 font-semibold text-xs tracking-widest uppercase border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-700 dark:text-zinc-300 rounded-xl hover:bg-white dark:hover:bg-zinc-900 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500 dark:hover:border-amber-400 transition-all cursor-pointer shadow-sm">
-                            Belanja Lagi
+                            Continue Shopping
                         </a>
                     </div>
                 </div>
@@ -191,10 +191,10 @@
             <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-6 text-slate-400 shadow-inner">
                 <i class="fas fa-shopping-bag text-2xl"></i>
             </div>
-            <h3 class="font-serif text-xl sm:text-2xl font-bold">Keranjang Anda masih kosong</h3>
-            <p class="text-xs sm:text-sm text-slate-400 dark:text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">Temukan aroma tanda tangan dan karakter unik Anda di seluruh katalog terbaik kami.</p>
+            <h3 class="font-serif text-xl sm:text-2xl font-bold">Your cart is empty</h3>
+            <p class="text-xs sm:text-sm text-slate-400 dark:text-zinc-500 mt-2 max-w-sm mx-auto leading-relaxed">Discover your signature scent across our curated catalog.</p>
             <a href="{{ route('shop') }}" class="inline-block mt-8 px-8 py-4 font-semibold text-xs tracking-widest uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/15">
-                Mulai Belanja
+                Start Shopping
             </a>
         </div>
     @endif
@@ -308,14 +308,14 @@
 
     function confirmItemDelete(cartId, productName) {
         Swal.fire({
-            title: 'Keluarkan dari Keranjang?',
-            text: `Apakah Anda yakin ingin menghapus produk '${productName}' dari daftar keranjang?`,
+            title: 'Remove from Cart?',
+            text: `Are you sure you want to remove '${productName}' from your cart?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ff2a5f',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Hapus',
-            cancelButtonText: 'Batal',
+            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Remove',
+            cancelButtonText: 'Cancel',
             reverseButtons: true,
             customClass: {
                 popup: 'rounded-[1.5rem] dark-swal shadow-2xl',
@@ -343,8 +343,8 @@
         if (selectedIds.length === 0) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Tidak ada item terpilih',
-                text: 'Pilih minimal satu parfum menggunakan kotak centang terlebih dahulu.',
+                title: 'No items selected',
+                text: 'Please select at least one product using the checkboxes first.',
                 confirmButtonColor: '#f59e0b',
                 customClass: { popup: 'rounded-[1.5rem] dark-swal shadow-2xl' }
             });
@@ -352,14 +352,14 @@
         }
 
         Swal.fire({
-            title: 'Hapus Item Terpilih?',
-            text: `Anda akan menghapus ${selectedIds.length} jenis produk dari keranjang secara massal.`,
+            title: 'Remove Selected Items?',
+            text: `You will remove ${selectedIds.length} item(s) from your cart.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ff2a5f',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus Semua!',
-            cancelButtonText: 'Batal',
+            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, Remove All!',
+            cancelButtonText: 'Cancel',
             reverseButtons: true,
             customClass: {
                 popup: 'rounded-[1.5rem] dark-swal shadow-2xl',

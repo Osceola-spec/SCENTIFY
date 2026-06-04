@@ -29,10 +29,25 @@ class ChatbotController extends Controller
             }
 
             // 2. Tarik produk BERSERTA relasi varian dan brand
-            $products = Product::with(['variants', 'brand'])
-                ->whereNotNull('search_context')
-                ->where('search_context', '!=', '')
-                ->get();
+            $products = Product::with(['variants', 'brand', 'notes'])->get();
+
+            // Ensure every product has a usable in-memory search_context (do not force-save)
+            foreach ($products as $p) {
+                if (empty($p->search_context)) {
+                    // Build a lightweight context from available fields
+                    $brandName = $p->brand ? $p->brand->name : 'Scentify';
+                    $variantParts = [];
+                    if ($p->variants && $p->variants->count() > 0) {
+                        foreach ($p->variants as $v) {
+                            $variantParts[] = "{$v->size}ml priced Rp " . number_format($v->price, 0, ',', '.');
+                        }
+                    }
+                    $notes = $p->notes ? $p->notes->pluck('name')->toArray() : [];
+                    $notesStr = $notes ? 'Notes: ' . implode(', ', $notes) . '.' : '';
+                    $variantsStr = count($variantParts) ? ' Varian: ' . implode(', ', $variantParts) . '.' : '';
+                    $p->search_context = "Produk: {$p->name}. Brand: {$brandName}. Kategori: {$p->category}. Deskripsi: {$p->description}. {$notesStr}{$variantsStr}";
+                }
+            }
 
             $topProducts = collect();
 
@@ -74,8 +89,8 @@ class ChatbotController extends Controller
                             foreach ($products as $index => $product) {
                                 $product->similarity_score = $scores[$index] ?? 0;
                             }
-                            // Ambil 3 produk yang maknanya paling relevan
-                            $vectorMatches = $products->sortByDesc('similarity_score')->take(3);
+                            // Ambil 10 produk yang maknanya paling relevan
+                            $vectorMatches = $products->sortByDesc('similarity_score')->take(10);
                         }
                     }
                 } catch (\Exception $e) {

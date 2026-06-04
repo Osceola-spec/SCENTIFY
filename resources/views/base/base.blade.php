@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth dark">
+<html lang="id" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -24,7 +24,11 @@
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
             } else {
+                // Default: light mode — hapus dark jika ada
                 document.documentElement.classList.remove('dark');
+                if (!theme) {
+                    localStorage.setItem('theme', 'light');
+                }
             }
         })();
     </script>
@@ -241,16 +245,30 @@
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
         }
 
+        /* Chatbot window tertutup: tidak ada area klik tersembunyi */
         #chatbot-window.chatbot-closed {
             transform: scale(0.85) translateY(12px);
             opacity: 0;
-            pointer-events: none;
+            pointer-events: none !important;
+            visibility: hidden;
+            z-index: -1;
+            display: none; /* ensure closed window doesn't occupy/cover touch area on mobile */
         }
 
         #chatbot-window.chatbot-open {
             transform: scale(1) translateY(0);
             opacity: 1;
             pointer-events: all;
+            visibility: visible;
+            display: block;
+        }
+
+        /* Di mobile, pastikan tombol chatbot tidak terlalu besar */
+        @media (max-width: 640px) {
+            #chatbot-widget {
+                bottom: 1.25rem;
+                right: 1rem;
+            }
         }
     </style>
 </head>
@@ -267,9 +285,11 @@
     <div id="cursor-glow" class="fixed top-0 left-0 w-80 h-80 bg-amber-500/20 dark:bg-amber-500/30 rounded-full blur-[80px] pointer-events-none z-0 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block mix-blend-multiply dark:mix-blend-screen transition-opacity duration-300"></div>
 
     <!-- AI Chatbot Floating Widget -->
-    <div id="chatbot-widget" class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <!-- AI Chatbot Floating Widget -->
+    <div id="chatbot-widget" class="fixed bottom-6 right-4 sm:right-6 z-40 flex flex-col items-end gap-3">
+        
         <!-- Chat Window -->
-        <div id="chatbot-window" class="chatbot-closed w-[340px] sm:w-[380px] bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="max-height: 520px;">
+        <div id="chatbot-window" class="chatbot-closed w-[calc(100vw-2rem)] sm:w-[380px] bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="max-height: 520px;">
             <!-- Header -->
             <div class="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 shrink-0">
                 <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -309,9 +329,10 @@
         </div>
 
         <!-- Toggle Button -->
-        <button onclick="toggleChatbot()" class="w-14 h-14 rounded-full bg-white dark:bg-zinc-800 shadow-xl hover:scale-110 transition-transform duration-300 flex items-center justify-center relative group animate-pulse-slow border border-amber-200 dark:border-amber-500/30">
-            <i id="chatbot-icon" class="fas fa-robot text-amber-500 text-xl"></i>
-            <span class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white dark:border-darkcard pulse-ring"></span>
+        <button onclick="toggleChatbot()" id="chatbot-toggle-btn"
+            class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white dark:bg-zinc-800 shadow-xl hover:scale-110 transition-transform duration-300 flex items-center justify-center relative group animate-pulse-slow border border-amber-200 dark:border-amber-500/30">
+            <i id="chatbot-icon" class="fas fa-robot text-amber-500 text-lg sm:text-xl"></i>
+            <span class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-400 rounded-full border-2 border-white dark:border-darkcard pulse-ring"></span>
         </button>
     </div>
 
@@ -349,48 +370,26 @@
             }
         });
 
-        const scentData = {
-            woody: {
-                badge: "Woody Recommendation",
-                title: "Golden Amber",
-                desc: "Sempurna untuk mereka yang menyukai aroma alam yang dalam. Memancarkan aura kebijaksanaan, kehangatan yang bersahaja, serta impresi ketenangan berkelas berkat racikan cedarwood, vetiver, dan premium amber.",
-                price: "Rp 425.000",
-                color: "#f59e0b",
-                top: "Lemon, Bergamot",
-                heart: "Rosewood, Nutmeg",
-                base: "Amber, Cedarwood"
-            },
-            floral: {
-                badge: "Floral & Sweet Recommendation",
-                title: "Velvet Rose",
-                desc: "Aroma anggun yang mengekspresikan sisi romantis dan kelembutan sensual. Campuran mawar segar pegunungan, jasmine, serta musk lembut memberikan kesan bersih, mewah, dan memikat sepanjang hari.",
-                price: "Rp 295.000",
-                color: "#ec4899",
-                top: "Mountain Rose, Peony",
-                heart: "Jasmine, Lily of Valley",
-                base: "White Musk, Vanilla Orchid"
-            },
-            citrus: {
-                badge: "Citrus & Sporty Recommendation",
-                title: "Ocean Breeze",
-                desc: "Sensasi kesegaran tiada tara bagi jiwa yang aktif dan penuh energi. Ledakan citrus bergamot, mint dingin, serta aroma angin laut segar yang bersih, memberikan rasa percaya diri instan pasca-olahraga.",
-                price: "Rp 375.000",
-                color: "#10b981",
-                top: "Siberian Mint, Sea Salt",
-                heart: "Lemon, Eucalyptus",
-                base: "Amberwood, Vetiver"
-            },
-            oriental: {
-                badge: "Oriental & Exotic Recommendation",
-                title: "Oud Royale",
-                desc: "Simbol kemewahan malam hari yang misterius dan penuh intrik. Diracik khusus menggunakan gaharu (oud) langka Timur Tengah yang intens, dibungkus secara manis oleh madu hitam dan kapulaga eksotis.",
-                price: "Rp 850.000",
-                color: "#8b5cf6",
-                top: "Black Honey, Cardamom",
-                heart: "Incense, Saffron",
-                base: "Aged Oud, Sandalwood"
-            }
+        // Default (fallback) scent data used while API loads or when it fails
+        let scentData = {
+            woody: { badge: "Woody Recommendation", title: "Golden Amber", desc: "Warm woody notes.", price: "-", color: "#f59e0b", top: "", heart: "", base: "" },
+            floral: { badge: "Floral & Sweet Recommendation", title: "Velvet Rose", desc: "Soft floral bouquet.", price: "-", color: "#ec4899", top: "", heart: "", base: "" },
+            citrus: { badge: "Citrus & Sporty Recommendation", title: "Ocean Breeze", desc: "Fresh citrusy accord.", price: "-", color: "#10b981", top: "", heart: "", base: "" },
+            oriental: { badge: "Oriental & Exotic Recommendation", title: "Oud Royale", desc: "Deep oriental resin.", price: "-", color: "#8b5cf6", top: "", heart: "", base: "" }
         };
+
+        // Try to fetch real recommendations from backend
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/scent-recommendations')
+                .then(r => r.ok ? r.json() : Promise.reject(r))
+                .then(data => {
+                    // merge returned data into scentData
+                    for (const key of Object.keys(data)) {
+                        scentData[key] = Object.assign({}, scentData[key], data[key]);
+                    }
+                })
+                .catch(err => console.warn('Scent recommendations API failed:', err));
+        });
 
         function setScentMood(mood) {
             if(!document.getElementById('scent-result-card')) return;
@@ -451,9 +450,17 @@
             const html = document.documentElement;
             html.classList.toggle('dark');
             const isDark = html.classList.contains('dark');
-            localStorage.theme = isDark ? 'dark' : 'light';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
             applyVariables(isDark);
         }
+
+        // Terapkan variabel CSS sesuai theme saat ini saat halaman pertama kali load
+        (function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (!isDark) {
+                document.body.classList.add('light-vars');
+            }
+        })();
 
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
@@ -521,11 +528,54 @@
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             const icon = document.getElementById('menu-icon');
-            if(menu && icon) {
-                menu.classList.toggle('hidden');
-                icon.className = menu.classList.contains('hidden') ? 'fas fa-bars' : 'fas fa-times';
+            if (!menu || !icon) return;
+
+            const isOpen = menu.classList.contains('mobile-menu-open');
+            if (isOpen) {
+                // close
+                menu.classList.remove('mobile-menu-open');
+                menu.classList.add('mobile-menu-collapsed');
+                menu.setAttribute('aria-hidden', 'true');
+                icon.className = 'fas fa-bars';
+            } else {
+                // open
+                menu.classList.remove('mobile-menu-collapsed');
+                menu.classList.add('mobile-menu-open');
+                menu.setAttribute('aria-hidden', 'false');
+                icon.className = 'fas fa-times';
             }
         }
+
+        function toggleProfileDropdown(event) {
+            event.preventDefault();
+            const wrapper = event.currentTarget.closest('[data-profile-wrapper]');
+            if (!wrapper) return;
+            const menu = wrapper.querySelector('.profile-dropdown');
+            if (!menu) return;
+            const isOpen = menu.classList.contains('open');
+            if (isOpen) {
+                menu.classList.remove('open');
+                wrapper.classList.remove('profile-open');
+                event.currentTarget.setAttribute('aria-expanded', 'false');
+            } else {
+                menu.classList.add('open');
+                wrapper.classList.add('profile-open');
+                event.currentTarget.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const openDropdown = document.querySelector('.profile-dropdown.open');
+            if (!openDropdown) return;
+            const wrapper = openDropdown.closest('[data-profile-wrapper]');
+            if (wrapper && !wrapper.contains(e.target)) {
+                openDropdown.classList.remove('open');
+                wrapper.classList.remove('profile-open');
+                const btn = wrapper.querySelector('button');
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            }
+        });
 
         const navbar = document.getElementById('navbar');
         const scrollProgress = document.getElementById('scroll-progress');
@@ -770,19 +820,30 @@
 
     <script>
         function toggleChatbot() {
-            const win = document.getElementById('chatbot-window');
-            const icon = document.getElementById('chatbot-icon');
+            const win     = document.getElementById('chatbot-window');
+            const icon    = document.getElementById('chatbot-icon');
+            const widget  = document.getElementById('chatbot-widget');
             const isClosed = win.classList.contains('chatbot-closed');
-            
+
             if (isClosed) {
                 win.classList.remove('chatbot-closed');
                 win.classList.add('chatbot-open');
-                icon.className = 'fas fa-times text-amber-500 text-xl';
-                setTimeout(() => document.getElementById('chatbot-input').focus(), 300);
+                icon.className = 'fas fa-times text-amber-500 text-lg sm:text-xl';
+
+                // Naikkan z-index saat terbuka
+                widget.style.zIndex = '9999';
+
+                setTimeout(() => {
+                    const input = document.getElementById('chatbot-input');
+                    if (input) input.focus();
+                }, 300);
             } else {
                 win.classList.remove('chatbot-open');
                 win.classList.add('chatbot-closed');
-                icon.className = 'fas fa-robot text-amber-500 text-xl';
+                icon.className = 'fas fa-robot text-amber-500 text-lg sm:text-xl';
+
+                // Turunkan z-index saat tertutup agar tidak menghalangi
+                widget.style.zIndex = '40';
             }
         }
 

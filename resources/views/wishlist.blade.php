@@ -24,7 +24,7 @@
                         <img src="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                              alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         
-                        <button type="button" onclick="removeFromWishlist('{{ $product->id }}')" class="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white hover:bg-rose-600 flex items-center justify-center transition-all shadow-md z-20 focus:outline-none" title="Hapus dari Wishlist">
+                        <button type="button" data-remove-wishlist="{{ $product->id }}" class="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white hover:bg-rose-600 flex items-center justify-center transition-all shadow-md z-20 focus:outline-none" title="Hapus dari Wishlist">
                             <i class="fas fa-times text-[10px] sm:text-xs"></i>
                         </button>
                     </div>
@@ -87,12 +87,13 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
             }
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'removed') {
+                if (data.status === 'removed') {
                 // Animasi GSAP Card menyusut dan hilang
                 const card = document.getElementById(`wishlist-item-${productId}`);
                 gsap.to(card, {
@@ -106,7 +107,11 @@
                         const badge = document.getElementById('wishlist-badge');
                         if (badge) {
                             badge.innerText = data.count;
-                            if (data.count === 0) badge.classList.add('opacity-0');
+                            if (data.count === 0) {
+                                badge.classList.add('opacity-0');
+                            } else {
+                                badge.classList.remove('opacity-0');
+                            }
                         }
 
                         // Jika kartu habis, refresh halaman agar gambar "Kosong" muncul
@@ -126,5 +131,14 @@
         })
         .catch(error => console.error('Error:', error));
     }
+
+    // Delegate clicks to handle desktop cases where inline onclick may be blocked
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-remove-wishlist]');
+        if (!btn) return;
+        e.preventDefault();
+        const productId = btn.getAttribute('data-remove-wishlist');
+        if (productId) removeFromWishlist(productId);
+    });
 </script>
 @endsection

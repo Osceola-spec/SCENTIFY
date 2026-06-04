@@ -20,10 +20,10 @@
             <div>
                 <span
                     class="text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Discovery</span>
-                <h1 class="text-3xl md:text-5xl font-serif mt-1 text-slate-950 dark:text-white">Semua Parfum</h1>
+                <h1 class="text-3xl md:text-5xl font-serif mt-1 text-slate-950 dark:text-white">All Perfumes</h1>
                 <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-2">
-                    Menampilkan {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} dari
-                    {{ $products->total() }} produk terpilih
+                    Showing {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} of
+                    {{ $products->total() }} selected products
                 </p>
             </div>
 
@@ -31,7 +31,7 @@
                 class="flex flex-col sm:flex-row items-center justify-between lg:justify-end gap-3 sm:gap-4 w-full lg:w-auto">
                 <div class="relative w-full sm:w-56 md:w-64 order-1 sm:order-none">
                     <input type="text" name="search" form="filterForm" value="{{ request('search') }}"
-                        placeholder="Cari nama parfum..."
+                        placeholder="Search perfume name..."
                         class="w-full appearance-none bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 rounded-full pl-10 pr-4 py-2.5 text-xs font-semibold focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all text-slate-800 dark:text-zinc-300 shadow-sm placeholder-slate-400 dark:placeholder-zinc-500">
                     <button type="submit" form="filterForm"
                         class="absolute inset-y-0 left-0 pl-3.5 pr-2 flex items-center text-slate-400 hover:text-amber-500 transition-colors focus:outline-none">
@@ -47,16 +47,14 @@
 
                     <div class="flex items-center gap-3">
                         <label for="sortSelect"
-                            class="text-xs font-mono uppercase text-slate-400 hidden sm:inline-block">Urutkan:</label>
+                            class="text-xs font-mono uppercase text-slate-400 hidden sm:inline-block">Sort:</label>
                         <div class="relative">
                             <select name="sort" form="filterForm" id="sortSelect"
                                 onchange="document.getElementById('filterForm').submit()"
                                 class="appearance-none bg-white dark:bg-darkcard border border-slate-200 dark:border-white/10 rounded-full px-6 py-2.5 pr-10 text-xs font-semibold focus:outline-none focus:border-amber-500 transition-all text-slate-800 dark:text-zinc-300 shadow-sm cursor-pointer">
-                                <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
-                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Harga:
-                                    Rendah ke Tinggi</option>
-                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Harga:
-                                    Tinggi ke Rendah</option>
+                                <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Latest</option>
+                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-slate-400">
                                 <i class="fas fa-chevron-down text-[10px]"></i>
@@ -333,7 +331,7 @@
                                     @if (auth()->check() && auth()->user()->role === 'admin')
                                         <a href="{{ route('products.edit', $product->id) }}"
                                             class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
-                                            title="Edit Produk">
+                                            title="Edit Product">
                                             <i class="fas fa-edit"></i> Edit
                                         </a>
 
@@ -345,14 +343,14 @@
                                             <button type="button"
                                                 onclick="confirmDelete('{{ $product->id }}', '{{ $product->name }}')"
                                                 class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-rose-500 hover:bg-rose-600 text-white rounded-full transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
-                                                title="Hapus Produk">
-                                                <i class="fas fa-trash"></i> Hapus
+                                                title="Delete Product">
+                                                <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </form>
                                     @else
                                         <button type="button" onclick="toggleWishlist(this, event, {{ $product->id }})"
                                             class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors shadow-sm focus:outline-none"
-                                            title="Tambah/Hapus Wishlist">
+                                            title="Add/Remove Wishlist">
                                             <i
                                                 class="{{ in_array($product->id, $wishlistedProductIds ?? []) ? 'fas text-rose-500' : 'far' }} fa-heart text-[10px] sm:text-xs transition-transform duration-300"></i>
                                         </button>
@@ -371,34 +369,34 @@
                                                     data-reviews="{{ json_encode(
                                                         $product->reviews->map(
                                                             fn($r) => [
-                                                                'rating' => $r->rating,
-                                                                'comment' => $r->comment,
-                                                                'date' => $r->created_at->format('d M Y'),
-                                                                'user_name' => $r->user->name ?? 'Pelanggan Scentify',
-                                                            ],
+                                                                    'rating' => $r->rating,
+                                                                    'comment' => $r->comment,
+                                                                    'date' => $r->created_at->format('d M Y'),
+                                                                    'user_name' => $r->user->name ?? 'Scentify Customer',
+                                                                ],
                                                         ),
                                                     ) }}">
-                                                    <i class="fas fa-cart-plus"></i> Beli
+                                                    <i class="fas fa-cart-plus"></i> Buy
                                                 </button>
                                             @else
                                                 <a href="{{ route('login') }}"
                                                     class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
                                                     onclick="event.preventDefault(); showLoginAlert(this.href)">
-                                                    <i class="fas fa-cart-plus"></i> Beli
+                                                    <i class="fas fa-cart-plus"></i> Buy
                                                 </a>
                                             @endauth
                                         @else
                                             <button
                                                 class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5"
                                                 disabled>
-                                                <i class="fas fa-times-circle"></i> Habis
+                                                <i class="fas fa-times-circle"></i> Sold Out
                                             </button>
                                         @endif
 
                                         <button type="button"
                                             onclick="shareProduct('{{ addslashes($product->name) }}', event)"
                                             class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm focus:outline-none"
-                                            title="Bagikan Produk">
+                                            title="Share Product">
                                             <i class="fas fa-share-nodes text-[10px] sm:text-xs"></i>
                                         </button>
                                     @endif
@@ -411,8 +409,8 @@
                                 class="w-16 h-16 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-4 text-slate-400">
                                 <i class="fas fa-box-open text-xl"></i>
                             </div>
-                            <h3 class="font-serif text-lg">Tidak ada produk yang sesuai.</h3>
-                            <p class="text-xs text-slate-400 mt-1">Coba gunakan kata kunci lain atau kurangi filter Anda.
+                            <h3 class="font-serif text-lg">No products found.</h3>
+                            <p class="text-xs text-slate-400 mt-1">Try different keywords or loosen your filters.
                             </p>
                         </div>
                     @endforelse
@@ -484,14 +482,14 @@
 
                             <div id="variantNotice"
                                 class="mt-4 text-xs text-rose-500 flex items-center gap-1.5 font-medium">
-                                <i class="fas fa-exclamation-circle"></i> Pilih salah satu varian terlebih dahulu.
+                                <i class="fas fa-exclamation-circle"></i> Please select a variant first.
                             </div>
                         </div>
 
                         <div class="border-t border-slate-200 dark:border-white/5 mt-8 pt-6">
                             <h5
                                 class="text-sm font-serif font-bold text-slate-950 dark:text-white mb-4 flex items-center gap-2">
-                                <i class="fas fa-star text-amber-500 text-xs"></i> Ulasan Pelanggan (<span
+                                <i class="fas fa-star text-amber-500 text-xs"></i> Customer Reviews (<span
                                     id="modalReviewCount">0</span>)
                             </h5>
                             <div id="modalReviewsList" class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
@@ -501,11 +499,11 @@
                         <div class="grid grid-cols-2 gap-3 mt-8">
                             <button type="button" id="addToCartBtn" onclick="submitVariantSelection()" disabled
                                 class="py-3.5 font-semibold text-xs tracking-wider uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
-                                Tambah ke Keranjang
+                                Add to Cart
                             </button>
                             <button type="button" onclick="closeVariantModal()"
                                 class="py-3.5 font-semibold text-xs tracking-wider uppercase border border-slate-200 dark:border-white/10 text-slate-700 dark:text-zinc-300 rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all focus:outline-none">
-                                Batal
+                                Cancel
                             </button>
                         </div>
                     </div>
@@ -647,7 +645,7 @@
 
             document.getElementById('modalProductName').textContent = name;
             document.getElementById('modalProductBrand').textContent = brand;
-            document.getElementById('modalProductDescription').textContent = desc || 'Tidak ada deskripsi.';
+            document.getElementById('modalProductDescription').textContent = desc || 'No description.';
             document.getElementById('modalProductImage').src = image;
             document.getElementById('modalQuantity').value = 1;
 
@@ -729,7 +727,7 @@
                         }
 
                         const stockStatus = document.getElementById('modalStockStatus');
-                        stockStatus.textContent = `Stok: ${v.stock} tersedia`;
+                        stockStatus.textContent = `Stock: ${v.stock} available`;
                         stockStatus.classList.remove('hidden');
 
                         document.getElementById('addToCartBtn').disabled = false;
@@ -746,7 +744,7 @@
 
             if (reviews.length === 0) {
                 reviewsContainer.innerHTML =
-                    `<p class="text-xs text-slate-400 dark:text-zinc-500 italic py-2">Belum ada ulasan untuk produk ini.</p>`;
+                    `<p class="text-xs text-slate-400 dark:text-zinc-500 italic py-2">No reviews yet for this product.</p>`;
             } else {
                 reviews.forEach(r => {
                     const rDiv = document.createElement('div');
@@ -763,7 +761,7 @@
                             <span class="text-[10px] font-mono text-slate-400">${r.date}</span>
                         </div>
                         <div class="flex items-center gap-0.5 mb-1.5">${starsHtml}</div>
-                        <p class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">${r.comment || 'Tidak ada komentar.'}</p>
+                        <p class="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed">${r.comment || 'No comments.'}</p>
                     `;
                     reviewsContainer.appendChild(rDiv);
                 });
@@ -831,24 +829,37 @@
                         icon.className =
                             'fas fa-heart text-[10px] sm:text-xs text-rose-500 transition-transform duration-300 scale-125';
                         setTimeout(() => icon.classList.remove('scale-125'), 300);
+                        // Update wishlist badge in header
+                        const badge = document.getElementById('wishlist-badge');
+                        if (badge) {
+                            badge.innerText = data.count;
+                            badge.classList.remove('opacity-0');
+                            badge.classList.add('animate-pulse-slow');
+                            setTimeout(() => badge.classList.remove('animate-pulse-slow'), 600);
+                        }
                     } else {
                         icon.className =
                             'far fa-heart text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 transition-transform duration-300';
+                        const badge = document.getElementById('wishlist-badge');
+                        if (badge) {
+                            badge.innerText = data.count;
+                            if (data.count === 0) badge.classList.add('opacity-0');
+                        }
                     }
                 })
-                .catch(err => console.error('Gagal memproses wishlist:', err));
+                .catch(err => console.error('Failed to process wishlist:', err));
         }
 
         function confirmDelete(id, name) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Hapus Produk?',
-                text: `Produk "${name}" akan dihapus permanen.`,
+                title: 'Delete Product?',
+                text: `Product "${name}" will be permanently deleted.`,
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Ya, Hapus',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel'
             }).then(result => {
                 if (result.isConfirmed) document.getElementById(`delete-form-${id}`).submit();
             });
@@ -857,10 +868,10 @@
         function showLoginAlert(loginUrl) {
             Swal.fire({
                 icon: 'info',
-                title: 'Login Diperlukan',
-                text: 'Silakan login terlebih dahulu untuk melakukan pembelian.',
+                title: 'Login Required',
+                text: 'Please log in to make a purchase.',
                 confirmButtonColor: '#f59e0b',
-                confirmButtonText: 'Login Sekarang'
+                confirmButtonText: 'Login Now'
             }).then(() => window.location.href = loginUrl);
         }
 
@@ -877,14 +888,14 @@
                 navigator.clipboard.writeText(window.location.href)
                     .then(() => Swal.fire({
                         icon: 'success',
-                        title: 'Tersalin!',
-                        text: 'Tautan produk berhasil disalin ke clipboard!',
+                        title: 'Copied!',
+                        text: 'Product link copied to clipboard!',
                         timer: 2000,
                         showConfirmButton: false,
                         toast: true,
                         position: 'top-end'
                     }))
-                    .catch(err => console.error('Gagal menyalin tautan:', err));
+                    .catch(err => console.error('Failed to copy link:', err));
             }
         }
     </script>
@@ -1072,7 +1083,7 @@
                 } else {
                     actionButtons = `
                         <button type="button" onclick="window.location.reload()" class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-amber-500 hover:bg-amber-600 text-white rounded-full transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5">
-                            <i class="fas fa-sync"></i> Refresh untuk Beli
+                            <i class="fas fa-sync"></i> Refresh to Buy
                         </button>
                     `;
                 }
@@ -1086,7 +1097,7 @@
 
                 newProductDiv.innerHTML = `
                     <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative ring-2 ring-amber-400">
-                        <div class="absolute -top-3 -right-3 z-10 bg-amber-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">Baru!</div>
+                        <div class="absolute -top-3 -right-3 z-10 bg-amber-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">New!</div>
                         <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
                             <img src="${imgUrl}" alt="${e.product.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         </div>
@@ -1096,10 +1107,10 @@
                                 <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1" title="${e.product.name}">${e.product.name}</h5>
                                 <div class="flex items-center gap-0.5 mt-1">
                                     <i class="far fa-star text-[9px] text-slate-200 dark:text-zinc-700"></i>
-                                    <span class="text-[9px] text-slate-400 font-mono ml-1">Belum ada ulasan</span>
+                                    <span class="text-[9px] text-slate-400 font-mono ml-1">No reviews yet</span>
                                 </div>
                             </div>
-                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">Cek Detail Baru</p>
+                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">Check Details</p>
                         </div>
                         <div class="mt-3 flex items-center gap-2 w-full">${actionButtons}</div>
                     </div>

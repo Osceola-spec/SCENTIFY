@@ -30,7 +30,7 @@ class OrderConfirmationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Scentify - Konfirmasi Pembayaran Pesanan #' . $this->order->order_number,
+            subject: 'Scentify - Order Payment Confirmation #' . $this->order->order_number,
         );
     }
 

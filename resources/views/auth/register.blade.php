@@ -42,7 +42,7 @@
                     <div class="relative group">
                         <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus placeholder=" "
                                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-zinc-800/20 border @error('name') border-rose-500 @else border-slate-200 dark:border-white/5 @enderror rounded-2xl text-slate-950 dark:text-white placeholder-transparent peer focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all duration-300 text-sm">
-                        <label for="name" class="absolute left-5 top-4 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
+                        <label for="name" class="absolute left-5 -top-3 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
                             <i class="far fa-user mr-1.5"></i> Nama Lengkap
                         </label>
                         @error('name')
@@ -56,7 +56,7 @@
                     <div class="relative group">
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder=" "
                                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-zinc-800/20 border @error('email') border-rose-500 @else border-slate-200 dark:border-white/5 @enderror rounded-2xl text-slate-950 dark:text-white placeholder-transparent peer focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all duration-300 text-sm">
-                        <label for="email" class="absolute left-5 top-4 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
+                        <label for="email" class="absolute left-5 -top-3 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
                             <i class="far fa-envelope mr-1.5"></i> Alamat Email
                         </label>
                         @error('email')
@@ -70,7 +70,7 @@
                     <div class="relative group">
                         <input type="password" id="password" name="password" required placeholder=" "
                                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-zinc-800/20 border @error('password') border-rose-500 @else border-slate-200 dark:border-white/5 @enderror rounded-2xl text-slate-950 dark:text-white placeholder-transparent peer focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all duration-300 text-sm">
-                        <label for="password" class="absolute left-5 top-4 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
+                        <label for="password" class="absolute left-5 -top-3 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
                             <i class="fas fa-lock mr-1.5"></i> Kata Sandi
                         </label>
                         @error('password')
@@ -84,7 +84,7 @@
                     <div class="relative group">
                         <input type="password" id="password_confirmation" name="password_confirmation" required placeholder=" "
                                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-zinc-800/20 border border-slate-200 dark:border-white/5 rounded-2xl text-slate-950 dark:text-white placeholder-transparent peer focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all duration-300 text-sm">
-                        <label for="password_confirmation" class="absolute left-5 top-4 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
+                        <label for="password_confirmation" class="absolute left-5 -top-3 text-slate-400 dark:text-zinc-500 text-xs sm:text-sm transition-all pointer-events-none peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
                             <i class="fas fa-check-double mr-1.5"></i> Konfirmasi Kata Sandi
                         </label>
                     </div>

@@ -90,12 +90,9 @@
                         <div class="flex-grow border-t border-slate-200 dark:border-white/10"></div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3.5">
+                    <div class="grid grid-cols-1 gap-3.5">
                         <a href="{{ route('google.login') }}" class="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 dark:border-white/10 hover:border-rose-500/50 hover:bg-rose-500/5 text-xs font-semibold text-slate-700 dark:text-zinc-300 transition-all active:scale-95">
                             <i class="fab fa-google text-rose-500"></i> Google
-                        </a>
-                        <a href="#" onclick="showSocialDemoAlert(event, 'Apple Login')" class="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 dark:border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 text-xs font-semibold text-slate-700 dark:text-zinc-300 transition-all active:scale-95">
-                            <i class="fab fa-apple"></i> Apple
                         </a>
                     </div>
                 </form>
