@@ -49,10 +49,10 @@
                 <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Informasi Pelanggan</h3>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-lg font-bold uppercase">
-                        {{ substr($order->user->name ?? 'P', 0, 1) }}
+                        {{ substr($order->user->username ?? 'P', 0, 1) }}
                     </div>
                     <div>
-                        <p class="font-bold text-slate-900 text-base">{{ $order->user->name ?? 'Pelanggan' }}</p>
+                        <p class="font-bold text-slate-900 text-base">{{ $order->user->username ?? 'Pelanggan' }}</p>
                         <p class="text-sm text-slate-400">{{ $order->user->email ?? '-' }}</p>
                         <p class="text-sm text-slate-400 font-mono">{{ $order->phone_number ?? '-' }}</p>
                     </div>

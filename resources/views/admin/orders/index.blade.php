@@ -79,10 +79,10 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold uppercase shrink-0">
-                                            {{ substr($order->user->name ?? 'P', 0, 1) }}
+                                            {{ substr($order->user->username ?? 'P', 0, 1) }}
                                         </div>
                                         <div>
-                                            <p class="font-bold text-slate-900">{{ $order->user->name ?? 'Pelanggan Scentify' }}</p>
+                                            <p class="font-bold text-slate-900">{{ $order->user->username ?? 'Pelanggan Scentify' }}</p>
                                             <p class="text-[11px] text-slate-400 font-mono mt-0.5">{{ $order->phone_number }}</p>
                                         </div>
                                     </div>
