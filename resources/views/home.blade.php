@@ -14,18 +14,17 @@
                     <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold">Luxury Olfactory Experience</span>
                 </div>
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-serif mb-4 sm:mb-6 leading-[1.15] tracking-tight text-slate-950 dark:text-white">
-                    Seni Ekspresi <br>
-                    <span class="text-gradient font-bold">Aroma Mewah</span>
+                    Expression Art <br>
+                    <span class="text-gradient font-bold">Luxurious Scent</span>
                 </h1>
                 <p class="text-slate-600 dark:text-zinc-400 text-sm sm:text-base lg:text-lg mb-8 sm:mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0">
-                    Memperkenalkan kurasi parfum desainer dunia, aroma niche yang kompleks, dan racikan lokal berkualitas premium demi aura unik Anda.
-                </p>
+                    Introducing a curation of world-class designer fragrances, complex niche scents, and premium local blends for your unique aura.                </p>
                 <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-3 sm:gap-4 w-full sm:w-auto">
                     <a href="#scent-explorer" class="btn-glow px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base text-center rounded-xl font-semibold tracking-wide bg-slate-950 dark:bg-amber-500 text-white dark:text-black shadow-lg hover:shadow-amber-500/20 transition-all duration-300 transform hover:-translate-y-1">
-                        Cari Aroma Anda ✨
+                        Find Your Scent ✨
                     </a>
                     <a href="#koleksi" class="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base text-center rounded-xl font-semibold border border-slate-200 dark:border-zinc-800 text-slate-800 dark:text-zinc-300 hover:border-amber-500 dark:hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 transition-all duration-300 transform hover:-translate-y-1">
-                        Lihat Koleksi
+                        View Collection
                     </a>
                 </div>
             </div>
@@ -56,7 +55,7 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
             <div class="text-center mb-12 sm:mb-20">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Interactive Scent Finder</span>
-                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Temukan <span class="italic text-amber-500 font-normal">Karakter Aroma</span> Anda</h2>
+                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Find Your <span class="italic text-amber-500 font-normal">Scent Character</span></h2>
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
 
@@ -64,25 +63,25 @@
                 <div class="lg:col-span-5 flex flex-col justify-between gap-6">
                     <div class="glass-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl">
                         <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-                            <i class="fas fa-sliders text-amber-500"></i> Pilih Mood Utama Anda:
+                            <i class="fas fa-sliders text-amber-500"></i> Choose Your Main Mood:
                         </h3>
-                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-zinc-400 mb-5 sm:mb-6 leading-relaxed">Pilih salah satu mood di bawah ini untuk melihat adaptasi warna suasana dan aroma rekomendasi kami.</p>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-zinc-400 mb-5 sm:mb-6 leading-relaxed">Select one of the moods below to see our color and scent recommendations tailored to your vibe.</p>
                         
                         <div class="space-y-2 sm:space-y-3">
                             <button onclick="setScentMood('woody')" id="mood-woody" class="w-full text-left p-3.5 sm:p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-500 transition-all duration-300 font-medium text-[11px] sm:text-sm flex justify-between items-center group">
-                                <span>🌲 Woody & Earthy (Hangat, Maskulin)</span>
+                                <span>🌲 Woody & Earthy (Hot, Masculine)</span>
                                 <i class="fas fa-chevron-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
                             </button>
                             <button onclick="setScentMood('floral')" id="mood-floral" class="w-full text-left p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-white/5 hover:border-pink-400/50 hover:bg-pink-500/5 text-slate-700 dark:text-zinc-300 transition-all duration-300 font-medium text-[11px] sm:text-sm flex justify-between items-center group">
-                                <span>🌸 Floral & Powdery (Manis, Feminin)</span>
+                                <span>🌸 Floral & Powdery (Sweet, Feminine)</span>
                                 <i class="fas fa-chevron-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
                             </button>
                             <button onclick="setScentMood('citrus')" id="mood-citrus" class="w-full text-left p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-white/5 hover:border-emerald-400/50 hover:bg-emerald-500/5 text-slate-700 dark:text-zinc-300 transition-all duration-300 font-medium text-[11px] sm:text-sm flex justify-between items-center group">
-                                <span>🍋 Citrus & Fresh (Enerjik, Sporty)</span>
+                                <span>🍋 Citrus & Fresh (Energic, Sporty)</span>
                                 <i class="fas fa-chevron-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
                             </button>
                             <button onclick="setScentMood('oriental')" id="mood-oriental" class="w-full text-left p-3.5 sm:p-4 rounded-xl border border-slate-200 dark:border-white/5 hover:border-purple-400/50 hover:bg-purple-500/5 text-slate-700 dark:text-zinc-300 transition-all duration-300 font-medium text-[11px] sm:text-sm flex justify-between items-center group">
-                                <span>🔮 Oriental & Spice (Misterius, Eksotis)</span>
+                                <span>🔮 Oriental & Spice (Mysterious, Exotic)</span>
                                 <i class="fas fa-chevron-right text-xs group-hover:translate-x-1.5 transition-transform"></i>
                             </button>
                         </div>
@@ -101,7 +100,7 @@
 
                             <h3 class="text-2xl sm:text-3xl font-serif mb-2 sm:mb-4 text-slate-950 dark:text-white transition-colors" id="scent-title">Golden Amber</h3>
                             <p class="text-xs sm:text-sm text-slate-600 dark:text-zinc-400 leading-relaxed mb-6" id="scent-desc">
-                                Sempurna untuk mereka yang menyukai aroma alam yang dalam. Memancarkan aura kebijaksanaan, kehangatan yang bersahaja, serta impresi ketenangan berkelas berkat racikan cedarwood, vetiver, dan premium amber.
+                                Perfect for those who love deep, natural scents. It exudes an aura of wisdom, earthy warmth, and a sense of sophisticated serenity thanks to its blend of cedarwood, vetiver, and premium amber.
                             </p>
 
                             <div class="space-y-3 mb-6 sm:mb-8">
@@ -125,11 +124,11 @@
 
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-5 sm:pt-6 border-t border-slate-200 dark:border-white/5 relative z-10">
                             <div>
-                                <span class="text-[10px] sm:text-xs text-slate-500 block">Mulai Dari</span>
+                                <span class="text-[10px] sm:text-xs text-slate-500 block">Starts From</span>
                                 <span class="text-xl sm:text-2xl font-bold" id="scent-price">Rp 425.000</span>
                             </div>
                             <button onclick="addToCart()" class="w-full sm:w-auto px-6 py-3 sm:py-3.5 bg-slate-950 dark:bg-amber-400 text-white dark:text-black rounded-xl text-sm font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-300">
-                                <i class="fas fa-cart-plus mr-2"></i>Tambah
+                                <i class="fas fa-cart-plus mr-2"></i>Add to Cart
                             </button>
                         </div>
                     </div>
@@ -156,7 +155,7 @@
                             <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Signature Line</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Designer</h3>
                             <a href="#" onclick="showDemoAlert(event, 'Koleksi Designer')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
-                                <span>Jelajahi</span>
+                                <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
                         </div>
@@ -172,7 +171,7 @@
                             <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Artisanal Blends</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Niche</h3>
                             <a href="#" onclick="showDemoAlert(event, 'Koleksi Niche')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
-                                <span>Jelajahi</span>
+                                <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
                         </div>
@@ -186,9 +185,9 @@
                         
                         <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
                             <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Pride of Origin</span>
-                            <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Lokal Premium</h3>
+                            <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Local Premium</h3>
                             <a href="#" onclick="showDemoAlert(event, 'Koleksi Lokal Premium')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
-                                <span>Jelajahi</span>
+                                <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
                         </div>
@@ -206,7 +205,7 @@
                     <h2 class="text-3xl md:text-5xl font-serif mt-1 sm:mt-2 text-slate-950 dark:text-white transition-colors duration-500">Produk <span class="italic text-amber-500 font-normal">Terlaris</span></h2>
                 </div>
                 <a href="#" onclick="showDemoAlert(event, 'Katalog Semua Produk')" class="mt-3 sm:mt-0 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-medium inline-flex items-center border-b border-amber-500/40 pb-1 hover:border-amber-500 transition-colors duration-300 group">
-                    <span>Lihat Semua Produk</span>
+                    <span>See All Products</span>
                     <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                 </a>
             </div>
