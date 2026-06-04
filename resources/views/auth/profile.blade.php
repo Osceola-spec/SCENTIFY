@@ -112,7 +112,7 @@
                                     @if ($user->phone)
                                         {{ $user->phone }}
                                     @else
-                                        <span class="text-slate-400 italic font-normal text-sm">Belum ditambahkan</span>
+                                        <span class="text-slate-400 font-normal text-sm">Belum ditambahkan</span>
                                     @endif
                                 </p>
                             </div>
@@ -135,7 +135,7 @@
                                     <p class="text-sm text-slate-700 dark:text-zinc-300 leading-relaxed">
                                         {{ $user->bio }}</p>
                                 @else
-                                    <p class="text-sm text-slate-400 italic">Tuliskan sesuatu tentang preferensi aroma atau
+                                    <p class="text-sm text-slate-400">Tuliskan sesuatu tentang preferensi aroma atau
                                         diri Anda di sini...</p>
                                 @endif
                             </div>

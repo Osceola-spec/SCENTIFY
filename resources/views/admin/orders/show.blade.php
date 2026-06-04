@@ -16,7 +16,8 @@
         </div>
 
         @php
-            $statusClass = match($order->status) {
+            $displayStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
+            $statusClass = match($displayStatus) {
                 'Pending'    => 'bg-amber-50 text-amber-600 border-amber-200',
                 'Processing' => 'bg-blue-50 text-blue-600 border-blue-200',
                 'Shipped'    => 'bg-indigo-50 text-indigo-600 border-indigo-200',
@@ -24,7 +25,7 @@
                 'Cancelled'  => 'bg-rose-50 text-rose-600 border-rose-200',
                 default      => 'bg-slate-50 text-slate-600 border-slate-200',
             };
-            $statusIcon = match($order->status) {
+            $statusIcon = match($displayStatus) {
                 'Pending'    => 'fa-clock',
                 'Processing' => 'fa-box-open',
                 'Shipped'    => 'fa-truck',
@@ -34,7 +35,7 @@
             };
         @endphp
         <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold uppercase tracking-wider border {{ $statusClass }}">
-            <i class="fas {{ $statusIcon }}"></i> {{ $order->status }}
+            <i class="fas {{ $statusIcon }}"></i> {{ $displayStatus }}
         </span>
     </div>
 
@@ -105,10 +106,10 @@
 
                 {{-- Rincian Biaya --}}
                 @php
-                    $subtotal = $order->items->sum(fn($item) => ($item->price ?? $item->price_at_purchase ?? 0) * $item->quantity);
-                    $shipping = 50000;
-                    $tax      = round($subtotal * 0.11);
-                    $total    = $subtotal + $shipping + $tax;
+                    $subtotal = $order->subtotal;
+                    $tax      = $order->tax_amount;
+                    $total    = $order->total_amount;
+                    $shipping = $total - $subtotal - $tax;
                 @endphp
                 <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 space-y-2">
                     <div class="flex justify-between items-center text-sm text-slate-500">
@@ -252,8 +253,9 @@
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
                 <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-5">Progress Pesanan</h3>
                 @php
+                    $displayStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
                     $steps = ['Pending', 'Processing', 'Shipped', 'Completed'];
-                    $currentIdx = array_search($order->status, $steps);
+                    $currentIdx = array_search($displayStatus, $steps);
                     $isCancelled = $order->status === 'Cancelled';
 
                     $colorMap = [

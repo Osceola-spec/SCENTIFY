@@ -17,7 +17,7 @@
 
     <div class="mb-10 reveal">
         <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Selesaikan Transaksi</span>
-        <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Penyelesaian <span class="italic text-amber-500 font-normal">Pesanan</span></h1>
+        <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Penyelesaian <span class="text-amber-500 font-normal">Pesanan</span></h1>
     </div>
 
     @if ($errors->any())
@@ -62,6 +62,7 @@
                             <label class="flex items-start gap-4 p-4 border rounded-2xl cursor-pointer transition-all hover:border-amber-500 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 dark:has-[:checked]:bg-amber-500/10 {{ $addr->is_default ? 'border-amber-500/40' : 'border-slate-200 dark:border-white/10' }}">
                                 <input type="radio" name="_addr_radio" value="{{ $addr->id }}"
                                        data-city-id="{{ $addr->city_id }}"
+                                       data-city-name="{{ $addr->city }}"
                                        {{ $addr->is_default ? 'checked' : '' }}
                                        class="mt-1 accent-amber-500">
                                 <div class="flex-grow min-w-0">
@@ -90,10 +91,19 @@
                 <div id="shipping_section" class="hidden glass-card bg-white/60 dark:bg-darkcard/60 rounded-[2rem] border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                     <h3 class="text-xl font-serif font-bold text-slate-950 dark:text-white mb-5 flex items-center gap-3 border-b border-slate-100 dark:border-white/5 pb-4">
                         <span class="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center text-sm font-bold">2</span>
-                        Layanan Pengiriman JNE
+                        Layanan Pengiriman
                     </h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold mb-2 text-slate-900 dark:text-white">Pilih Kurir:</label>
+                        <select id="courier_select" class="w-full p-3 border rounded-xl bg-white dark:bg-zinc-800 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all">
+                            <option value="jne">JNE (Jalur Nugraha Ekakurir)</option>
+                            <option value="pos">POS Indonesia</option>
+                            <option value="tiki">TIKI (Citra Van Titipan Kilat)</option>
+                        </select>
+                    </div>
                     <div id="service_list" class="space-y-2">
-                        <p class="text-xs text-slate-400 italic">Pilih alamat untuk memuat ongkos kirim.</p>
+                        <p class="text-xs text-slate-400">Pilih alamat untuk memuat ongkos kirim.</p>
                     </div>
                 </div>
 
@@ -185,18 +195,20 @@ function updateTotals(shippingCost) {
 function fetchOngkir(cityId) {
     const serviceList = document.getElementById('service_list');
     const shippingSection = document.getElementById('shipping_section');
+    const courier = document.getElementById('courier_select').value;
+    
     shippingSection.classList.remove('hidden');
-    serviceList.innerHTML = '<p class="text-xs text-amber-500 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Mengambil ongkir JNE...</p>';
+    serviceList.innerHTML = `<p class="text-xs text-amber-500 animate-pulse"><i class="fas fa-spinner fa-spin mr-1"></i> Mengambil ongkir ${courier.toUpperCase()}...</p>`;
 
     fetch("{{ route('api.ongkir') }}", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify({ destination: cityId, courier: 'jne', weight: totalWeight })
+        body: JSON.stringify({ destination: cityId, courier: courier, weight: totalWeight })
     })
     .then(r => r.json())
     .then(data => {
         if (!data.success || !data.costs?.length) {
-            serviceList.innerHTML = '<p class="text-xs text-rose-400">Layanan JNE tidak tersedia untuk wilayah ini.</p>';
+            serviceList.innerHTML = `<p class="text-xs text-rose-400">Layanan ${courier.toUpperCase()} tidak tersedia untuk wilayah ini.</p>`;
             updateTotals(null); return;
         }
         serviceList.innerHTML = '';
@@ -209,19 +221,19 @@ function fetchOngkir(cityId) {
                 <div class="flex items-center gap-3">
                     <input type="radio" name="_service_radio" value="${cost}" ${idx === 0 ? 'checked' : ''} class="accent-amber-500">
                     <div>
-                        <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">JNE ${s.service}</span>
+                        <span class="text-sm font-bold text-slate-800 dark:text-zinc-200">${courier.toUpperCase()} ${s.service}</span>
                         <p class="text-[10px] text-slate-400 mt-0.5">Estimasi ${etd} Hari</p>
                     </div>
                 </div>
                 <span class="text-sm font-bold text-amber-600">${fmt(cost)}</span>
             `;
             label.querySelector('input').addEventListener('change', () => {
-                document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
+                document.getElementById('shipping_service_input').value = `${courier.toUpperCase()} ${s.service}`;
                 updateTotals(cost);
             });
             serviceList.appendChild(label);
             if (idx === 0) {
-                document.getElementById('shipping_service_input').value = `JNE ${s.service}`;
+                document.getElementById('shipping_service_input').value = `${courier.toUpperCase()} ${s.service}`;
                 updateTotals(cost);
             }
         });
@@ -241,7 +253,7 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
     const cost = parseInt(document.getElementById('shipping_cost_input').value);
     if (!cost) {
         e.preventDefault();
-        Swal.fire({ icon: 'warning', title: 'Pilih Layanan Pengiriman', text: 'Silakan pilih layanan JNE terlebih dahulu.', confirmButtonColor: '#f59e0b' });
+        Swal.fire({ icon: 'warning', title: 'Pilih Layanan Pengiriman', text: 'Silakan pilih layanan pengiriman terlebih dahulu.', confirmButtonColor: '#f59e0b' });
     }
 });
 
@@ -250,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[name="_addr_radio"]').forEach(radio => {
         radio.addEventListener('change', function() {
             document.getElementById('address_id').value = this.value;
-            const cityId = this.dataset.cityId;
+            const cityId = this.dataset.cityId || this.dataset.cityName;
             if (cityId) fetchOngkir(cityId);
             else {
                 document.getElementById('shipping_section').classList.add('hidden');
@@ -261,6 +273,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const checked = document.querySelector('[name="_addr_radio"]:checked');
     if (checked) checked.dispatchEvent(new Event('change'));
+
+    // Re-fetch ongkir if courier is changed
+    document.getElementById('courier_select').addEventListener('change', function() {
+        const checkedAddr = document.querySelector('[name="_addr_radio"]:checked');
+        if (checkedAddr) {
+            const cityId = checkedAddr.dataset.cityId || checkedAddr.dataset.cityName;
+            if (cityId) fetchOngkir(cityId);
+        }
+    });
 });
 </script>
 @endsection

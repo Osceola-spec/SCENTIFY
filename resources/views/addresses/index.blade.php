@@ -17,7 +17,7 @@
 
     <div class="mb-10 reveal">
         <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Manage Shipping</span>
-        <h1 class="text-3xl md:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Addresses <span class="italic text-amber-500 font-normal">My</span></h1>
+        <h1 class="text-3xl md:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Addresses <span class="text-amber-500 font-normal">My</span></h1>
     </div>
 
     @if(session('success'))

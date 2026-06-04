@@ -31,7 +31,12 @@ use App\Http\Controllers\AdminCustomerController;
 // RUTE PUBLIK (BISA DIAKSES SIAPA SAJA)
 // ==========================================
 Route::get('/', function () {
-    return view('home');
+    $bestSellers = \App\Models\Product::with(['brand', 'variants', 'images'])
+        ->withSum('orderItems', 'quantity')
+        ->orderByDesc('order_items_sum_quantity')
+        ->take(4)
+        ->get();
+    return view('home', compact('bestSellers'));
 })->name('home');
 
 Route::get('/shop', [ShopController::class, 'show'])->name('shop');

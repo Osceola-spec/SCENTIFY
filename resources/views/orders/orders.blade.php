@@ -17,7 +17,7 @@
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-slate-200 dark:border-white/5 reveal">
         <div>
             <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Riwayat Transaksi</span>
-            <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Pesanan <span class="italic text-amber-500 font-normal">Saya</span></h1>
+            <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Pesanan <span class="text-amber-500 font-normal">Saya</span></h1>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-3 max-w-lg leading-relaxed">
                 Pantau status pengiriman, kelola transaksi, dan lihat kembali koleksi parfum Scentify yang pernah Anda pesan.
             </p>
@@ -67,7 +67,8 @@
                     </div>
 
                     @php
-                        $statusClass = match($order->status) {
+                        $displayStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
+                        $statusClass = match($displayStatus) {
                             'Pending' => 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20',
                             'Processing' => 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
                             'Shipped' => 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
@@ -76,7 +77,7 @@
                             default => 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-white/10'
                         };
                         
-                        $statusIcon = match($order->status) {
+                        $statusIcon = match($displayStatus) {
                             'Pending' => 'fa-clock',
                             'Processing' => 'fa-box-open',
                             'Shipped' => 'fa-truck-fast',
@@ -87,7 +88,7 @@
                     @endphp
                     <div class="flex items-center">
                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider border {{ $statusClass }}">
-                            <i class="fas {{ $statusIcon }}"></i> {{ $order->status }}
+                            <i class="fas {{ $statusIcon }}"></i> {{ $displayStatus }}
                         </span>
                     </div>
                 </div>
@@ -126,7 +127,7 @@
                                             | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
                                         </p>
                                     @else
-                                        <h4 class="text-sm font-medium text-slate-400 dark:text-zinc-500 italic line-clamp-1">
+                                        <h4 class="text-sm font-medium text-slate-400 dark:text-zinc-500 line-clamp-1">
                                             Produk tidak tersedia
                                         </h4>
                                         <p class="text-[10px] sm:text-xs text-slate-400 dark:text-zinc-600 mt-0.5 sm:mt-1">

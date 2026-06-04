@@ -56,10 +56,12 @@
                 <span>Stores</span>
                 <span class="absolute bottom-0 left-0 h-[1.5px] bg-amber-500 transition-all duration-300 {{ request()->routeIs('stores.index') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
             </a>
+            @if(!Auth::check() || Auth::user()->role !== 'admin')
             <a href="{{ route('orders.index', ['status' => 'processing']) }}" class="hover:text-amber-500 transition-colors duration-300 relative py-1 group {{ request()->routeIs('orders.index') ? 'text-amber-500' : '' }}">
                 <span>My Orders</span>
                 <span class="absolute bottom-0 left-0 h-[1.5px] bg-amber-500 transition-all duration-300 {{ request()->routeIs('orders.index') ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
             </a>
+            @endif
         </nav>
 
         <!-- Right Side Icons -->
@@ -120,9 +122,11 @@
                                 <i class="far fa-user w-4 text-center"></i> My Profile
                             </a>
                             
+                            @if(Auth::user()->role !== 'admin')
                             <a href="{{ route('addresses.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-300 hover:text-amber-500">
                                 <i class="fas fa-map-marker-alt w-4 text-center"></i> My Addresses
                             </a>
+                            @endif
                             
                             @if(Auth::user()->role === 'admin')
                                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors text-slate-700 dark:text-zinc-300 hover:text-amber-500">
@@ -160,7 +164,9 @@
         <a href="{{ route('shop') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Shop</a>
         <a href="{{ route('brands.index') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Brands</a>
         <a href="{{ route('stores.index') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">Stores</a>
+        @if(!Auth::check() || Auth::user()->role !== 'admin')
         <a href="{{ route('orders.index') }}" class="flex items-center font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">My Orders</a>
+        @endif
         
         <div class="h-px bg-slate-200 dark:bg-white/10 !my-3"></div>
         
@@ -182,9 +188,11 @@
                 <a href="{{ route('profile') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
                 <i class="far fa-user w-4 text-center text-slate-400"></i> My Profile
             </a>
+            @if(Auth::user()->role !== 'admin')
             <a href="{{ route('addresses.index') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
                 <i class="fas fa-map-marker-alt w-4 text-center text-slate-400"></i> My Addresses
             </a>
+            @endif
             @if(Auth::user()->role === 'admin')
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 font-medium text-sm hover:text-amber-500 transition-colors py-2.5 px-2 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5">
                     <i class="fas fa-shield-alt w-4 text-center text-slate-400"></i> Panel Admin

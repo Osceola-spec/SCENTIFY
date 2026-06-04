@@ -80,7 +80,7 @@
                     <div id="promo-starts-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
                 </div>
                 <input type="hidden" id="promo-starts-at"
-                    value="{{ optional(optional($upcomingPromotion)->starts_at)->toIsoString() }}">
+                    value="{{ optional(optional($upcomingPromotion)->starts_at)->format('Y-m-d\TH:i:s') }}">
             </div>
         @endif
 
@@ -103,9 +103,11 @@
                                 class="text-xs text-slate-700 dark:text-zinc-300">Lihat produk terkait</a>
                         @endif
                         <input type="hidden" id="promo-ends-at"
-                            value="{{ optional(optional($activePromotion)->ends_at)->toIsoString() }}">
+                            value="{{ optional(optional($activePromotion)->ends_at)->format('Y-m-d\TH:i:s') }}">
                     @else
-                        <div class="text-sm text-slate-600 dark:text-zinc-300">Promo aktif (tanpa tenggat waktu)</div>
+                        <div class="text-xs text-slate-600 dark:text-zinc-300">Sisa waktu:</div>
+                        <div id="promo-countdown" class="text-xl font-mono font-bold text-amber-600">Selamanya</div>
+                        <input type="hidden" id="promo-ends-at" value="">
                     @endif
                 </div>
             </div>
@@ -744,7 +746,7 @@
 
             if (reviews.length === 0) {
                 reviewsContainer.innerHTML =
-                    `<p class="text-xs text-slate-400 dark:text-zinc-500 italic py-2">No reviews yet for this product.</p>`;
+                    `<p class="text-xs text-slate-400 dark:text-zinc-500 py-2">No reviews yet for this product.</p>`;
             } else {
                 reviews.forEach(r => {
                     const rDiv = document.createElement('div');

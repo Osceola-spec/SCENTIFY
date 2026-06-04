@@ -30,7 +30,7 @@ class CustomerOrderController extends Controller
             ->orderBy('created_at', 'desc') // Mengunci urutan dari yang paling baru
             ->when($statusFilter === 'processing', function ($q) {
                 // Dalam Proses = Sudah dibayar atau sedang dikirim kurir
-                $q->whereIn('status', ['Paid', 'Shipped']);
+                $q->whereIn('status', ['Paid', 'Processing', 'Shipped']);
             })
             ->when($statusFilter === 'unpaid', function ($q) {
                 // Perlu Dibayar = Masih pending menunggu pembayaran
@@ -111,7 +111,7 @@ class CustomerOrderController extends Controller
             // Jalankan kode ini HANYA jika status lamanya masih 'Pending'
             if ($order && $order->status === 'Pending') {
                 
-                // 1. 🔥 AMAN: Mengubah status menjadi 'Paid' (Sesuai dengan opsi ENUM di tabel orders-mu)
+                // 1. 🔥 AMAN: Mengubah status menjadi 'Paid'
                 DB::table('orders')
                     ->where('order_number', $orderNumber)
                     ->update([
@@ -122,8 +122,12 @@ class CustomerOrderController extends Controller
                 // 2. Kirim email nota otomatis via Brevo saat itu juga!
                 $customerEmail = $order->user->email ?? Auth::user()->email ?? null;
                 if ($customerEmail) {
-                    Mail::to($customerEmail)->send(new OrderConfirmationMail($order));
-                    \Log::info("Email sukses dikirim ke {$customerEmail} dari rute pengalihan sukses.");
+                    try {
+                        Mail::to($customerEmail)->send(new OrderConfirmationMail($order));
+                        \Log::info("Email sukses dikirim ke {$customerEmail} dari rute pengalihan sukses.");
+                    } catch (\Exception $e) {
+                        \Log::error("Gagal mengirim email konfirmasi: " . $e->getMessage());
+                    }
                 }
             }
         }

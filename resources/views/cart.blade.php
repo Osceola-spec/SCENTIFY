@@ -162,7 +162,7 @@
                         </div>
                         @endif
 
-                        <div class="text-[11px] text-slate-400 dark:text-zinc-500 italic pb-6 border-b border-slate-200 dark:border-white/10 leading-relaxed">
+                        <div class="text-[11px] text-slate-400 dark:text-zinc-500 pb-6 border-b border-slate-200 dark:border-white/10 leading-relaxed">
                             * Shipping and taxes will be calculated in detail on the checkout page.
                         </div>
 

@@ -26,7 +26,7 @@
     <!-- Header Section -->
     <div class="mb-10 reveal">
         <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Rincian Transaksi</span>
-        <h1 class="text-3xl sm:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Detail Pesanan <span class="italic text-amber-500 font-normal">#{{ $order->order_number }}</span></h1>
+        <h1 class="text-3xl sm:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Detail Pesanan <span class="text-amber-500 font-normal">#{{ $order->order_number }}</span></h1>
         <p class="text-xs text-slate-400 dark:text-zinc-500 mt-2 font-mono">Dibuat pada: {{ $order->created_at->format('d M Y, H:i') }} WIB</p>
     </div>
 
@@ -48,8 +48,9 @@
         @else
             <!-- Progress Line Tracker -->
             @php
+                $displayStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
                 $steps = ['Pending', 'Processing', 'Shipped', 'Completed'];
-                $currentStepIndex = array_search($order->status, $steps);
+                $currentStepIndex = array_search($displayStatus, $steps);
             @endphp
             <div class="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 sm:gap-4">
                 <!-- Garis Penghubung (Desktop Only) -->
@@ -377,10 +378,10 @@
                 <h3 class="text-base font-serif font-bold text-slate-950 dark:text-white mb-6 border-b border-slate-100 dark:border-white/5 pb-4">Rincian Pembayaran</h3>
 
                 @php
-                    $subtotal = $order->items->sum(fn($item) => $item->price_at_purchase * $item->quantity);
-                    $shipping = 50000;
-                    $tax      = round($subtotal * 0.11);
-                    $total    = $subtotal + $shipping + $tax;
+                    $subtotal = $order->subtotal;
+                    $tax      = $order->tax_amount;
+                    $total    = $order->total_amount;
+                    $shipping = $total - $subtotal - $tax;
                 @endphp
 
                 <div class="space-y-4 text-xs sm:text-sm">

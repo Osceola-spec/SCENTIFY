@@ -110,7 +110,7 @@
 
 @theme {
     --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
-    --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
+    --font-serif: 'Jost', ui-sans-serif, system-ui, sans-serif;
 
     /* Custom colors used in blade views */
     --color-darkbg: #050507;

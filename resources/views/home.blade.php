@@ -55,7 +55,7 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
             <div class="text-center mb-12 sm:mb-20">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Interactive Scent Finder</span>
-                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Find Your <span class="italic text-amber-500 font-normal">Scent Character</span></h2>
+                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Find Your <span class="text-amber-500 font-normal">Scent Character</span></h2>
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
 
@@ -141,17 +141,19 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 sm:mb-20 reveal">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Kategori Premium</span>
-                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white transition-colors duration-500">Pilihan <span class="italic text-amber-500 font-normal">Koleksi</span></h2>
+                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white transition-colors duration-500">Pilihan <span class="text-amber-500 font-normal">Koleksi</span></h2>
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full">
-                    <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-slate-200 dark:border-white/5">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none"></div>
-                        <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600" alt="[Gambar Parfum Designer]" class="w-full h-full object-cover object-center transition-transform duration-[1.2s] cubic-bezier(0.25, 1, 0.5, 1) group-hover:scale-110">
+                    <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-amber-500/20 hover:border-amber-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
+                            <i class="fas fa-crown text-8xl sm:text-9xl text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]"></i>
+                        </div>
                         
-                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 to-transparent">
                             <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Signature Line</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Designer</h3>
                             <a href="#" onclick="showDemoAlert(event, 'Koleksi Designer')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
@@ -163,14 +165,16 @@
                 </div>
 
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full">
-                    <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-slate-200 dark:border-white/5">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none"></div>
-                        <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600" alt="[Gambar Parfum Niche]" class="w-full h-full object-cover object-center transition-transform duration-[1.2s] cubic-bezier(0.25, 1, 0.5, 1) group-hover:scale-110">
+                    <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-rose-500/20 hover:border-rose-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
+                        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-orange-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
+                            <i class="fas fa-gem text-8xl sm:text-9xl text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]"></i>
+                        </div>
                         
-                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
-                            <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Artisanal Blends</span>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 to-transparent">
+                            <span class="text-[10px] sm:text-xs font-mono text-rose-400 tracking-wider uppercase">Artisanal Blends</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Niche</h3>
-                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Niche')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
+                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Niche')" class="inline-flex items-center text-xs sm:text-sm font-medium text-rose-300 hover:text-white transition-colors">
                                 <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
@@ -179,14 +183,16 @@
                 </div>
 
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full sm:col-span-2 lg:col-span-1">
-                    <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-slate-200 dark:border-white/5">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent z-10 pointer-events-none"></div>
-                        <img src="https://images.unsplash.com/photo-1592914610354-fd354d45e5b0?auto=format&fit=crop&q=80&w=600" alt="[Gambar Parfum Lokal Premium]" class="w-full h-full object-cover object-center transition-transform duration-[1.2s] cubic-bezier(0.25, 1, 0.5, 1) group-hover:scale-110">
+                    <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-emerald-500/20 hover:border-emerald-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
+                            <i class="fas fa-leaf text-8xl sm:text-9xl text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"></i>
+                        </div>
                         
-                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
-                            <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Pride of Origin</span>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 to-transparent">
+                            <span class="text-[10px] sm:text-xs font-mono text-emerald-400 tracking-wider uppercase">Pride of Origin</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Local Premium</h3>
-                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Lokal Premium')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
+                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Lokal Premium')" class="inline-flex items-center text-xs sm:text-sm font-medium text-emerald-300 hover:text-white transition-colors">
                                 <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
@@ -202,7 +208,7 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 sm:mb-20 reveal">
                 <div>
                     <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Terlaris Musim Ini</span>
-                    <h2 class="text-3xl md:text-5xl font-serif mt-1 sm:mt-2 text-slate-950 dark:text-white transition-colors duration-500">Produk <span class="italic text-amber-500 font-normal">Terlaris</span></h2>
+                    <h2 class="text-3xl md:text-5xl font-serif mt-1 sm:mt-2 text-slate-950 dark:text-white transition-colors duration-500">Produk <span class="text-amber-500 font-normal">Terlaris</span></h2>
                 </div>
                 <a href="#" onclick="showDemoAlert(event, 'Katalog Semua Produk')" class="mt-3 sm:mt-0 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-medium inline-flex items-center border-b border-amber-500/40 pb-1 hover:border-amber-500 transition-colors duration-300 group">
                     <span>See All Products</span>
@@ -211,90 +217,42 @@
             </div>
             
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                @forelse($bestSellers as $product)
                 <div class="tilt-container reveal">
-                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
+                    <a href="{{ route('shop') }}" class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
-                            <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Amber]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            @if($product->primaryImage)
+                                <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-slate-400">
+                                    <i class="fas fa-image text-3xl"></i>
+                                </div>
+                            @endif
                             <span class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-amber-500 text-black text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">Terlaris</span>
                         </div>
                         <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
                             <div>
-                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">Scentify Signature</small>
-                                <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">Golden Amber</h3>
+                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">{{ $product->brand->name ?? 'Scentify' }}</small>
+                                <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">{{ $product->name }}</h3>
                             </div>
-                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">Perpaduan aroma kayu cedar hangat dengan kelembutan eksotis amber organik mewah.</p>
+                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">{{ $product->description }}</p>
                         </div>
                         <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
-                            <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">Rp 425.000</span>
-                            <button onclick="addToCart()" class="p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none">
-                                <i class="fas fa-cart-plus text-[10px] sm:text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tilt-container reveal">
-                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
-                        <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
-                            <img src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Royale]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        </div>
-                        <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
-                            <div>
-                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">Niche Luxury</small>
-                                <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">Oud Royale</h3>
+                            <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">
+                                Rp {{ number_format(optional($product->variants->first())->price ?? 0, 0, ',', '.') }}
+                            </span>
+                            <div class="p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none">
+                                <i class="fas fa-arrow-right text-[10px] sm:text-sm"></i>
                             </div>
-                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">Aroma gaharu Timur Tengah intens dipadukan lembutnya vanila madu alami.</p>
                         </div>
-                        <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
-                            <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">Rp 850.000</span>
-                            <button onclick="addToCart()" class="p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none">
-                                <i class="fas fa-cart-plus text-[10px] sm:text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
+                    </a>
                 </div>
-
-                <div class="tilt-container reveal">
-                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
-                        <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
-                            <img src="https://images.unsplash.com/photo-1592914610354-fd354d45e5b0?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Rose]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        </div>
-                        <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
-                            <div>
-                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">Lokal Premium</small>
-                                <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">Velvet Rose</h3>
-                            </div>
-                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">Sentuhan mawar segar pegunungan vulkanis berpadu kelembutan musk putih.</p>
-                        </div>
-                        <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
-                            <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">Rp 295.000</span>
-                            <button onclick="addToCart()" class="p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none">
-                                <i class="fas fa-cart-plus text-[10px] sm:text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
+                @empty
+                <div class="col-span-2 lg:col-span-4 text-center py-10 text-slate-500 dark:text-zinc-400">
+                    <i class="fas fa-box-open text-4xl mb-3 opacity-50"></i>
+                    <p>Belum ada produk yang terjual.</p>
                 </div>
-
-                <div class="tilt-container reveal">
-                    <div class="tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
-                        <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
-                            <img src="https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&q=80&w=600" alt="[Scentify Parfum Ocean]" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        </div>
-                        <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
-                            <div>
-                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">Scentify Signature</small>
-                                <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">Ocean Breeze</h3>
-                            </div>
-                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">Aroma kesegaran laut lepas dipadukan dengan citrus lemon yang menyegarkan.</p>
-                        </div>
-                        <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
-                            <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">Rp 375.000</span>
-                            <button onclick="addToCart()" class="p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none">
-                                <i class="fas fa-cart-plus text-[10px] sm:text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -302,7 +260,7 @@
     <section id="contact" class="py-24 sm:py-32 bg-transparent transition-colors duration-500">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
             <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Bespoke Consultations</span>
-            <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Konsultasikan Aroma <span class="italic text-amber-500 font-normal">Khas Anda</span></h2>
+            <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Konsultasikan Aroma <span class="text-amber-500 font-normal">Khas Anda</span></h2>
             <p class="text-slate-600 dark:text-zinc-400 mb-8 sm:mb-10 max-w-lg mx-auto text-sm sm:text-base leading-relaxed transition-colors duration-500">
                 Hubungi tim kurator parfum kami untuk merumuskan aroma eksklusif pribadi Anda dan ciptakan sillage legendaris Anda sendiri.
             </p>
@@ -321,7 +279,7 @@
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal">
-            <h3 class="text-3xl md:text-4xl font-serif mb-3 sm:mb-4">Bergabunglah dalam <span class="text-amber-400 font-normal italic">Scentify Circle</span></h3>
+            <h3 class="text-3xl md:text-4xl font-serif mb-3 sm:mb-4">Bergabunglah dalam <span class="text-amber-400 font-normal">Scentify Circle</span></h3>
             <p class="text-slate-300 dark:text-zinc-400 max-w-lg mx-auto mb-8 leading-relaxed text-sm sm:text-base transition-colors duration-500">
                 Dapatkan penawaran istimewa, rilis parfum *limited edition*, dan diskon keanggotaan 10% untuk pesanan pertama Anda.
             </p>

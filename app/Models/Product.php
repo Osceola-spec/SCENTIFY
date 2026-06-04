@@ -39,6 +39,11 @@ class Product extends Model
         return $this->belongsToMany(ScentNote::class, 'product_notes');
     }
 
+    public function orderItems()
+    {
+        return $this->hasManyThrough(OrderItem::class, ProductVariant::class);
+    }
+
     // --- LOGIKA AI & VECTOR ---
 
     protected static function booted()

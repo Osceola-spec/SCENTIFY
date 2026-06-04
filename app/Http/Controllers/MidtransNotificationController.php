@@ -40,16 +40,16 @@ class MidtransNotificationController extends Controller
             // 4. Logika Perubahan Status dari Pending ke Processing (Paid)
             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
                 
-                // Ubah status order menjadi Processing di database
+                // Ubah status order menjadi Paid di database karena Enum di tabel tidak mendukung Processing
                 $order->update([
-                    'status' => 'Processing', 
+                    'status' => 'Paid', 
                     'payment_method' => $paymentType
                 ]);
                 
                 \Log::info("Order {$orderNumber} berhasil dibayar menggunakan {$paymentType}. Status lama: {$previousStatus} -> Status baru: Processing.");
 
-                // TRIGGER EMAIL: Kirim email HANYA jika status lamanya beneran bukan 'Processing'
-                if ($previousStatus !== 'Processing') {
+                // TRIGGER EMAIL: Kirim email HANYA jika status lamanya beneran bukan 'Paid'
+                if ($previousStatus !== 'Paid') {
                     // Ambil email dari relasi user
                     $customerEmail = $order->user->email ?? null;
 
