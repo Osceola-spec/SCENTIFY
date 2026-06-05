@@ -68,6 +68,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/verify-email', [AuthController::class, 'show_verify'])->name('verify.email');
     Route::post('/verify-email', [AuthController::class, 'verify_email_post'])->name('verify.email.post');
     Route::post('/verify-email/resend', [AuthController::class, 'resend_otp'])->name('resend.otp');
+
+    // Lupa Password
+    Route::get('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [\App\Http\Controllers\PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 
