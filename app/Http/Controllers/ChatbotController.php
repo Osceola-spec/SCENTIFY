@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
+use App\Models\Branch;
+use App\Models\Review;
+use App\Models\Order;
 
 class ChatbotController extends Controller
 {
@@ -23,53 +26,113 @@ class ChatbotController extends Controller
             // 1. Deteksi Data User
             $currentUser = auth()->user();
             if ($currentUser) {
-                $userInfoContext = "Pelanggan yang sedang berbicara dengan Anda bernama: {$currentUser->name} (Email: {$currentUser->email}).";
+                // Fetch addresses for the user if they exist
+                $addresses = $currentUser->addresses ? $currentUser->addresses->pluck('address_line1')->toArray() : [];
+                $addressesStr = count($addresses) > 0 ? "Alamat: " . implode('; ', $addresses) : "Belum ada alamat";
+                
+                $userInfoContext = "Pelanggan yang sedang berbicara dengan Anda bernama: {$currentUser->username} (Nama Asli: {$currentUser->first_name} {$currentUser->last_name}, Email: {$currentUser->email}, Telepon: {$currentUser->phone}). {$addressesStr}.";
             } else {
                 $userInfoContext = "Pelanggan saat ini belum login (berstatus sebagai Guest/Tamu). Panggil dia dengan sebutan 'Kakak' atau 'Scent Lover'.";
             }
 
+            // Siapkan array untuk menampung semua knowledge base
+            $allKnowledge = collect();
+
             // 2. Tarik produk BERSERTA relasi varian dan brand
             $products = Product::with(['variants', 'brand', 'notes'])->get();
-
-            // Ensure every product has a usable in-memory search_context (do not force-save)
             foreach ($products as $p) {
-                if (empty($p->search_context)) {
-                    // Build a lightweight context from available fields
-                    $brandName = $p->brand ? $p->brand->name : 'Scentify';
-                    $variantParts = [];
-                    if ($p->variants && $p->variants->count() > 0) {
-                        foreach ($p->variants as $v) {
-                            $variantParts[] = "{$v->size}ml priced Rp " . number_format($v->price, 0, ',', '.');
-                        }
+                $brandName = $p->brand ? $p->brand->name : 'Scentify';
+                $variantParts = [];
+                if ($p->variants && $p->variants->count() > 0) {
+                    foreach ($p->variants as $v) {
+                        $variantParts[] = "{$v->size}ml priced Rp " . number_format($v->price, 0, ',', '.');
                     }
-                    $notes = $p->notes ? $p->notes->pluck('name')->toArray() : [];
-                    $notesStr = $notes ? 'Notes: ' . implode(', ', $notes) . '.' : '';
-                    $variantsStr = count($variantParts) ? ' Varian: ' . implode(', ', $variantParts) . '.' : '';
-                    $p->search_context = "Produk: {$p->name}. Brand: {$brandName}. Kategori: {$p->category}. Deskripsi: {$p->description}. {$notesStr}{$variantsStr}";
+                }
+                $notes = $p->notes ? $p->notes->pluck('name')->toArray() : [];
+                $notesStr = $notes ? 'Notes: ' . implode(', ', $notes) . '.' : '';
+                $variantsStr = count($variantParts) ? ' Varian: ' . implode(', ', $variantParts) . '.' : '';
+                
+                $allKnowledge->push([
+                    'type' => 'Product',
+                    'id' => $p->id,
+                    'search_context' => "Produk Parfum: {$p->name}. Brand: {$brandName}. Kategori: {$p->category}. Deskripsi: {$p->description}. {$notesStr}{$variantsStr}",
+                    'item' => $p
+                ]);
+            }
+
+            // 3. Tarik Cabang Toko
+            $branches = Branch::where('is_active', true)->get();
+            foreach ($branches as $b) {
+                $cityInfo = $b->city ? ", Kota: {$b->city}" : "";
+                $allKnowledge->push([
+                    'type' => 'Branch',
+                    'id' => $b->id,
+                    'search_context' => "Cabang Toko Scentify: {$b->name}. Alamat: {$b->address}{$cityInfo}. Jam Operasional: {$b->opening_hours}. Telepon: {$b->phone}. Email: {$b->email}.",
+                    'item' => $b
+                ]);
+            }
+
+            // 4. Tarik Reviews (Semua Review)
+            $reviews = Review::with(['product', 'user'])->get();
+            foreach ($reviews as $r) {
+                $prodName = $r->product ? $r->product->name : 'Produk tidak diketahui';
+                $reviewer = $r->user ? $r->user->username : 'Anonim';
+                $allKnowledge->push([
+                    'type' => 'Review',
+                    'id' => $r->id,
+                    'search_context' => "Review Produk: {$prodName}. Rating: {$r->rating}/5. Ulasan oleh {$reviewer}: '{$r->comment}'. Judul: {$r->title}.",
+                    'item' => $r
+                ]);
+            }
+
+            // 5. Tarik Orders (Hanya untuk user yang login)
+            if ($currentUser) {
+                $orders = Order::with(['items.variant.product'])->where('user_id', $currentUser->id)->get();
+                foreach ($orders as $o) {
+                    $itemNames = [];
+                    foreach ($o->items as $item) {
+                        $pName = $item->variant && $item->variant->product ? $item->variant->product->name : 'Item';
+                        $itemNames[] = "{$item->quantity}x {$pName}";
+                    }
+                    $itemsStr = implode(', ', $itemNames);
+                    $total = 'Rp ' . number_format($o->total_amount, 0, ',', '.');
+                    
+                    $allKnowledge->push([
+                        'type' => 'Order',
+                        'id' => $o->id,
+                        'search_context' => "Riwayat Pesanan Anda (User): Nomor Pesanan #{$o->order_number}. Status: {$o->status}. Total: {$total}. Isi Pesanan: {$itemsStr}. Resi: {$o->tracking_number}.",
+                        'item' => $o
+                    ]);
                 }
             }
 
-            $topProducts = collect();
+            $topKnowledge = collect();
 
-            if ($products->count() > 0) {
-
+            if ($allKnowledge->count() > 0) {
                 // =======================================================
-                // HYBRID SEARCH TAHAP 1: EXACT KEYWORD MATCH (Pencarian Nama)
+                // HYBRID SEARCH TAHAP 1: EXACT KEYWORD MATCH (Pencarian Kata Kunci)
                 // =======================================================
                 $msgLower = strtolower($userMessage);
-                $keywordMatches = $products->filter(function ($p) use ($msgLower) {
-                    $brandName = $p->brand ? strtolower($p->brand->name) : '';
-                    $productName = strtolower($p->name);
+                
+                // Kata kunci spesial agar AI memprioritaskan data tertentu jika ditanya
+                $wantsOrder = str_contains($msgLower, 'pesanan') || str_contains($msgLower, 'order') || str_contains($msgLower, 'resi');
+                $wantsBranch = str_contains($msgLower, 'cabang') || str_contains($msgLower, 'toko') || str_contains($msgLower, 'lokasi');
+                $wantsReview = str_contains($msgLower, 'review') || str_contains($msgLower, 'ulasan') || str_contains($msgLower, 'rating') || str_contains($msgLower, 'bintang');
+                
+                $keywordMatches = $allKnowledge->filter(function ($k) use ($msgLower, $wantsOrder, $wantsBranch, $wantsReview) {
+                    // Boost based on explicit intent
+                    if ($wantsOrder && $k['type'] === 'Order') return true;
+                    if ($wantsBranch && $k['type'] === 'Branch') return true;
+                    if ($wantsReview && $k['type'] === 'Review') return true;
 
-                    // Jika user menyebut nama brand atau nama produk di chatnya, langsung tangkap!
-                    return ($brandName && str_contains($msgLower, $brandName)) ||
-                        str_contains($msgLower, $productName);
+                    // Normal keyword matching
+                    return str_contains(strtolower($k['search_context']), $msgLower);
                 });
 
                 // =======================================================
                 // HYBRID SEARCH TAHAP 2: VECTOR SIMILARITY (Pencarian Makna)
                 // =======================================================
-                $sentences = $products->pluck('search_context')->toArray();
+                $sentences = $allKnowledge->pluck('search_context')->toArray();
                 $vectorMatches = collect();
 
                 try {
@@ -86,11 +149,12 @@ class ChatbotController extends Controller
                     if ($similarityResponse->successful()) {
                         $scores = $similarityResponse->json();
                         if (is_array($scores)) {
-                            foreach ($products as $index => $product) {
-                                $product->similarity_score = $scores[$index] ?? 0;
-                            }
-                            // Ambil 10 produk yang maknanya paling relevan
-                            $vectorMatches = $products->sortByDesc('similarity_score')->take(10);
+                            $scoredKnowledge = $allKnowledge->map(function ($k, $index) use ($scores) {
+                                $k['similarity_score'] = $scores[$index] ?? 0;
+                                return $k;
+                            });
+                            // Ambil 15 context yang maknanya paling relevan (karena data sekarang lebih banyak)
+                            $vectorMatches = $scoredKnowledge->sortByDesc('similarity_score')->take(15);
                         }
                     }
                 } catch (\Exception $e) {
@@ -100,43 +164,35 @@ class ChatbotController extends Controller
                 // =======================================================
                 // GABUNGKAN HASIL TAHAP 1 & TAHAP 2
                 // =======================================================
-                // Produk dari keyword mendapat prioritas utama, lalu digabung dengan hasil vektor
-                $topProducts = $keywordMatches->merge($vectorMatches)->unique('id')->take(5);
+                $topKnowledge = $keywordMatches->merge($vectorMatches)
+                    ->unique(function ($item) {
+                        return $item['type'] . '_' . $item['id'];
+                    })
+                    ->take(10); // Ambil 10 teratas untuk dikirim ke LLM
 
-                if ($topProducts->isEmpty()) {
+                if ($topKnowledge->isEmpty()) {
                     // Fallback jika API mati & tidak ada keyword yang cocok
-                    $topProducts = $products->sortByDesc('created_at')->take(5);
+                    $topKnowledge = $allKnowledge->take(5);
                 }
             }
 
             // 3. Susun teks katalog final
             $contextText = "";
-            foreach ($topProducts as $index => $product) {
-                $brandName = $product->brand ? $product->brand->name : 'Scentify';
-                $variantInfo = "";
-
-                if ($product->variants && $product->variants->count() > 0) {
-                    $vDetails = [];
-                    foreach ($product->variants as $v) {
-                        $priceFmt = 'Rp ' . number_format($v->price, 0, ',', '.');
-                        $vDetails[] = "{$v->size}ml seharga {$priceFmt}";
-                    }
-                    $variantInfo = " Varian: " . implode(", ", $vDetails) . ".";
-                }
-
-                // Tambahkan penekanan Brand agar AI lebih mudah membaca
-                $contextText .= "- [Brand: {$brandName}] {$product->search_context}{$variantInfo}\n";
+            foreach ($topKnowledge as $k) {
+                $contextText .= "- [{$k['type']}] {$k['search_context']}\n";
             }
 
             // 4. Susun System Prompt
             $systemPrompt = "Anda adalah Scenty, asisten AI mewah dan cerdas untuk butik parfum 'Scentify'.\n";
             $systemPrompt .= "=== INFORMASI USER ===\n" . $userInfoContext . "\n======================\n\n";
-            $systemPrompt .= "=== KATALOG PRODUK RELEVAN ===\n" . $contextText . "\n==============================\n\n";
+            $systemPrompt .= "=== KONTEKS RELEVAN (Produk, Cabang, Review, atau Pesanan User) ===\n" . $contextText . "\n===================================================================\n\n";
             $systemPrompt .= "Aturan Komunikasi:\n";
             $systemPrompt .= "1. Selalu sapa user secara personal memanfaatkan data INFORMASI USER.\n";
-            $systemPrompt .= "2. Jika user bertanya tentang brand tertentu (misal 'Afnan'), sebutkan produk dari brand tersebut berdasarkan data KATALOG PRODUK RELEVAN.\n";
-            $systemPrompt .= "3. Berikan informasi harga atau ukuran varian secara akurat sesuai katalog.\n";
-            $systemPrompt .= "4. Jawab dengan Bahasa Indonesia yang elegan, profesional, penuh sopan santun khas butik mewah.";
+            $systemPrompt .= "2. Jika user bertanya tentang pesanan mereka, rujuk ke KONTEKS RELEVAN yang memiliki label [Order].\n";
+            $systemPrompt .= "3. Jika user bertanya cabang toko, rujuk ke KONTEKS RELEVAN berlabel [Branch].\n";
+            $systemPrompt .= "4. Jika bertanya pendapat/review orang, rujuk ke KONTEKS RELEVAN berlabel [Review].\n";
+            $systemPrompt .= "5. Jika bertanya produk, rujuk ke KONTEKS RELEVAN berlabel [Product]. Berikan informasi harga/ukuran yang akurat.\n";
+            $systemPrompt .= "6. Jawab dengan Bahasa Indonesia yang elegan, profesional, penuh sopan santun khas butik mewah. Jelaskan dengan lengkap tapi padat.";
 
             // 5. Kirim ke Llama 3.1
             $llamaResponse = Http::withHeaders([

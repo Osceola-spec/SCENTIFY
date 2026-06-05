@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Inventori Produk')
+@section('title', 'Product Inventory')
 
 @section('content')
 <div class="space-y-6 fade-in pb-10">
@@ -8,15 +8,15 @@
     <div class="pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Inventory Produk</h1>
-                <p class="text-sm text-slate-500 mt-1">Kelola dan pantau semua produk yang tersedia di katalog toko.</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Product Inventory</h1>
+                <p class="text-sm text-slate-500 mt-1">Manage and monitor all products available in the store catalog.</p>
             </div>
             <div class="flex items-center gap-3 shrink-0">
                 <a href="{{ route('admin.promotions.index') }}" class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95">
-                    <i class="fas fa-tag"></i> Promosi
+                    <i class="fas fa-tag"></i> Promotions
                 </a>
                 <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30 active:scale-95">
-                    <i class="fas fa-plus"></i> Tambah Produk Baru
+                    <i class="fas fa-plus"></i> Add New Product
                 </a>
             </div>
         </div>
@@ -31,7 +31,7 @@
                 </div>
                 <input type="search" name="search" value="{{ request('search') }}" 
                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" 
-                       placeholder="Cari nama parfum, notes, dll...">
+                       placeholder="Search perfume name, notes, etc...">
             </div>
 
             <div class="md:col-span-4 relative">
@@ -39,10 +39,10 @@
                     <i class="fas fa-filter text-xs"></i>
                 </div>
                 <select name="filter" class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all cursor-pointer">
-                    <option value="name" {{ request('filter', 'name') === 'name' ? 'selected' : '' }}>Saring berdasarkan: Nama Produk</option>
-                    <option value="brand" {{ request('filter') === 'brand' ? 'selected' : '' }}>Saring berdasarkan: Brand</option>
-                    <option value="category" {{ request('filter') === 'category' ? 'selected' : '' }}>Saring berdasarkan: Kategori</option>
-                    <option value="gender_type" {{ request('filter') === 'gender_type' ? 'selected' : '' }}>Saring berdasarkan: Gender</option>
+                    <option value="name" {{ request('filter', 'name') === 'name' ? 'selected' : '' }}>Filter by: Product Name</option>
+                    <option value="brand" {{ request('filter') === 'brand' ? 'selected' : '' }}>Filter by: Brand</option>
+                    <option value="category" {{ request('filter') === 'category' ? 'selected' : '' }}>Filter by: Category</option>
+                    <option value="gender_type" {{ request('filter') === 'gender_type' ? 'selected' : '' }}>Filter by: Gender</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
                     <i class="fas fa-chevron-down text-[10px]"></i>
@@ -51,7 +51,7 @@
 
             <div class="md:col-span-3 flex gap-3">
                 <button type="submit" class="flex-1 bg-slate-900 text-white font-semibold text-sm py-2.5 rounded-xl hover:bg-slate-800 transition-colors shadow-md">
-                    Cari
+                    Search
                 </button>
                 <a href="{{ route('admin.inventory') }}" class="flex-1 bg-white border border-slate-200 text-slate-600 font-semibold text-sm py-2.5 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition-colors text-center flex items-center justify-center">
                     Reset
@@ -67,8 +67,8 @@
                     <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-3xl mb-4">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <h5 class="text-lg font-bold text-slate-800 mb-1">Inventaris Kosong</h5>
-                    <p class="text-sm text-slate-500 max-w-md">Belum ada produk yang ditemukan. Klik tombol "Tambah Produk Baru" di sudut kanan atas untuk mulai mengelola katalog Anda.</p>
+                    <h5 class="text-lg font-bold text-slate-800 mb-1">Empty Inventory</h5>
+                    <p class="text-sm text-slate-500 max-w-md">No products found yet. Click the "Add New Product" button in the top right corner to start managing your catalog.</p>
                 </div>
             @else
                 <div class="overflow-x-auto">
@@ -77,12 +77,12 @@
                             <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
                                 <th class="px-6 py-4 border-b border-slate-100">#</th>
                                 <th class="px-6 py-4 border-b border-slate-100">Visual</th>
-                                <th class="px-6 py-4 border-b border-slate-100">Nama Produk</th>
+                                <th class="px-6 py-4 border-b border-slate-100">Product Name</th>
                                 <th class="px-6 py-4 border-b border-slate-100">Brand</th>
-                                <th class="px-6 py-4 border-b border-slate-100">Kategori</th>
+                                <th class="px-6 py-4 border-b border-slate-100">Category</th>
                                 <th class="px-6 py-4 border-b border-slate-100">Gender</th>
-                                <th class="px-6 py-4 border-b border-slate-100 text-center">Varian</th>
-                                <th class="px-6 py-4 border-b border-slate-100 text-center">Aksi</th>
+                                <th class="px-6 py-4 border-b border-slate-100 text-center">Variant</th>
+                                <th class="px-6 py-4 border-b border-slate-100 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
@@ -133,7 +133,7 @@
                                         <div class="flex items-center justify-center gap-2">
                                             <a href="{{ route('products.edit', $product->id) }}" 
                                                class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 flex items-center justify-center transition-all shadow-sm"
-                                               title="Edit Produk">
+                                               title="Edit Product">
                                                 <i class="fas fa-edit text-xs"></i>
                                             </a>
                                             
@@ -142,13 +142,13 @@
                                                 @method('DELETE')
                                                 <button type="button" data-name="{{ $product->name }}"
                                                         class="btn-delete w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm"
-                                                        title="Hapus Produk">
+                                                        title="Delete Product">
                                                     <i class="fas fa-trash-alt text-xs"></i>
                                                 </button>
                                             </form>
                                             <a href="{{ route('admin.promotions.create') }}?product_id={{ $product->id }}" 
                                                class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 flex items-center justify-center transition-all shadow-sm"
-                                               title="Set Promo untuk produk ini">
+                                               title="Set Promo for this product">
                                                 <i class="fas fa-tags text-xs"></i>
                                             </a>
                                         </div>
@@ -176,14 +176,14 @@
                 const productName = this.getAttribute('data-name');
 
                 Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: `Produk "${productName}" akan dipindahkan ke tempat sampah!`,
+                    title: 'Are you sure?',
+                    text: `Product "${productName}" will be moved to the trash!`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#0f172a',
                     cancelButtonColor: '#ff2a5f',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
                     reverseButtons: true,
                     customClass: {
                         popup: 'rounded-[1.5rem] shadow-2xl border border-slate-100',

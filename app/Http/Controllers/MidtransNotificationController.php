@@ -24,8 +24,12 @@ class MidtransNotificationController extends Controller
             $notif = new Notification();
 
             $transactionStatus = $notif->transaction_status;
-            $orderNumber       = $notif->order_id; 
-            $paymentType       = $notif->payment_type;
+            
+            $rawOrderId = $notif->order_id;
+            $parts = explode('-', $rawOrderId);
+            $orderNumber = count($parts) >= 2 ? $parts[0] . '-' . $parts[1] : $rawOrderId;
+            
+            $paymentType = $notif->payment_type;
 
             // 3. Cari data Order di database beserta relasi user-nya agar lebih cepat
             $order = Order::with('user')->where('order_number', $orderNumber)->first();

@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Riwayat Pesanan')
+@section('title', 'Order History')
 
 @section('content')
 <div class="space-y-6 fade-in pb-10">
@@ -8,8 +8,8 @@
     <div class="pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Riwayat Pesanan</h1>
-                <p class="text-sm text-slate-500 mt-1">Kelola transaksi, perbarui status pengiriman, dan lacak seluruh pesanan masuk Scentify.</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Order History</h1>
+                <p class="text-sm text-slate-500 mt-1">Manage transactions, update shipping status, and track all Scentify incoming orders.</p>
             </div>
         </div>
     </div>
@@ -23,7 +23,7 @@
                 </div>
                 <input type="text" name="search" value="{{ request('search') }}" 
                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all" 
-                       placeholder="Cari No. Pesanan atau Nama Pelanggan...">
+                       placeholder="Search Order No. or Customer Name...">
             </div>
 
             <div class="md:col-span-4 relative">
@@ -32,12 +32,12 @@
                 </div>
                 <select name="status" onchange="this.form.submit()" 
                         class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all cursor-pointer font-medium">
-                    <option value="">Semua Status Pesanan</option>
-                    <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending (Menunggu Pembayaran)</option>
-                    <option value="Processing" {{ request('status') == 'Processing' ? 'selected' : '' }}>Processing (Sedang Diproses)</option>
-                    <option value="Shipped" {{ request('status') == 'Shipped' ? 'selected' : '' }}>Shipped (Dalam Pengiriman)</option>
-                    <option value="Completed" {{ request('status') == 'Completed' ? 'selected' : '' }}>Completed (Selesai)</option>
-                    <option value="Cancelled" {{ request('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled (Dibatalkan)</option>
+                    <option value="">All Order Statuses</option>
+                    <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending (Waiting for Payment)</option>
+                    <option value="Processing" {{ request('status') == 'Processing' ? 'selected' : '' }}>Processing</option>
+                    <option value="Shipped" {{ request('status') == 'Shipped' ? 'selected' : '' }}>Shipped</option>
+                    <option value="Completed" {{ request('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="Cancelled" {{ request('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
                     <i class="fas fa-chevron-down text-[10px]"></i>
@@ -61,12 +61,12 @@
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
-                            <th class="px-6 py-4 border-b border-slate-100">No. Pesanan</th>
-                            <th class="px-6 py-4 border-b border-slate-100">Pelanggan</th>
-                            <th class="px-6 py-4 border-b border-slate-100">Tanggal Masuk</th>
-                            <th class="px-6 py-4 border-b border-slate-100">Total Harga</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Order No.</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Customer</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Order Date</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Total Price</th>
                             <th class="px-6 py-4 border-b border-slate-100 text-center">Status</th>
-                            <th class="px-6 py-4 border-b border-slate-100 text-center">Aksi</th>
+                            <th class="px-6 py-4 border-b border-slate-100 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
@@ -82,7 +82,7 @@
                                             {{ substr($order->user->username ?? 'P', 0, 1) }}
                                         </div>
                                         <div>
-                                            <p class="font-bold text-slate-900">{{ $order->user->username ?? 'Pelanggan Scentify' }}</p>
+                                            <p class="font-bold text-slate-900">{{ $order->user->username ?? 'Scentify Customer' }}</p>
                                             <p class="text-[11px] text-slate-400 font-mono mt-0.5">{{ $order->phone_number }}</p>
                                         </div>
                                     </div>
@@ -128,8 +128,8 @@
                                     <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-3xl mx-auto mb-4 border border-slate-100">
                                         <i class="fas fa-receipt"></i>
                                     </div>
-                                    <h5 class="text-lg font-bold text-slate-800 mb-1">Belum Ada Transaksi</h5>
-                                    <p class="text-sm text-slate-500 max-w-sm mx-auto">Tidak ada riwayat pesanan yang ditemukan.</p>
+                                    <h5 class="text-lg font-bold text-slate-800 mb-1">No Transactions Yet</h5>
+                                    <p class="text-sm text-slate-500 max-w-sm mx-auto">No order history found.</p>
                                 </td>
                             </tr>
                         @endforelse

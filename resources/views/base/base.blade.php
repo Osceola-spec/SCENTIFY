@@ -317,14 +317,14 @@
                         <i class="fas fa-robot text-white text-[9px]"></i>
                     </div>
                     <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 max-w-[80%]">
-                        Halo! Saya Scenty 🌸 Butuh rekomendasi parfum atau info produk? Saya siap membantu!
+                        Hello! I'm Scenty 🌸 Need a perfume recommendation or product info? I'm here to help!
                     </div>
                 </div>
             </div>
             <!-- Input -->
             <div class="px-3 py-3 border-t border-slate-100 dark:border-white/5 shrink-0">
                 <div class="flex gap-2 items-center">
-                    <input id="chatbot-input" type="text" placeholder="Tanya Scenty..." maxlength="300"
+                    <input id="chatbot-input" type="text" placeholder="Ask Scenty..." maxlength="300"
                         class="flex-1 bg-slate-100 dark:bg-zinc-800 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-zinc-200 placeholder-slate-400 dark:placeholder-zinc-500 outline-none border border-transparent focus:border-amber-400 transition-colors"
                         onkeydown="if(event.key==='Enter') sendChatMessage()">
                     <button onclick="sendChatMessage()" id="chatbot-send-btn"

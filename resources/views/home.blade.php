@@ -140,8 +140,8 @@
     <section id="koleksi" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 sm:mb-20 reveal">
-                <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Kategori Premium</span>
-                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white transition-colors duration-500">Pilihan <span class="text-amber-500 font-normal">Koleksi</span></h2>
+                <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Premium Categories</span>
+                <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white transition-colors duration-500">Our <span class="text-amber-500 font-normal">Collections</span></h2>
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
             
@@ -207,8 +207,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 sm:mb-20 reveal">
                 <div>
-                    <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Terlaris Musim Ini</span>
-                    <h2 class="text-3xl md:text-5xl font-serif mt-1 sm:mt-2 text-slate-950 dark:text-white transition-colors duration-500">Produk <span class="text-amber-500 font-normal">Terlaris</span></h2>
+                    <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">This Season's Best Sellers</span>
+                    <h2 class="text-3xl md:text-5xl font-serif mt-1 sm:mt-2 text-slate-950 dark:text-white transition-colors duration-500">Best Selling <span class="text-amber-500 font-normal">Products</span></h2>
                 </div>
                 <a href="#" onclick="showDemoAlert(event, 'Katalog Semua Produk')" class="mt-3 sm:mt-0 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-medium inline-flex items-center border-b border-amber-500/40 pb-1 hover:border-amber-500 transition-colors duration-300 group">
                     <span>See All Products</span>
@@ -221,14 +221,14 @@
                 <div class="tilt-container reveal">
                     <a href="{{ route('shop') }}" class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
-                            @if($product->primaryImage)
-                                <img src="{{ asset('storage/' . $product->primaryImage->image_path) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            @if($product->image_url)
+                                <img src="{{ asset('product_image/' . $product->image_url) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-slate-400">
                                     <i class="fas fa-image text-3xl"></i>
                                 </div>
                             @endif
-                            <span class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-amber-500 text-black text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">Terlaris</span>
+                            <span class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-amber-500 text-black text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">Best Seller</span>
                         </div>
                         <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
                             <div>
@@ -250,7 +250,7 @@
                 @empty
                 <div class="col-span-2 lg:col-span-4 text-center py-10 text-slate-500 dark:text-zinc-400">
                     <i class="fas fa-box-open text-4xl mb-3 opacity-50"></i>
-                    <p>Belum ada produk yang terjual.</p>
+                    <p>No products sold yet.</p>
                 </div>
                 @endforelse
             </div>
@@ -260,16 +260,16 @@
     <section id="contact" class="py-24 sm:py-32 bg-transparent transition-colors duration-500">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
             <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Bespoke Consultations</span>
-            <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Konsultasikan Aroma <span class="text-amber-500 font-normal">Khas Anda</span></h2>
+            <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Consult Your <span class="text-amber-500 font-normal">Signature Scent</span></h2>
             <p class="text-slate-600 dark:text-zinc-400 mb-8 sm:mb-10 max-w-lg mx-auto text-sm sm:text-base leading-relaxed transition-colors duration-500">
-                Hubungi tim kurator parfum kami untuk merumuskan aroma eksklusif pribadi Anda dan ciptakan sillage legendaris Anda sendiri.
+                Contact our perfume curators to formulate your exclusive personal scent and create your own legendary sillage.
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
                 <a href="#" onclick="showDemoAlert(event, 'Konsultasi WhatsApp')" class="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 hover:-translate-y-1 inline-flex items-center justify-center gap-3 shadow-lg hover:shadow-emerald-600/20 text-sm">
-                    <i class="fab fa-whatsapp text-lg"></i> Chat WhatsApp
+                    <i class="fab fa-whatsapp text-lg"></i> WhatsApp Chat
                 </a>
                 <a href="#" onclick="showDemoAlert(event, 'Surat Resmi')" class="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl font-semibold transition-all duration-300 hover:-translate-y-1 inline-flex items-center justify-center gap-3 shadow-lg hover:shadow-amber-500/20 text-sm">
-                    <i class="far fa-envelope text-lg"></i> Hubungi via Email
+                    <i class="far fa-envelope text-lg"></i> Contact via Email
                 </a>
             </div>
         </div>
@@ -279,14 +279,14 @@
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal">
-            <h3 class="text-3xl md:text-4xl font-serif mb-3 sm:mb-4">Bergabunglah dalam <span class="text-amber-400 font-normal">Scentify Circle</span></h3>
+            <h3 class="text-3xl md:text-4xl font-serif mb-3 sm:mb-4">Join the <span class="text-amber-400 font-normal">Scentify Circle</span></h3>
             <p class="text-slate-300 dark:text-zinc-400 max-w-lg mx-auto mb-8 leading-relaxed text-sm sm:text-base transition-colors duration-500">
-                Dapatkan penawaran istimewa, rilis parfum *limited edition*, dan diskon keanggotaan 10% untuk pesanan pertama Anda.
+                Get special offers, *limited edition* perfume releases, and a 10% membership discount on your first order.
             </p>
             
             <div class="max-w-md mx-auto">
                 <form onsubmit="subscribeNewsletter(event)" class="flex flex-col sm:flex-row gap-3 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-md">
-                    <input type="email" required placeholder="Alamat Email Anda" class="w-full px-4 sm:px-5 py-3 sm:py-4 bg-transparent text-white placeholder-gray-400 focus:outline-none transition-all duration-300 text-sm text-center sm:text-left">
+                    <input type="email" required placeholder="Your Email Address" class="w-full px-4 sm:px-5 py-3 sm:py-4 bg-transparent text-white placeholder-gray-400 focus:outline-none transition-all duration-300 text-sm text-center sm:text-left">
                     <button type="submit" class="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 font-semibold text-slate-900 bg-amber-400 rounded-xl transition-all duration-300 hover:bg-amber-300 active:scale-95 whitespace-nowrap shadow-lg text-sm">
                         Subscribe
                     </button>

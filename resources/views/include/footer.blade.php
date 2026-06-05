@@ -4,5 +4,5 @@
             <a href="#" class="text-xl hover:text-amber-500 transition-colors transform hover:-translate-y-1 duration-300"><i class="fab fa-tiktok"></i></a>
             <a href="#" class="text-xl hover:text-amber-500 transition-colors transform hover:-translate-y-1 duration-300"><i class="fab fa-pinterest"></i></a>
         </div>
-        <p>&copy; 2026 Scentify. Hak Cipta Dilindungi. Dirancang dengan keindahan.</p>
+        <p>&copy; 2026 Scentify. All Rights Reserved. Designed with beauty.</p>
     </footer>

@@ -16,27 +16,27 @@
 
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-slate-200 dark:border-white/5 reveal">
         <div>
-            <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Riwayat Transaksi</span>
-            <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Pesanan <span class="text-amber-500 font-normal">Saya</span></h1>
+            <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Transaction History</span>
+            <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">My <span class="text-amber-500 font-normal">Orders</span></h1>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-3 max-w-lg leading-relaxed">
-                Pantau status pengiriman, kelola transaksi, dan lihat kembali koleksi parfum Scentify yang pernah Anda pesan.
+                Monitor shipping status, manage transactions, and review your collection of Scentify perfumes you've ordered.
             </p>
         </div>
         
         <div class="flex flex-wrap items-center gap-2">
             <a href="?status=processing" 
             class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ !request('status') || request('status') == 'processing' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black shadow-lg shadow-amber-500/10' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">
-                Dalam Proses
+                In Process
             </a>
 
             <a href="?status=unpaid" 
             class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ request('status') == 'unpaid' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black shadow-lg shadow-amber-500/10' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">
-                Perlu Dibayar
+                Unpaid
             </a>
 
             <a href="?status=history" 
             class="px-4 py-2 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all {{ request('status') == 'history' ? 'bg-slate-900 text-white dark:bg-amber-400 dark:text-black shadow-lg shadow-amber-500/10' : 'bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:bg-slate-200 dark:hover:bg-zinc-700' }}">
-                Riwayat
+                History
             </a>
         </div>
     </div>
@@ -51,7 +51,7 @@
                     <div class="flex flex-wrap items-center gap-4 sm:gap-6">
                         <div class="flex items-center gap-3">
                             <div>
-                                <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">No. Pesanan</p>
+                                <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Order No.</p>
                                 <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">#{{ $order->order_number }}</p>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                         <div class="hidden sm:block w-px h-8 bg-slate-200 dark:bg-white/10"></div>
                         
                         <div>
-                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Tanggal Pembelian</p>
+                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Purchase Date</p>
                             <p class="text-xs sm:text-sm font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
                                 <i class="far fa-calendar-alt text-amber-500"></i> {{ $order->created_at->format('d M Y') }}
                             </p>
@@ -123,12 +123,12 @@
                                             {{ $productName }}
                                         </h4>
                                         <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-0.5 sm:mt-1">
-                                            Ukuran: <span class="font-semibold">{{ $variant->size ?? '-' }}</span>
+                                            Size: <span class="font-semibold">{{ $variant->size ?? '-' }}</span>
                                             | Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
                                         </p>
                                     @else
                                         <h4 class="text-sm font-medium text-slate-400 dark:text-zinc-500 line-clamp-1">
-                                            Produk tidak tersedia
+                                            Product unavailable
                                         </h4>
                                         <p class="text-[10px] sm:text-xs text-slate-400 dark:text-zinc-600 mt-0.5 sm:mt-1">
                                             Qty: <span class="font-semibold">{{ $item->quantity }}x</span>
@@ -145,7 +145,7 @@
                         @if($order->items->count() > 2)
                             <div class="text-[10px] sm:text-xs font-medium text-slate-400 dark:text-zinc-500 pt-2 flex items-center gap-2">
                                 <span class="flex-grow h-px bg-slate-200 dark:bg-white/5"></span>
-                                <span>+ {{ $order->items->count() - 2 }} produk lainnya</span>
+                                <span>+ {{ $order->items->count() - 2 }} other products</span>
                                 <span class="flex-grow h-px bg-slate-200 dark:bg-white/5"></span>
                             </div>
                         @endif
@@ -154,7 +154,7 @@
 
                 <div class="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-zinc-900/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Total Pembayaran</p>
+                        <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Total Payment</p>
                         <p class="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                     </div>
 
@@ -167,11 +167,11 @@
                             @endphp
                             @if ($reviewedItems === $totalItems && $totalItems > 0)
                                 <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                                    <i class="fas fa-star"></i> Sudah Diulas
+                                    <i class="fas fa-star"></i> Reviewed
                                 </span>
                             @else
                                 <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-bold">
-                                    <i class="far fa-star"></i> {{ $reviewedItems }}/{{ $totalItems }} Diulas
+                                    <i class="far fa-star"></i> {{ $reviewedItems }}/{{ $totalItems }} Reviewed
                                 </span>
                             @endif
                         @endif
@@ -184,17 +184,17 @@
 
                             <button type="button" onclick="cancelOrder('{{ $order->id }}', '{{ $order->order_number }}')"
                                     class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 text-center">
-                                Batalkan
+                                Cancel
                             </button>
 
                             <button onclick="payNow('{{ $order->order_number }}')"
                                     class="flex-1 sm:flex-none px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-center">
-                                Bayar Sekarang
+                                Pay Now
                             </button>
                         @elseif ($order->status === 'Shipped' && $order->tracking_number)
                             <button onclick="trackOrder('{{ $order->tracking_number }}')"
                                     class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[11px] sm:text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 text-center">
-                                Lacak Resi
+                                Track Delivery
                             </button>
                         @endif
 
@@ -211,12 +211,12 @@
                     <i class="fas fa-box-open text-4xl sm:text-5xl"></i>
                     <i class="fas fa-star text-amber-400 absolute top-4 right-4 text-xs animate-pulse"></i>
                 </div>
-                <h3 class="font-serif text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Belum Ada Riwayat Pesanan</h3>
+                <h3 class="font-serif text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">No Order History</h3>
                 <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-3 max-w-md mx-auto leading-relaxed">
-                    Koleksi riwayat pesanan Anda masih kosong. Temukan aroma khas Anda dan mulai perjalanan memori Anda bersama Scentify.
+                    Your order history collection is still empty. Find your signature scent and start your memory journey with Scentify.
                 </p>
                 <a href="{{ route('shop') }}" class="inline-block mt-8 px-8 py-4 font-semibold text-xs tracking-widest uppercase bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-slate-800 dark:hover:bg-amber-300 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-amber-500/15">
-                    <i class="fas fa-compass mr-2"></i> Jelajahi Koleksi
+                    <i class="fas fa-compass mr-2"></i> Explore Collection
                 </a>
             </div>
         @endforelse
@@ -261,14 +261,14 @@
 <script>
     function payNow(orderNumber) {
         Swal.fire({
-            title: 'Lanjutkan Pembayaran?',
-            text: `Anda akan diarahkan ke halaman pembayaran untuk pesanan #${orderNumber}.`,
+            title: 'Continue to Payment?',
+            text: `You will be redirected to the payment page for order #${orderNumber}.`,
             icon: 'info',
             showCancelButton: true,
             confirmButtonColor: '#f59e0b',
             cancelButtonColor: '#64748b',
-            confirmButtonText: 'Bayar Sekarang',
-            cancelButtonText: 'Batal',
+            confirmButtonText: 'Pay Now',
+            cancelButtonText: 'Cancel',
             reverseButtons: true,
             customClass: {
                 popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
@@ -278,8 +278,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Membuka gerbang pembayaran Scentify...',
+                    title: 'Processing...',
+                    text: 'Opening Scentify payment gateway...',
                     icon: 'success',
                     showConfirmButton: false,
                     timer: 1200,
@@ -296,14 +296,14 @@
 
     function cancelOrder(orderId, orderNumber) {
         Swal.fire({
-            title: 'Batalkan Pesanan?',
-            text: `Apakah Anda yakin ingin membatalkan pesanan #${orderNumber}? Tindakan ini tidak dapat dikembalikan.`,
+            title: 'Cancel Order?',
+            text: `Are you sure you want to cancel order #${orderNumber}? This action cannot be undone.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#64748b',
-            confirmButtonText: 'Ya, Batalkan',
-            cancelButtonText: 'Kembali',
+            confirmButtonText: 'Yes, Cancel',
+            cancelButtonText: 'Go Back',
             reverseButtons: true,
             customClass: {
                 popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
@@ -313,8 +313,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 Swal.fire({
-                    title: 'Memproses...',
-                    text: 'Sedang membatalkan pesanan Anda.',
+                    title: 'Processing...',
+                    text: 'Canceling your order.',
                     allowOutsideClick: false,
                     showConfirmButton: false,
                     willOpen: () => {
@@ -329,10 +329,10 @@
 
     function trackOrder(resi) {
         Swal.fire({
-            title: 'Lacak Pengiriman',
+            title: 'Track Delivery',
             html: `
                 <div class="text-left mt-4 mb-2">
-                    <p class="text-sm text-slate-500 dark:text-zinc-400 mb-1">Nomor Resi Anda:</p>
+                    <p class="text-sm text-slate-500 dark:text-zinc-400 mb-1">Your Tracking Number:</p>
                     <div class="bg-slate-100 dark:bg-zinc-800 p-3 rounded-xl font-mono text-lg font-bold text-center tracking-widest text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 select-all">
                         ${resi}
                     </div>
@@ -341,7 +341,7 @@
             icon: 'truck',
             iconHtml: '<i class="fas fa-shipping-fast text-indigo-500"></i>',
             confirmButtonColor: '#6366f1',
-            confirmButtonText: '<i class="fas fa-copy mr-2"></i> Salin Resi',
+            confirmButtonText: '<i class="fas fa-copy mr-2"></i> Copy Tracking Number',
             customClass: {
                 popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-[1.5rem]' : 'rounded-[1.5rem]',
                 confirmButton: 'rounded-xl px-5 py-2.5 font-bold w-full'
@@ -353,7 +353,7 @@
                     toast: true,
                     position: 'bottom-end',
                     icon: 'success',
-                    title: 'Resi disalin ke clipboard!',
+                    title: 'Copied to clipboard!',
                     showConfirmButton: false,
                     timer: 2500,
                     customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal rounded-xl' : 'rounded-xl' }

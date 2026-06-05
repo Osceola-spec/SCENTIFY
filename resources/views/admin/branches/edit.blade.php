@@ -10,7 +10,7 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Edit Cabang</h1>
                 <p class="text-sm text-slate-500 mt-1">Perbarui detail cabang.</p>
             </div>
-            <a href="{{ route('admin.branches.index') }}" class="inline-flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-xl border">Kembali</a>
+            <a href="{{ route('admin.branches.index') }}" class="inline-flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-xl border">Back</a>
         </div>
     </div>
 
@@ -65,9 +65,9 @@
                 <label class="inline-flex items-center">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" value="1" class="form-checkbox" {{ $branch->is_active ? 'checked' : '' }}>
-                    <span class="ml-2">Aktif</span>
+                    <span class="ml-2">Active</span>
                 </label>
-                <button type="submit" class="ml-auto bg-amber-500 text-white px-5 py-2.5 rounded-xl font-semibold">Perbarui Cabang</button>
+                <button type="submit" class="ml-auto bg-amber-500 text-white px-5 py-2.5 rounded-xl font-semibold">Save Changes</button>
             </div>
         </form>
     </div>

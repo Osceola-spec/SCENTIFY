@@ -22,7 +22,7 @@ class AdminBranchController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:branches,name',
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'province' => 'nullable|string|max:100',
@@ -59,7 +59,7 @@ class AdminBranchController extends Controller
     public function update(Request $request, Branch $branch)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:branches,name,' . $branch->id,
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'province' => 'nullable|string|max:100',

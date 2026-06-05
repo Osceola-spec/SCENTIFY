@@ -19,20 +19,20 @@
             </ol>
         </nav>
         <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-slate-500 hover:text-amber-500 transition-colors">
-            <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pesanan
+            <i class="fas fa-arrow-left"></i> Back to My Orders
         </a>
     </div>
 
     <!-- Header Section -->
     <div class="mb-10 reveal">
-        <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Rincian Transaksi</span>
-        <h1 class="text-3xl sm:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Detail Pesanan <span class="text-amber-500 font-normal">#{{ $order->order_number }}</span></h1>
-        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-2 font-mono">Dibuat pada: {{ $order->created_at->format('d M Y, H:i') }} WIB</p>
+        <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Transaction Details</span>
+        <h1 class="text-3xl sm:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Order Details <span class="text-amber-500 font-normal">#{{ $order->order_number }}</span></h1>
+        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-2 font-mono">Created at: {{ $order->created_at->format('d M Y, H:i') }} WIB</p>
     </div>
 
     <!-- STATUS TRACKER / TIMELINE (Interactive) -->
     <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 mb-8 shadow-xl reveal">
-        <h3 class="text-sm font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-6 font-semibold">Status Pengiriman</h3>
+        <h3 class="text-sm font-mono uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-6 font-semibold">Shipping Status</h3>
         
         @if($order->status === 'Cancelled')
             <!-- Tampilan khusus jika dibatalkan -->
@@ -41,8 +41,8 @@
                     <i class="fas fa-times-circle text-lg"></i>
                 </div>
                 <div>
-                    <h5 class="font-bold text-sm">Pesanan Dibatalkan</h5>
-                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Pesanan ini telah dibatalkan oleh sistem atau atas permintaan Anda.</p>
+                    <h5 class="font-bold text-sm">Order Cancelled</h5>
+                    <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">This order has been cancelled by the system or upon your request.</p>
                 </div>
             </div>
         @else
@@ -66,7 +66,7 @@
                     </div>
                     <div>
                         <p class="text-xs font-bold {{ $currentStepIndex >= 0 ? 'text-slate-900 dark:text-white' : 'text-slate-400' }}">Pending</p>
-                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Menunggu Pembayaran</p>
+                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Awaiting Payment</p>
                     </div>
                 </div>
 
@@ -78,7 +78,7 @@
                     </div>
                     <div>
                         <p class="text-xs font-bold {{ $currentStepIndex >= 1 ? 'text-slate-900 dark:text-white' : 'text-slate-400' }}">Processing</p>
-                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Sedang Dikemas</p>
+                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Being Packed</p>
                     </div>
                 </div>
 
@@ -90,7 +90,7 @@
                     </div>
                     <div>
                         <p class="text-xs font-bold {{ $currentStepIndex >= 2 ? 'text-slate-900 dark:text-white' : 'text-slate-400' }}">Shipped</p>
-                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Dalam Pengiriman</p>
+                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">In Transit</p>
                     </div>
                 </div>
 
@@ -102,7 +102,7 @@
                     </div>
                     <div>
                         <p class="text-xs font-bold {{ $currentStepIndex >= 3 ? 'text-emerald-500' : 'text-slate-400' }}">Completed</p>
-                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Paket Diterima</p>
+                        <p class="text-[10px] text-slate-400 dark:text-zinc-500 hidden sm:block mt-0.5">Package Delivered</p>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
             <!-- Card: Item Yang Dibeli -->
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                 <h3 class="text-lg font-serif font-bold text-slate-950 dark:text-white mb-6 flex items-center gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
-                    <i class="fas fa-shopping-bag text-amber-500 text-sm"></i> Item yang Dibeli
+                    <i class="fas fa-shopping-bag text-amber-500 text-sm"></i> Purchased Items
                 </h3>
 
                 <div class="divide-y divide-slate-100 dark:divide-white/5 space-y-4">
@@ -125,7 +125,7 @@
                         @php
                             $variant     = $item->variant;
                             $product     = $variant?->product;
-                            $productName = $product?->name ?? 'Produk Tidak Tersedia';
+                            $productName = $product?->name ?? 'Product Unavailable';
                             $brandName   = $product?->brand?->name ?? 'Unknown Brand';
                             $imgRaw      = $product?->image_url;
                             $imgSrc      = $imgRaw
@@ -144,12 +144,12 @@
                                     {{ $productName }}
                                 </h4>
                                 <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1">
-                                    Ukuran: <span class="font-semibold">{{ $variant?->size ?? '-' }}</span> 
-                                    | Kuantitas: <span class="font-semibold">{{ $item->quantity }}x</span>
+                                    Size: <span class="font-semibold">{{ $variant?->size ?? '-' }}</span> 
+                                    | Quantity: <span class="font-semibold">{{ $item->quantity }}x</span>
                                 </p>
                             </div>
                             <div class="text-right shrink-0">
-                                <p class="text-xs text-slate-400 dark:text-zinc-500 font-mono">Satuan</p>
+                                <p class="text-xs text-slate-400 dark:text-zinc-500 font-mono">Unit Price</p>
                                 <p class="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
                                     Rp {{ number_format($item->price_at_purchase, 0, ',', '.') }}
                                 </p>
@@ -173,9 +173,9 @@
 
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                 <h3 class="text-lg font-serif font-bold text-slate-950 dark:text-white mb-2 flex items-center gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
-                    <i class="fas fa-star text-amber-500 text-sm"></i> Beri Ulasan Produk
+                    <i class="fas fa-star text-amber-500 text-sm"></i> Review Products
                 </h3>
-                <p class="text-xs text-slate-400 dark:text-zinc-500 mb-6">Bagikan pengalaman Anda untuk membantu pelanggan lain memilih parfum terbaik.</p>
+                <p class="text-xs text-slate-400 dark:text-zinc-500 mb-6">Share your experience to help other customers choose the best perfumes.</p>
 
                 @if ($allReviewed)
                     {{-- Semua sudah diulas --}}
@@ -183,8 +183,8 @@
                         <div class="w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center mx-auto mb-3">
                             <i class="fas fa-check-circle text-emerald-500 text-xl"></i>
                         </div>
-                        <p class="text-sm font-bold text-slate-700 dark:text-zinc-300">Semua produk sudah diulas</p>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Terima kasih atas ulasan Anda!</p>
+                        <p class="text-sm font-bold text-slate-700 dark:text-zinc-300">All products have been reviewed</p>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500 mt-1">Thank you for your review!</p>
                     </div>
 
                     {{-- Tampilkan ulasan yang sudah dikirim --}}
@@ -221,7 +221,7 @@
                                         <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">{{ $reviewed->comment }}</p>
                                     @endif
                                     <span class="text-[10px] text-emerald-500 font-semibold flex items-center gap-1">
-                                        <i class="fas fa-check-circle"></i> Ulasan terkirim
+                                        <i class="fas fa-check-circle"></i> Review submitted
                                     </span>
                                 </div>
                             </div>
@@ -235,7 +235,7 @@
                     @php $alreadyReviewed = $order->items->filter(fn($i) => $i->review && $i->variant?->product); @endphp
                     @if ($alreadyReviewed->isNotEmpty())
                         <div class="space-y-3 mb-6">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sudah Diulas</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Reviewed</p>
                             @foreach ($alreadyReviewed as $item)
                                 @php
                                     $product  = $item->variant->product;
@@ -256,13 +256,13 @@
                                         </div>
                                     </div>
                                     <span class="text-[10px] text-emerald-500 font-semibold shrink-0">
-                                        <i class="fas fa-check-circle mr-1"></i>Terkirim
+                                        <i class="fas fa-check-circle mr-1"></i>Submitted
                                     </span>
                                 </div>
                             @endforeach
                         </div>
                         <div class="border-t border-slate-100 dark:border-white/5 pt-6 mb-4">
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Belum Diulas</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Not Reviewed</p>
                         </div>
                     @endif
 
@@ -305,17 +305,17 @@
                                                 <i class="far fa-star text-slate-300 dark:text-zinc-600 transition-colors duration-150"></i>
                                             </button>
                                         @endfor
-                                        <span id="ratingLabel{{ $uid }}" class="text-xs text-slate-400 ml-2 font-medium">Pilih bintang</span>
+                                        <span id="ratingLabel{{ $uid }}" class="text-xs text-slate-400 ml-2 font-medium">Choose stars</span>
                                     </div>
 
                                     <input type="text"
                                         id="reviewTitle{{ $uid }}"
-                                        placeholder="Judul ulasan (opsional)"
+                                        placeholder="Review title (optional)"
                                         maxlength="100"
                                         class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all mb-2">
 
                                     <textarea id="reviewComment{{ $uid }}"
-                                            placeholder="Ceritakan pengalaman Anda dengan parfum ini..."
+                                            placeholder="Tell us about your experience with this perfume..."
                                             maxlength="1000" rows="2"
                                             class="w-full bg-white dark:bg-zinc-800 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-slate-700 dark:text-zinc-300 placeholder-slate-300 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none"></textarea>
                                 </div>
@@ -330,11 +330,11 @@
                                 id="submitAllReviewsBtn"
                                 class="w-full py-3.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2">
                             <i class="fas fa-paper-plane"></i>
-                            Kirim {{ $unreviewedItems->count() > 1 ? $unreviewedItems->count() . ' Ulasan Sekaligus' : 'Ulasan' }}
+                            Submit {{ $unreviewedItems->count() > 1 ? $unreviewedItems->count() . ' Reviews' : 'Review' }}
                         </button>
                         @if ($unreviewedItems->count() > 1)
                             <p class="text-center text-[11px] text-slate-400 mt-2">
-                                Semua ulasan akan dikirim sekaligus dalam satu klik
+                                All reviews will be submitted at once in one click
                             </p>
                         @endif
                     </div>
@@ -345,23 +345,23 @@
             <!-- Card: Alamat Tujuan Pengiriman -->
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                 <h3 class="text-lg font-serif font-bold text-slate-950 dark:text-white mb-6 flex items-center gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
-                    <i class="fas fa-map-marker-alt text-amber-500 text-sm"></i> Tujuan Pengiriman
+                    <i class="fas fa-map-marker-alt text-amber-500 text-sm"></i> Shipping Destination
                 </h3>
 
                 <div class="space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-white/5 pb-4">
                         <div>
-                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Nama Penerima</p>
+                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5">Recipient Name</p>
                             <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">{{ $order->user->name ?? 'Pelanggan Scentify' }}</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5 sm:text-right">Nomor Telepon</p>
+                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-0.5 sm:text-right">Phone Number</p>
                             <p class="text-sm sm:text-base font-bold text-slate-900 dark:text-white font-mono sm:text-right">{{ $order->phone_number }}</p>
                         </div>
                     </div>
 
                     <div>
-                        <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-2">Alamat Lengkap Pengiriman</p>
+                        <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-2">Complete Shipping Address</p>
                         <div class="bg-slate-100/50 dark:bg-zinc-900/50 p-4 rounded-xl border border-slate-200 dark:border-white/5 text-xs sm:text-sm text-slate-700 dark:text-zinc-300 leading-relaxed select-all">
                             {{ $order->shipping_address }}
                         </div>
@@ -373,9 +373,8 @@
         <!-- RIGHT COLUMN: Billing summary & Shipping Info (Col 4) -->
         <div class="lg:col-span-4 space-y-6 reveal">
             <!-- Card: Ringkasan Biaya -->
-            <!-- Card: Ringkasan Biaya -->
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
-                <h3 class="text-base font-serif font-bold text-slate-950 dark:text-white mb-6 border-b border-slate-100 dark:border-white/5 pb-4">Rincian Pembayaran</h3>
+                <h3 class="text-base font-serif font-bold text-slate-950 dark:text-white mb-6 border-b border-slate-100 dark:border-white/5 pb-4">Billing Summary</h3>
 
                 @php
                     $subtotal = $order->subtotal;
@@ -386,28 +385,28 @@
 
                 <div class="space-y-4 text-xs sm:text-sm">
                     <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
-                        <span>Subtotal Item</span>
+                        <span>Items Subtotal</span>
                         <span class="font-medium text-slate-800 dark:text-zinc-200">
                             Rp {{ number_format($subtotal, 0, ',', '.') }}
                         </span>
                     </div>
 
                     <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400">
-                        <span>Ongkos Pengiriman</span>
+                        <span>Shipping Cost</span>
                         <span class="font-medium text-slate-800 dark:text-zinc-200">
                             Rp {{ number_format($shipping, 0, ',', '.') }}
                         </span>
                     </div>
 
                     <div class="flex justify-between items-center text-slate-500 dark:text-zinc-400 border-b border-slate-100 dark:border-white/5 pb-4">
-                        <span>Pajak (PPN 11%)</span>
+                        <span>Tax (VAT 11%)</span>
                         <span class="font-medium text-slate-800 dark:text-zinc-200">
                             Rp {{ number_format($tax, 0, ',', '.') }}
                         </span>
                     </div>
 
                     <div class="flex justify-between items-center pt-2">
-                        <span class="font-serif text-sm sm:text-base font-bold text-slate-950 dark:text-white">Total Akhir</span>
+                        <span class="font-serif text-sm sm:text-base font-bold text-slate-950 dark:text-white">Final Total</span>
                         <span class="text-lg sm:text-xl font-black text-amber-500">
                             Rp {{ number_format($total, 0, ',', '.') }}
                         </span>
@@ -418,7 +417,7 @@
                     <div class="mt-6 pt-6 border-t border-slate-100 dark:border-white/5">
                         <button onclick="payNow('{{ $order->order_number }}')" 
                                 class="w-full text-center py-3.5 font-semibold text-xs tracking-widest uppercase bg-amber-400 hover:bg-amber-300 text-black rounded-xl shadow-lg shadow-amber-500/10 active:scale-95 transition-all">
-                            Bayar Sekarang
+                            Pay Now
                         </button>
                     </div>
                 @endif
@@ -426,23 +425,23 @@
 
             <!-- Card: Informasi Logistik / Resi -->
             <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-3xl border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
-                <h3 class="text-base font-serif font-bold text-slate-950 dark:text-white mb-4">Informasi Kurir</h3>
+                <h3 class="text-base font-serif font-bold text-slate-950 dark:text-white mb-4">Courier Information</h3>
                 <hr class="border-slate-100 dark:border-white/5 mb-4">
 
                 @if($order->tracking_number)
                     <div class="space-y-4">
                         <div>
-                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-1">Nomor Resi Pengiriman</p>
+                            <p class="text-[10px] font-mono uppercase text-slate-400 dark:text-zinc-500 tracking-wider mb-1">Shipping Tracking Number</p>
                             <div class="bg-slate-100/50 dark:bg-zinc-900/50 p-3 rounded-xl font-mono text-base font-bold text-center tracking-widest text-slate-900 dark:text-white border border-slate-200 dark:border-white/5 relative group">
                                 <span>{{ $order->tracking_number }}</span>
-                                <button onclick="copyToClipboard('{{ $order->tracking_number }}')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 transition-colors focus:outline-none" title="Salin Resi">
+                                <button onclick="copyToClipboard('{{ $order->tracking_number }}')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-500 transition-colors focus:outline-none" title="Copy Tracking Number">
                                     <i class="far fa-copy text-xs"></i>
                                 </button>
                             </div>
                         </div>
 
                         <button onclick="trackOrder('{{ $order->tracking_number }}')" class="w-full text-center py-3 font-semibold text-xs tracking-wider uppercase border border-indigo-500/20 text-indigo-500 hover:bg-indigo-500/5 rounded-xl transition-all">
-                            Lacak Status Kurir
+                            Track Courier Status
                         </button>
                     </div>
                 @else
@@ -450,7 +449,7 @@
                         <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-900 flex items-center justify-center text-slate-300 dark:text-zinc-700 mx-auto mb-3">
                             <i class="fas fa-truck-ramp-box text-xl"></i>
                         </div>
-                        <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">Pihak Scentify sedang memproses produk Anda. Nomor resi pengiriman akan terbit otomatis saat diserahkan ke kurir.</p>
+                        <p class="text-xs text-slate-400 dark:text-zinc-500 leading-relaxed">Scentify is currently processing your products. The shipping tracking number will be issued automatically when handed over to the courier.</p>
                     </div>
                 @endif
             </div>
@@ -502,10 +501,10 @@
         }
 
         const labelMap = {
-            'Processing': 'Processing — Sedang Diproses',
-            'Shipped':    'Shipped — Dalam Pengiriman',
-            'Completed':  'Completed — Selesai',
-            'Cancelled':  'Cancelled — Batalkan Pesanan',
+            'Processing': 'Processing',
+            'Shipped':    'Shipped',
+            'Completed':  'Completed',
+            'Cancelled':  'Cancelled',
         };
 
         const isCancelled = status === 'Cancelled';
@@ -518,14 +517,14 @@
         }
 
         Swal.fire({
-            title: isCancelled ? 'Batalkan Pesanan?' : 'Konfirmasi Perubahan Status',
+            title: isCancelled ? 'Cancel Order?' : 'Confirm Status Change',
             html: isCancelled
-                ? `<p class="text-sm text-slate-500">Pesanan ini akan dibatalkan secara permanen dan <strong>tidak dapat dipulihkan</strong>.</p>`
-                : `<p class="text-sm text-slate-500">Ubah status pesanan menjadi <strong>${labelMap[status] ?? status}</strong>?</p>`,
+                ? `<p class="text-sm text-slate-500">This order will be permanently cancelled and <strong>cannot be recovered</strong>.</p>`
+                : `<p class="text-sm text-slate-500">Change order status to <strong>${labelMap[status] ?? status}</strong>?</p>`,
             icon: isCancelled ? 'warning' : 'question',
             showCancelButton: true,
-            confirmButtonText: isCancelled ? 'Ya, Batalkan' : 'Ya, Perbarui',
-            cancelButtonText: 'Batal',
+            confirmButtonText: isCancelled ? 'Yes, Cancel' : 'Yes, Update',
+            cancelButtonText: 'Cancel',
             confirmButtonColor: isCancelled ? '#f43f5e' : '#f59e0b',
             cancelButtonColor: '#64748b',
             reverseButtons: true,
@@ -542,11 +541,11 @@
     const ratingValues = {};
 
     const ratingLabels = {
-        1: 'Sangat Buruk',
-        2: 'Kurang Baik',
-        3: 'Cukup Baik',
-        4: 'Bagus',
-        5: 'Luar Biasa!'
+        1: 'Very Bad',
+        2: 'Poor',
+        3: 'Fair',
+        4: 'Good',
+        5: 'Excellent!'
     };
 
     function setRating(uid, value) {
@@ -601,7 +600,7 @@
         if (!allValid) {
             Swal.fire({
                 toast: true, position: 'bottom-end', icon: 'warning',
-                title: 'Pilih rating bintang untuk semua produk.',
+                title: 'Please select a star rating for all products.',
                 showConfirmButton: false, timer: 3000,
                 customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
             });
@@ -610,7 +609,7 @@
 
         // Loading state
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Mengirim semua ulasan...';
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Submitting all reviews...';
 
         // Kirim semua review secara paralel
         const promises = Array.from(items).map(card => {
@@ -660,7 +659,7 @@
                             ${r.title ? `<p class="text-xs font-semibold text-slate-700 dark:text-zinc-300 mt-0.5">${r.title}</p>` : ''}
                             ${r.comment ? `<p class="text-[11px] text-slate-400 dark:text-zinc-500 mt-0.5 line-clamp-1">${r.comment}</p>` : ''}
                         </div>
-                        <span class="text-[10px] text-emerald-500 font-bold shrink-0">Terkirim</span>
+                        <span class="text-[10px] text-emerald-500 font-bold shrink-0">Submitted</span>
                     </div>
                 `).join('');
 
@@ -669,21 +668,21 @@
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'Terima kasih!',
-                    text: `${results.length} ulasan berhasil dikirim.`,
+                    title: 'Thank you!',
+                    text: `${results.length} reviews submitted successfully.`,
                     confirmButtonColor: '#f59e0b',
                     customClass: { popup: isDark ? 'dark-swal rounded-2xl' : 'rounded-2xl' }
                 });
             } else {
-                throw new Error('Sebagian ulasan gagal dikirim.');
+                throw new Error('Some reviews failed to submit.');
             }
 
         } catch (err) {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Kirim Ulasan';
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Submit Review';
             Swal.fire({
                 toast: true, position: 'bottom-end', icon: 'error',
-                title: err.message || 'Gagal mengirim ulasan.',
+                title: err.message || 'Failed to submit review.',
                 showConfirmButton: false, timer: 3000,
                 customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
             });

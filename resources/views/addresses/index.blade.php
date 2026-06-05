@@ -95,45 +95,49 @@
 </div>
 
 <!-- Modal Tambah Alamat -->
-<div id="addModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div class="p-6 sm:p-8">
-            <div class="flex items-center justify-between mb-6">
+<div id="addModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
+    <div class="flex h-full items-start justify-center p-4 pt-28 sm:pt-32 pb-8">
+        <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg flex flex-col overflow-hidden" style="max-height: calc(100dvh - 8rem);">
+            <div class="flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-white/5 shrink-0">
                 <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Add New Address</h3>
-                <button onclick="document.getElementById('addModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <form action="{{ route('addresses.store') }}" method="POST" class="space-y-4">
-                @csrf
-                @include('addresses._form', ['address' => null, 'provinces' => $provinces])
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Save</button>
-                    <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
-                </div>
-            </form>
+            <div class="p-6 pt-4 overflow-y-auto flex-1">
+                <form action="{{ route('addresses.store') }}" method="POST" class="space-y-4">
+                    @csrf
+                    @include('addresses._form', ['address' => null, 'provinces' => $provinces])
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Save</button>
+                        <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Modal Edit Alamat -->
-<div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-    <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div class="p-6 sm:p-8">
-            <div class="flex items-center justify-between mb-6">
+<div id="editModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
+    <div class="flex h-full items-start justify-center p-4 pt-28 sm:pt-32 pb-8">
+        <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg flex flex-col overflow-hidden" style="max-height: calc(100dvh - 8rem);">
+            <div class="flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-white/5 shrink-0">
                 <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Edit Address</h3>
-                <button onclick="document.getElementById('editModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
                     <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
-            <form id="editForm" action="" method="POST" class="space-y-4">
-                @csrf @method('PUT')
-                @include('addresses._form', ['address' => null, 'provinces' => $provinces, 'prefix' => 'edit_'])
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Update</button>
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
-                </div>
-            </form>
+            <div class="p-6 pt-4 overflow-y-auto flex-1">
+                <form id="editForm" action="" method="POST" class="space-y-4">
+                    @csrf @method('PUT')
+                    @include('addresses._form', ['address' => null, 'provinces' => $provinces, 'prefix' => 'edit_'])
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Update</button>
+                        <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

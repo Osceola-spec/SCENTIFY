@@ -12,7 +12,7 @@
                 <p class="text-sm text-slate-500 mt-1">Kelola lokasi cabang Scentify yang tersedia untuk pelanggan.</p>
             </div>
             <a href="{{ route('admin.branches.create') }}" class="inline-flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30 active:scale-95 shrink-0">
-                <i class="fas fa-plus"></i> Tambah Cabang
+                <i class="fas fa-plus"></i> Add Branch
             </a>
         </div>
     </div>
@@ -20,7 +20,7 @@
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-4">
             <div class="mb-4">
-                <input id="admin-branch-search" type="search" placeholder="Cari cabang..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+                <input id="admin-branch-search" type="search" placeholder="Search branches..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
             </div>
 
             @php
@@ -74,7 +74,7 @@
                                             <form action="{{ route('admin.branches.destroy', $branch->id) }}" method="POST" class="form-delete inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" data-name="{{ $branch->name }}" class="btn-delete w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm" title="Hapus Cabang">
+                                                <button type="button" data-name="{{ $branch->name }}" class="btn-delete w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 flex items-center justify-center transition-all shadow-sm" title="Delete Branch">
                                                     <i class="fas fa-trash-alt text-xs"></i>
                                                 </button>
                                             </form>
@@ -124,7 +124,7 @@
                     confirmButtonColor: '#0f172a',
                     cancelButtonColor: '#ff2a5f',
                     confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal',
+                    cancelButtonText: 'Cancel',
                     reverseButtons: true,
                     customClass: {
                         popup: 'rounded-[1.5rem] shadow-2xl border border-slate-100',

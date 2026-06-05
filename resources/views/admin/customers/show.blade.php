@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Detail Pelanggan — ' . $user->name)
+@section('title', 'Customer Detail — ' . $user->name)
 
 @section('content')
 <div class="space-y-6 fade-in pb-10">
@@ -10,9 +10,9 @@
         <div>
             <a href="{{ route('admin.customers.index') }}"
                class="inline-flex items-center gap-2 text-xs text-slate-400 hover:text-amber-500 transition-colors mb-2">
-                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pelanggan
+                <i class="fas fa-arrow-left"></i> Back to Customer List
             </a>
-            <h1 class="text-2xl font-bold text-slate-900">Detail Pelanggan</h1>
+            <h1 class="text-2xl font-bold text-slate-900">Customer Detail</h1>
         </div>
         <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold uppercase tracking-wider border {{ $level['bg'] }} {{ $level['color'] }} {{ $level['border'] }}">
             <i class="fas {{ $level['icon'] }}"></i> {{ $level['name'] }}
@@ -31,7 +31,7 @@
                 </div>
                 <h2 class="text-lg font-bold text-slate-900 mt-4">{{ $user->name }}</h2>
                 <p class="text-sm text-slate-400 mt-0.5">{{ $user->email }}</p>
-                <p class="text-xs font-mono text-slate-400 mt-1">Bergabung {{ $user->created_at->format('d M Y') }}</p>
+                <p class="text-xs font-mono text-slate-400 mt-1">Joined {{ $user->created_at->format('d M Y') }}</p>
 
                 {{-- Level Badge Besar --}}
                 <div class="mt-5 p-4 rounded-2xl border {{ $level['border'] }} {{ $level['bg'] }}">
@@ -56,23 +56,23 @@
                                  style="width: {{ $progress }}%"></div>
                         </div>
                         <p class="text-[11px] {{ $level['color'] }} opacity-80 mt-2">
-                            Rp {{ number_format($remaining, 0, ',', '.') }} lagi menuju <strong>{{ $nextLevel['name'] }}</strong>
+                            Rp {{ number_format($remaining, 0, ',', '.') }} more to <strong>{{ $nextLevel['name'] }}</strong>
                         </p>
                     @else
                         <div class="w-full h-2 bg-white/60 rounded-full overflow-hidden mt-2">
                             <div class="h-full rounded-full bg-cyan-400 w-full"></div>
                         </div>
-                        <p class="text-[11px] text-cyan-600 font-bold mt-2">✦ Level Tertinggi Tercapai</p>
+                        <p class="text-[11px] text-cyan-600 font-bold mt-2">✦ Highest Level Reached</p>
                     @endif
                 </div>
             </div>
 
             {{-- Stats --}}
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Statistik</h3>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Statistics</h3>
                 <div class="flex justify-between items-center py-3 border-b border-slate-50">
                     <span class="text-sm text-slate-500 flex items-center gap-2">
-                        <i class="fas fa-shopping-bag text-amber-400 w-4 text-center"></i> Total Pesanan
+                        <i class="fas fa-shopping-bag text-amber-400 w-4 text-center"></i> Total Orders
                     </span>
                     <span class="font-black text-slate-900">{{ $user->orders_count }}</span>
                 </div>
@@ -84,7 +84,7 @@
                 </div>
                 <div class="flex justify-between items-center py-3">
                     <span class="text-sm text-slate-500 flex items-center gap-2">
-                        <i class="fas fa-chart-line text-amber-400 w-4 text-center"></i> Rata-rata Order
+                        <i class="fas fa-chart-line text-amber-400 w-4 text-center"></i> Average Order
                     </span>
                     <span class="font-black text-slate-900 text-sm">
                         Rp {{ $user->orders_count > 0 ? number_format($spending / $user->orders_count, 0, ',', '.') : '0' }}
@@ -117,7 +117,7 @@
                                 <p class="text-[10px] text-slate-400">min. Rp {{ number_format($meta['min'], 0, ',', '.') }}</p>
                             </div>
                             @if ($level['name'] === $name)
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border {{ $meta['bg'] }} {{ $meta['color'] }} {{ $meta['border'] }}">Sekarang</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border {{ $meta['bg'] }} {{ $meta['color'] }} {{ $meta['border'] }}">Current</span>
                             @elseif ($isReached)
                                 <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
                             @endif
@@ -131,8 +131,8 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Riwayat Pesanan</h3>
-                    <span class="text-xs font-mono text-slate-400">{{ $orders->total() }} total pesanan</span>
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Order History</h3>
+                    <span class="text-xs font-mono text-slate-400">{{ $orders->total() }} total orders</span>
                 </div>
                 <div class="divide-y divide-slate-50">
                     @forelse ($orders as $order)
@@ -171,7 +171,7 @@
                                 @endif
                                 <div class="min-w-0">
                                     <p class="font-bold text-slate-900 text-sm font-mono">#{{ $order->order_number }}</p>
-                                    <p class="text-xs text-slate-400 mt-0.5">{{ $order->created_at->format('d M Y') }} · {{ $order->items->count() }} item</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">{{ $order->created_at->format('d M Y') }} · {{ $order->items->count() }} items</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 shrink-0">
@@ -190,7 +190,7 @@
                     @empty
                         <div class="px-6 py-12 text-center text-slate-400">
                             <i class="fas fa-receipt text-3xl mb-3 block opacity-30"></i>
-                            <p class="text-sm">Belum ada pesanan dari pelanggan ini.</p>
+                            <p class="text-sm">No orders from this customer yet.</p>
                         </div>
                     @endforelse
                 </div>

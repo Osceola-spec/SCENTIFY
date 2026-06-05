@@ -13,7 +13,7 @@
             </div>
 
             <div class="mb-4">
-                <input id="branch-search" type="search" placeholder="Cari toko atau alamat..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+                <input id="branch-search" type="search" placeholder="Search store or address..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
             </div>
 
             <div class="space-y-4 lg:max-h-[calc(100vh-240px)] lg:overflow-y-auto lg:pr-3 native-scrollbar pb-10">
@@ -79,6 +79,12 @@
         </div>
 
         <div class="lg:col-span-7 sticky top-28 order-1 lg:order-2 mb-6 lg:mb-0">
+            <!-- Mobile Map Toggle Button -->
+            <button id="toggle-map-btn" class="w-full lg:hidden mb-4 bg-amber-500 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-amber-600 transition-colors">
+                <i class="fas fa-eye-slash"></i> Sembunyikan Peta
+            </button>
+
+            <div id="map-wrapper" class="transition-all duration-300">
             <div id="map-container" class="glass-card w-full h-[300px] sm:h-[400px] lg:h-[calc(100vh-160px)] rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-white/5 relative group">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none z-10"></div>
                 
@@ -99,6 +105,7 @@
                     <a id="overlay-route-btn" href="#" target="_blank" class="flex-shrink-0 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
                         <i class="fas fa-directions"></i> Rute
                     </a>
+                </div>
                 </div>
             </div>
         </div>
@@ -147,6 +154,31 @@
                 firstCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }, 300);
+
+        // Mobile map toggle logic
+        const toggleBtn = document.getElementById('toggle-map-btn');
+        const mapWrapper = document.getElementById('map-wrapper');
+        let isMapVisible = true;
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                isMapVisible = !isMapVisible;
+                if (isMapVisible) {
+                    mapWrapper.classList.remove('hidden');
+                    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Sembunyikan Peta';
+                    toggleBtn.classList.replace('bg-white', 'bg-amber-500');
+                    toggleBtn.classList.replace('text-slate-700', 'text-white');
+                    toggleBtn.classList.replace('border-slate-200', 'border-transparent');
+                } else {
+                    mapWrapper.classList.add('hidden');
+                    toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Tampilkan Peta';
+                    toggleBtn.classList.replace('bg-amber-500', 'bg-white');
+                    toggleBtn.classList.replace('text-white', 'text-slate-700');
+                    toggleBtn.classList.replace('border-transparent', 'border-slate-200');
+                    toggleBtn.classList.add('border');
+                }
+            });
+        }
     });
 </script>
 

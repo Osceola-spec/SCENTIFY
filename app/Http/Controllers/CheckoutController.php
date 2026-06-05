@@ -18,16 +18,54 @@ use Midtrans\Snap;
 
 class CheckoutController extends Controller
 {
-    // 1. Menampilkan Halaman Checkout
     public function index(Request $request)
     {
         $cart = session()->get('cart', []);
+
+        // Sync prices with latest database values
+        if (!empty($cart)) {
+            $variantIds = array_keys($cart);
+            $variants = ProductVariant::with('product')->whereIn('id', $variantIds)->get()->keyBy('id');
+            
+            $now = now();
+            $promo = \App\Models\Promotion::where('is_active', true)
+                ->where(function($q) use ($now) { $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now); })
+                ->first();
+
+            $changed = false;
+            foreach ($cart as $variantId => &$item) {
+                if (isset($variants[$variantId])) {
+                    $variant = $variants[$variantId];
+                    $originalPrice = $variant->price;
+                    $finalPrice = $originalPrice;
+                    
+                    if ($promo && ($promo->applies_to_all || $promo->product_id == $variant->product_id)) {
+                        $dv = (float) $promo->discount_value;
+                        $finalPrice = $promo->discount_type === 'percent'
+                            ? max(0, round($originalPrice * (1 - $dv / 100)))
+                            : max(0, round($originalPrice - $dv));
+                    }
+
+                    if ($item['price'] != $finalPrice || $item['original_price'] != $originalPrice) {
+                        $item['price'] = $finalPrice;
+                        $item['original_price'] = $originalPrice;
+                        $changed = true;
+                    }
+                }
+            }
+            if ($changed) {
+                session()->put('cart', $cart);
+            }
+        }
 
         // Tangkap array ID produk yang dicentang oleh user dari halaman keranjang
         $selectedIds = $request->input('checkout_items', []);
         $quantities = $request->input('quantities', []);
 
         if (empty($selectedIds)) {
+            if (empty(session('cart'))) {
+                return redirect()->route('orders.index');
+            }
             return redirect()->route('cart.index')->with('error', 'Pilih minimal satu produk untuk di-checkout.');
         }
 
@@ -54,7 +92,7 @@ class CheckoutController extends Controller
         }
 
         if (empty($selectedCart)) {
-            return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang.');
+            return redirect()->route('orders.index');
         }
 
         // Default awal ongkir diatur 0 sebelum kurir dipilih di Ajax
@@ -125,8 +163,8 @@ class CheckoutController extends Controller
             
             $globalCart = session()->get('cart', []);
             if (empty($globalCart)) {
-                \Log::info('REDIRECT: Keranjang belanja benar-benar kosong');
-                return redirect()->route('cart.index')->with('error', 'Sesi checkout kosong atau kedaluwarsa. Silakan pilih ulang item dari keranjang.');
+                \Log::info('REDIRECT: Keranjang belanja benar-benar kosong, redirect ke orders.index');
+                return redirect()->route('orders.index');
             }
 
             $subtotal = 0;
@@ -269,7 +307,7 @@ class CheckoutController extends Controller
 
             $params = [
                 'transaction_details' => [
-                    'order_id'     => $order->order_number,
+                    'order_id'     => $order->order_number . '-' . time(),
                     'gross_amount' => (int) $order->total_amount,
                 ],
                 'customer_details' => [

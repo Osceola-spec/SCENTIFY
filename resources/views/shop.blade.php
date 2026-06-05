@@ -65,52 +65,54 @@
             </div>
         </div>
 
-        @if (!empty($upcomingPromotion))
-            <div id="promo-upcoming-banner"
-                class="mb-6 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-between gap-4">
+        @if ($upcomingPromotions->isNotEmpty())
+            @foreach($upcomingPromotions as $upcomingPromotion)
+            <div class="promo-upcoming-banner mb-6 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <div class="text-sm font-mono text-amber-600 uppercase">Promo Akan Datang</div>
+                    <div class="text-sm font-mono text-amber-600 uppercase">Upcoming Promo</div>
                     <div class="text-lg font-semibold text-slate-900 dark:text-white">
-                        {{ optional($upcomingPromotion)->title }}</div>
-                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ optional($upcomingPromotion)->description }}
+                        {{ $upcomingPromotion->title }}</div>
+                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ $upcomingPromotion->description }}
                     </div>
                 </div>
-                <div class="text-right">
-                    <div class="text-xs text-slate-600 dark:text-zinc-300">Mulai dalam:</div>
-                    <div id="promo-starts-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
+                <div class="text-left sm:text-right w-full sm:w-auto">
+                    <div class="text-xs text-slate-600 dark:text-zinc-300">Starts in:</div>
+                    <div class="promo-starts-countdown text-xl font-mono font-bold text-amber-600">--:--:--</div>
                 </div>
-                <input type="hidden" id="promo-starts-at"
-                    value="{{ optional(optional($upcomingPromotion)->starts_at)->format('Y-m-d\TH:i:s') }}">
+                <input type="hidden" class="promo-starts-at"
+                    value="{{ optional($upcomingPromotion->starts_at)->format('Y-m-d\TH:i:s') }}">
             </div>
+            @endforeach
         @endif
 
-        @if (!empty($activePromotion))
-            <div id="promo-banner"
-                class="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between gap-4">
+        @if ($activePromotions->isNotEmpty())
+            @foreach($activePromotions as $activePromotion)
+            <div class="promo-banner mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <div class="text-sm font-mono text-amber-600 uppercase">Promo Aktif</div>
+                    <div class="text-sm font-mono text-amber-600 uppercase">Active Promo</div>
                     <div class="text-lg font-semibold text-slate-900 dark:text-white">
-                        {{ optional($activePromotion)->title }}</div>
-                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ optional($activePromotion)->description }}
+                        {{ $activePromotion->title }}</div>
+                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ $activePromotion->description }}
                     </div>
                 </div>
-                <div class="text-right">
-                    @if (optional($activePromotion)->ends_at)
-                        <div class="text-xs text-slate-600 dark:text-zinc-300">Sisa waktu:</div>
-                        <div id="promo-countdown" class="text-xl font-mono font-bold text-amber-600">--:--:--</div>
-                        @if (optional($activePromotion)->applies_to_all === false && optional($activePromotion)->product)
-                            <a href="{{ route('products.edit', optional($activePromotion)->product->id) }}"
-                                class="text-xs text-slate-700 dark:text-zinc-300">Lihat produk terkait</a>
+                <div class="text-left sm:text-right w-full sm:w-auto">
+                    @if ($activePromotion->ends_at)
+                        <div class="text-xs text-slate-600 dark:text-zinc-300">Ends in:</div>
+                        <div class="promo-countdown text-xl font-mono font-bold text-amber-600">--:--:--</div>
+                        @if ($activePromotion->applies_to_all === false && $activePromotion->product)
+                            <a href="#product-card-{{ $activePromotion->product->id }}"
+                                class="text-xs text-slate-700 dark:text-zinc-300 underline">View related product</a>
                         @endif
-                        <input type="hidden" id="promo-ends-at"
-                            value="{{ optional(optional($activePromotion)->ends_at)->format('Y-m-d\TH:i:s') }}">
+                        <input type="hidden" class="promo-ends-at"
+                            value="{{ optional($activePromotion->ends_at)->format('Y-m-d\TH:i:s') }}">
                     @else
-                        <div class="text-xs text-slate-600 dark:text-zinc-300">Sisa waktu:</div>
-                        <div id="promo-countdown" class="text-xl font-mono font-bold text-amber-600">Selamanya</div>
-                        <input type="hidden" id="promo-ends-at" value="">
+                        <div class="text-xs text-slate-600 dark:text-zinc-300">Ends in:</div>
+                        <div class="promo-countdown text-xl font-mono font-bold text-amber-600">Selamanya</div>
+                        <input type="hidden" class="promo-ends-at" value="">
                     @endif
                 </div>
             </div>
+            @endforeach
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -134,7 +136,7 @@
                         </div>
 
                         <div class="pb-6 border-b border-slate-200 dark:border-white/5">
-                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Kategori
+                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Category
                             </h6>
                             <div class="space-y-3">
                                 @foreach (['Men', 'Women', 'Unisex'] as $gender)
@@ -167,8 +169,7 @@
                         </div>
 
                         <div>
-                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Harga
-                                Maksimal</h6>
+                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Max Price</h6>
                             <div class="relative pt-4 px-2 group">
                                 <input type="range" name="max_price" id="priceRange" min="0" max="5000000"
                                     step="100000" value="{{ request('max_price', 5000000) }}"
@@ -188,7 +189,7 @@
 
                         <button type="submit"
                             class="w-full bg-slate-900 dark:bg-amber-400 text-white dark:text-black font-semibold tracking-wide py-3.5 rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all duration-300 text-sm shadow-lg shadow-amber-500/5">
-                            Terapkan Filter
+                            Apply Filter
                         </button>
                     </div>
                 </form>
@@ -199,13 +200,13 @@
                     $activeFilters = [];
 
                     if (request()->filled('search')) {
-                        $activeFilters[] = ['type' => 'Pencarian', 'label' => '"' . request('search') . '"'];
+                        $activeFilters[] = ['type' => 'Search', 'label' => '"' . request('search') . '"'];
                     }
 
                     $reqGenders = (array) request('gender', []);
                     foreach ($reqGenders as $g) {
                         if (!empty($g)) {
-                            $activeFilters[] = ['type' => 'Kategori', 'label' => $g];
+                            $activeFilters[] = ['type' => 'Category', 'label' => $g];
                         }
                     }
 
@@ -225,7 +226,7 @@
                         class="flex items-start sm:items-center justify-between bg-white dark:bg-darkcard border border-slate-200 dark:border-white/5 rounded-2xl mb-8 p-4 shadow-sm reveal">
                         <div class="flex items-center flex-wrap gap-2 sm:gap-3">
                             <i class="fas fa-filter text-amber-500 text-xs mr-1 mt-1 sm:mt-0"></i>
-                            <span class="text-xs text-slate-500 dark:text-zinc-400">Filter Aktif:</span>
+                            <span class="text-xs text-slate-500 dark:text-zinc-400">Active Filters:</span>
                             @foreach ($activeFilters as $filter)
                                 <span
                                     class="bg-slate-900 dark:bg-amber-400 text-white dark:text-black text-[11px] font-semibold px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
@@ -237,7 +238,7 @@
                         </div>
                         <a href="{{ route('shop') }}"
                             class="flex-shrink-0 w-8 h-8 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:border-rose-500/30 transition-colors ml-4"
-                            title="Hapus Semua Filter">
+                            title="Clear All Filters">
                             <i class="fas fa-times text-xs"></i>
                         </a>
                     </div>
@@ -291,8 +292,7 @@
                                                     <i
                                                         class="far fa-star text-[9px] text-slate-200 dark:text-zinc-700"></i>
                                                 @endfor
-                                                <span class="text-[9px] text-slate-400 font-mono ml-1">Belum ada
-                                                    ulasan</span>
+                                                <span class="text-[9px] text-slate-400 font-mono ml-1">No reviews yet</span>
                                             </div>
                                         @endif
                                     </div>
@@ -301,14 +301,20 @@
                                         $basePrice = $product->variants->first()->price ?? 0;
                                         $promoApplies = false;
                                         $discountedPrice = null;
-                                        if (!empty($activePromotion)) {
-                                            $promoApplies =
-                                                $activePromotion->applies_to_all ||
-                                                ($activePromotion->product_id &&
-                                                    $activePromotion->product_id == $product->id);
-                                            if ($promoApplies) {
-                                                $dv = (float) $activePromotion->discount_value;
-                                                if ($activePromotion->discount_type === 'percent') {
+                                        $appliedPromo = null;
+
+                                        if ($activePromotions->isNotEmpty()) {
+                                            foreach($activePromotions as $promo) {
+                                                if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
+                                                    $appliedPromo = $promo;
+                                                    break;
+                                                }
+                                            }
+
+                                            if ($appliedPromo) {
+                                                $promoApplies = true;
+                                                $dv = (float) $appliedPromo->discount_value;
+                                                if ($appliedPromo->discount_type === 'percent') {
                                                     $discountedPrice = max(0, round($basePrice * (1 - $dv / 100)));
                                                 } else {
                                                     $discountedPrice = max(0, round($basePrice - $dv));
@@ -460,11 +466,11 @@
                                 class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed mt-4 line-clamp-3"></p>
 
                             <h6 class="text-xs font-mono uppercase text-slate-400 tracking-wider mt-6 mb-3 font-semibold">
-                                Ukuran Tersedia:</h6>
+                                Available Sizes:</h6>
                             <div id="variantsList" class="flex flex-wrap gap-2"></div>
 
                             <h6 class="text-xs font-mono uppercase text-slate-400 tracking-wider mt-5 mb-3 font-semibold">
-                                Kuantitas:</h6>
+                                Quantity:</h6>
                             <div class="flex items-center gap-4">
                                 <div
                                     class="flex items-center bg-slate-100 dark:bg-zinc-800/50 rounded-xl p-1 border border-slate-200 dark:border-white/5">
@@ -567,20 +573,38 @@
 
     <script>
         const isDarkMode = () => document.documentElement.classList.contains('dark');
-        const activePromo = @json(
-            $activePromotion
-                ? [
-                    'discount_type' => $activePromotion->discount_type,
-                    'discount_value' => (float) $activePromotion->discount_value,
-                ]
-                : null);
+        @php
+            $promosArray = $activePromotions->map(function($promo) {
+                return [
+                    'id' => $promo->id,
+                    'product_id' => $promo->product_id,
+                    'applies_to_all' => $promo->applies_to_all,
+                    'discount_type' => $promo->discount_type,
+                    'discount_value' => (float) $promo->discount_value,
+                ];
+            })->toArray();
+        @endphp
+        const activePromotionsArray = {!! json_encode($promosArray) !!};
 
-        function calcDiscountedPrice(originalPrice) {
-            if (!activePromo) return null;
-            if (activePromo.discount_type === 'percent') {
-                return Math.max(0, Math.round(originalPrice * (1 - activePromo.discount_value / 100)));
+        function calcDiscountedPrice(originalPrice, productId) {
+            if (!activePromotionsArray || activePromotionsArray.length === 0) return null;
+            
+            let appliedPromo = null;
+            for (let i = 0; i < activePromotionsArray.length; i++) {
+                let p = activePromotionsArray[i];
+                if (p.applies_to_all || (p.product_id && p.product_id == productId)) {
+                    appliedPromo = p;
+                    break;
+                }
             }
-            return Math.max(0, Math.round(originalPrice - activePromo.discount_value));
+
+            if (!appliedPromo) return null;
+
+            let dv = parseFloat(appliedPromo.discount_value);
+            if (appliedPromo.discount_type === 'percent') {
+                return Math.max(0, Math.round(originalPrice * (1 - dv / 100)));
+            }
+            return Math.max(0, Math.round(originalPrice - dv));
         }
 
         let selectedVariantId = null;
@@ -705,7 +729,7 @@
                         vBtn.classList.add('bg-amber-500', 'text-white', 'border-amber-500',
                             'dark:text-black');
 
-                        const discountedPrice = calcDiscountedPrice(v.price);
+                        const discountedPrice = calcDiscountedPrice(v.price, id);
                         const priceEl = document.getElementById('modalProductPrice');
                         if (discountedPrice !== null) {
                             const fmtOrig = new Intl.NumberFormat('id-ID', {
@@ -958,88 +982,100 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const el = document.getElementById('promo-countdown');
-            const endInput = document.getElementById('promo-ends-at');
-            if (!el || !endInput || !endInput.value) return;
-
-            const endAt = new Date(endInput.value);
-            if (isNaN(endAt.getTime())) {
-                el.textContent = "Selamanya";
-                return;
-            }
-
-            function updateCountdown() {
-                const now = new Date();
-                let diff = endAt - now;
-
-                if (diff <= 0) {
-                    el.textContent = 'Selesai';
-                    clearInterval(tid);
+            const endsEls = document.querySelectorAll('.promo-countdown');
+            const endInputs = document.querySelectorAll('.promo-ends-at');
+            
+            endsEls.forEach((el, index) => {
+                const endInput = endInputs[index];
+                if (!endInput || !endInput.value) {
+                    el.textContent = "Selamanya";
                     return;
                 }
 
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                diff -= days * (1000 * 60 * 60 * 24);
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                diff -= hours * (1000 * 60 * 60);
-                const minutes = Math.floor(diff / (1000 * 60));
-                diff -= minutes * (1000 * 60);
-                const seconds = Math.floor(diff / 1000);
+                const endAt = new Date(endInput.value);
+                if (isNaN(endAt.getTime())) {
+                    el.textContent = "Selamanya";
+                    return;
+                }
 
-                const parts = [];
-                if (days > 0) parts.push(days + 'd');
-                const formatTime = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' +
-                    String(seconds).padStart(2, '0');
-                parts.push(formatTime);
-                el.textContent = parts.join(' ');
-            }
+                function updateCountdown() {
+                    const now = new Date();
+                    let diff = endAt - now;
 
-            updateCountdown();
-            const tid = setInterval(updateCountdown, 1000);
+                    if (diff <= 0) {
+                        el.textContent = 'Selesai';
+                        clearInterval(tid);
+                        return;
+                    }
+
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    diff -= days * (1000 * 60 * 60 * 24);
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    diff -= hours * (1000 * 60 * 60);
+                    const minutes = Math.floor(diff / (1000 * 60));
+                    diff -= minutes * (1000 * 60);
+                    const seconds = Math.floor(diff / 1000);
+
+                    const parts = [];
+                    if (days > 0) parts.push(days + 'd');
+                    const formatTime = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' +
+                        String(seconds).padStart(2, '0');
+                    parts.push(formatTime);
+                    el.textContent = parts.join(' ');
+                }
+
+                updateCountdown();
+                const tid = setInterval(updateCountdown, 1000);
+            });
         });
 
         document.addEventListener("DOMContentLoaded", function() {
-            const elStart = document.getElementById('promo-starts-countdown');
-            const startInput = document.getElementById('promo-starts-at');
-            if (!elStart || !startInput || !startInput.value) return;
+            const startEls = document.querySelectorAll('.promo-starts-countdown');
+            const startInputs = document.querySelectorAll('.promo-starts-at');
+            
+            startEls.forEach((elStart, index) => {
+                const startInput = startInputs[index];
+                if (!startInput || !startInput.value) return;
 
-            const startAt = new Date(startInput.value);
-            if (isNaN(startAt.getTime())) return;
+                const startAt = new Date(startInput.value);
+                if (isNaN(startAt.getTime())) return;
 
-            function updateStartCountdown() {
-                const now = new Date();
-                let diff = startAt - now;
-                if (diff <= 0) {
-                    elStart.textContent = 'Dimulai';
-                    clearInterval(startTid);
-                    try {
-                        setTimeout(() => window.location.reload(), 500);
-                    } catch (e) {}
-                    return;
+                function updateStartCountdown() {
+                    const now = new Date();
+                    let diff = startAt - now;
+                    if (diff <= 0) {
+                        elStart.textContent = 'Dimulai';
+                        clearInterval(startTid);
+                        try {
+                            setTimeout(() => window.location.reload(), 500);
+                        } catch (e) {}
+                        return;
+                    }
+
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    diff -= days * (1000 * 60 * 60 * 24);
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    diff -= hours * (1000 * 60 * 60);
+                    const minutes = Math.floor(diff / (1000 * 60));
+                    diff -= minutes * (1000 * 60);
+                    const seconds = Math.floor(diff / 1000);
+
+                    const parts = [];
+                    if (days > 0) parts.push(days + 'd');
+                    parts.push(String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(
+                        seconds).padStart(2, '0'));
+                    elStart.textContent = parts.join(' ');
                 }
 
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                diff -= days * (1000 * 60 * 60 * 24);
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                diff -= hours * (1000 * 60 * 60);
-                const minutes = Math.floor(diff / (1000 * 60));
-                diff -= minutes * (1000 * 60);
-                const seconds = Math.floor(diff / 1000);
-
-                const parts = [];
-                if (days > 0) parts.push(days + 'd');
-                parts.push(String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(
-                    seconds).padStart(2, '0'));
-                elStart.textContent = parts.join(' ');
-            }
-
-            updateStartCountdown();
-            const startTid = setInterval(updateStartCountdown, 1000);
+                updateStartCountdown();
+                const startTid = setInterval(updateStartCountdown, 1000);
+            });
         });
     </script>
 
     <script type="module">
         const isAdmin = {{ auth()->check() && auth()->user()->role === 'admin' ? 'true' : 'false' }};
+        const isAuth = {{ auth()->check() ? 'true' : 'false' }};
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
             '{{ csrf_token() }}';
 
@@ -1072,6 +1108,13 @@
                 const container = document.getElementById('product-container');
                 if (!container) return;
 
+                const imgUrl = e.product.image_url ? (e.product.image_url.startsWith('http') ? e.product.image_url :
+                    `/product_image/${e.product.image_url}`) : 'https://placehold.co/400x500?text=Baru';
+
+                const escapeHtml = (unsafe) => (unsafe || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                const variantsStr = escapeHtml(JSON.stringify(e.product.variants || []));
+                const hasVariants = e.product.variants && e.product.variants.length > 0;
+
                 let actionButtons = '';
                 if (isAdmin) {
                     actionButtons = `
@@ -1083,9 +1126,53 @@
                         </form>
                     `;
                 } else {
+                    
+                    let buyButton = '';
+                    if (hasVariants) {
+                        if (isAuth) {
+                            buyButton = `
+                                <button type="button"
+                                    class="variant-selector-btn flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
+                                    data-product-id="${e.product.id}"
+                                    data-product-name="${escapeHtml(e.product.name)}"
+                                    data-product-brand="${escapeHtml(e.product.brand?.name || 'Unknown Brand')}"
+                                    data-product-image="${imgUrl}"
+                                    data-product-description="${escapeHtml(e.product.description || '')}"
+                                    data-product-images="[]"
+                                    data-variants="${variantsStr}"
+                                    data-reviews="[]">
+                                    <i class="fas fa-cart-plus"></i> Buy
+                                </button>
+                            `;
+                        } else {
+                            buyButton = `
+                                <a href="/login"
+                                    class="flex-grow py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5"
+                                    onclick="event.preventDefault(); showLoginAlert(this.href)">
+                                    <i class="fas fa-cart-plus"></i> Buy
+                                </a>
+                            `;
+                        }
+                    } else {
+                        buyButton = `
+                            <button class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+                                <i class="fas fa-times-circle"></i> Sold Out
+                            </button>
+                        `;
+                    }
+
                     actionButtons = `
-                        <button type="button" onclick="window.location.reload()" class="w-full py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-amber-500 hover:bg-amber-600 text-white rounded-full transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5">
-                            <i class="fas fa-sync"></i> Refresh to Buy
+                        <button type="button" onclick="toggleWishlist(this, event, ${e.product.id})"
+                            class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors shadow-sm focus:outline-none"
+                            title="Add/Remove Wishlist">
+                            <i class="far fa-heart text-[10px] sm:text-xs transition-transform duration-300"></i>
+                        </button>
+                        ${buyButton}
+                        <button type="button"
+                            onclick="shareProduct('${escapeHtml(e.product.name)}', event)"
+                            class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm focus:outline-none"
+                            title="Share Product">
+                            <i class="fas fa-share-nodes text-[10px] sm:text-xs"></i>
                         </button>
                     `;
                 }
@@ -1094,8 +1181,19 @@
                 newProductDiv.className = 'perspective-1000 reveal opacity-0 product-card';
                 newProductDiv.id = 'product-card-' + e.product.id;
 
-                const imgUrl = e.product.image_url ? (e.product.image_url.startsWith('http') ? e.product.image_url :
-                    `/product_image/${e.product.image_url}`) : 'https://placehold.co/400x500?text=Baru';
+                    let basePriceStr = 'Rp 0';
+                    if (hasVariants && e.product.variants[0]) {
+                        const basePrice = e.product.variants[0].price;
+                        const discountedPrice = typeof calcDiscountedPrice === 'function' ? calcDiscountedPrice(basePrice, e.product.id) : null;
+                        
+                        if (discountedPrice !== null) {
+                            const fmtOrig = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(basePrice);
+                            const fmtDisc = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(discountedPrice);
+                            basePriceStr = `<span class="text-xs text-slate-400 line-through mr-2">${fmtOrig}</span><span class="text-xs text-amber-600">${fmtDisc}</span>`;
+                        } else {
+                            basePriceStr = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(basePrice);
+                        }
+                    }
 
                 newProductDiv.innerHTML = `
                     <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative ring-2 ring-amber-400">
@@ -1112,7 +1210,7 @@
                                     <span class="text-[9px] text-slate-400 font-mono ml-1">No reviews yet</span>
                                 </div>
                             </div>
-                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">Check Details</p>
+                            <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">${basePriceStr}</p>
                         </div>
                         <div class="mt-3 flex items-center gap-2 w-full">${actionButtons}</div>
                     </div>
@@ -1200,7 +1298,7 @@
                     if (priceElement && e.product.variants && e.product.variants.length > 0) {
                         const basePrice = e.product.variants[0].price;
                         const discountedPrice = typeof calcDiscountedPrice === 'function' ? calcDiscountedPrice(
-                            basePrice) : null;
+                            basePrice, e.product.id) : null;
 
                         if (discountedPrice !== null) {
                             const fmtOrig = new Intl.NumberFormat('id-ID', {
@@ -1256,6 +1354,35 @@
                         color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0f172a',
                     });
                 }
+            });
+
+            const promoChannel = window.Echo.channel('promotions');
+            promoChannel.listen('.PromotionEvent', (e) => {
+                console.log("🔥 PROMOTION EVENT DITERIMA:", e);
+                let title = e.promotion ? e.promotion.title : 'New Promo';
+                let message = e.action === 'deleted' 
+                    ? `Promotion has been removed. Page will reload...` 
+                    : `New promo: ${title}! Applying discount...`;
+                
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Promotion Update!',
+                    text: message,
+                    position: 'top-end',
+                    toast: true,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.style.marginTop = '90px';
+                        const container = document.querySelector('.swal2-container');
+                        if (container) container.style.zIndex = '99999';
+                    },
+                    background: document.documentElement.classList.contains('dark') ? '#1e1e2e' : '#ffffff',
+                    color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0f172a',
+                }).then(() => {
+                    window.location.reload();
+                });
             });
         }
     </script>

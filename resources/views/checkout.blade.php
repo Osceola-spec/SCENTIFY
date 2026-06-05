@@ -16,8 +16,8 @@
     </nav>
 
     <div class="mb-10 reveal">
-        <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Selesaikan Transaksi</span>
-        <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Penyelesaian <span class="text-amber-500 font-normal">Pesanan</span></h1>
+        <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Complete Transaction</span>
+        <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Order <span class="text-amber-500 font-normal">Checkout</span></h1>
     </div>
 
     @if ($errors->any())
@@ -43,7 +43,7 @@
                 <div class="glass-card bg-white/60 dark:bg-darkcard/60 rounded-[2rem] border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                     <h3 class="text-xl font-serif font-bold text-slate-950 dark:text-white mb-5 flex items-center gap-3 border-b border-slate-100 dark:border-white/5 pb-4">
                         <span class="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center text-sm font-bold">1</span>
-                        Alamat Pengiriman
+                        Shipping Address
                     </h3>
 
                     @php $addresses = auth()->user()->addresses()->orderBy('is_default','desc')->get(); @endphp
@@ -51,10 +51,10 @@
                     @if($addresses->isEmpty())
                         <div class="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-center">
                             <i class="fas fa-map-marker-alt text-amber-400 text-2xl mb-3 block"></i>
-                            <p class="text-sm text-slate-600 dark:text-zinc-300 mb-3">Belum ada alamat tersimpan.</p>
-                            <a href="{{ route('addresses.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-amber-400 transition-all">
-                                <i class="fas fa-plus"></i> Tambah Alamat
-                            </a>
+                            <p class="text-sm text-slate-600 dark:text-zinc-300 mb-3">No saved addresses.</p>
+                            <button type="button" onclick="document.getElementById('addModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-amber-400 transition-all">
+                                <i class="fas fa-plus"></i> Add Address
+                            </button>
                         </div>
                     @else
                         <div class="space-y-3" id="addressList">
@@ -67,9 +67,9 @@
                                        class="mt-1 accent-amber-500">
                                 <div class="flex-grow min-w-0">
                                     <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                                        <span class="text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold">{{ $addr->label ?? 'Alamat' }}</span>
+                                        <span class="text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-bold">{{ $addr->label ?? 'Address' }}</span>
                                         @if($addr->is_default)
-                                            <span class="text-[9px] font-mono uppercase bg-amber-500 text-black px-2 py-0.5 rounded-full">Utama</span>
+                                            <span class="text-[9px] font-mono uppercase bg-amber-500 text-black px-2 py-0.5 rounded-full">Default</span>
                                         @endif
                                     </div>
                                     <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $addr->first_name }} {{ $addr->last_name }}</p>
@@ -80,9 +80,9 @@
                             @endforeach
                         </div>
                         <div class="mt-4">
-                            <a href="{{ route('addresses.index') }}" class="text-xs text-amber-500 hover:text-amber-400 font-medium transition-colors">
-                                <i class="fas fa-plus mr-1"></i> Kelola / Tambah Alamat
-                            </a>
+                            <button type="button" onclick="document.getElementById('addModal').classList.remove('hidden')" class="text-xs text-amber-500 hover:text-amber-400 font-medium transition-colors">
+                                <i class="fas fa-plus mr-1"></i> Add New Address
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -91,11 +91,11 @@
                 <div id="shipping_section" class="hidden glass-card bg-white/60 dark:bg-darkcard/60 rounded-[2rem] border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-xl">
                     <h3 class="text-xl font-serif font-bold text-slate-950 dark:text-white mb-5 flex items-center gap-3 border-b border-slate-100 dark:border-white/5 pb-4">
                         <span class="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center text-sm font-bold">2</span>
-                        Layanan Pengiriman
+                        Shipping Service
                     </h3>
                     
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-2 text-slate-900 dark:text-white">Pilih Kurir:</label>
+                        <label class="block text-sm font-semibold mb-2 text-slate-900 dark:text-white">Select Courier:</label>
                         <select id="courier_select" class="w-full p-3 border rounded-xl bg-white dark:bg-zinc-800 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all">
                             <option value="jne">JNE (Jalur Nugraha Ekakurir)</option>
                             <option value="pos">POS Indonesia</option>
@@ -103,7 +103,7 @@
                         </select>
                     </div>
                     <div id="service_list" class="space-y-2">
-                        <p class="text-xs text-slate-400">Pilih alamat untuk memuat ongkos kirim.</p>
+                        <p class="text-xs text-slate-400">Select an address to load shipping costs.</p>
                     </div>
                 </div>
 
@@ -113,7 +113,7 @@
             <div class="lg:col-span-5">
                 <div class="glass-card bg-slate-50/80 dark:bg-darkcard/80 rounded-[2rem] border border-slate-200 dark:border-white/5 p-6 sm:p-8 shadow-2xl lg:sticky lg:top-28">
                     <h3 class="text-xl font-serif font-bold text-slate-950 dark:text-white mb-6 border-b border-slate-200 dark:border-white/5 pb-4">
-                        Ringkasan Pesanan
+                        Order Summary
                     </h3>
 
                     <div class="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
@@ -127,7 +127,7 @@
                             <div class="flex-grow min-w-0">
                                 <p class="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">{{ $item['product_name'] }}</p>
                                 <p class="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">
-                                    {{ $item['size'] }} · Qty {{ $item['quantity'] }}
+                                    {{ $item['size'] }}ml · Qty {{ $item['quantity'] }}
                                 </p>
                             </div>
                             <span class="text-sm font-bold text-slate-900 dark:text-white shrink-0">
@@ -143,30 +143,55 @@
                             <span class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between text-slate-500 dark:text-zinc-400">
-                            <span>Biaya Pengiriman</span>
+                            <span>Shipping Cost</span>
                             <span id="shipping_display" class="font-semibold text-slate-800 dark:text-zinc-200">-</span>
                         </div>
                         <div class="flex justify-between text-slate-500 dark:text-zinc-400 pb-4 border-b border-slate-200 dark:border-white/5">
-                            <span>Pajak (11%)</span>
+                            <span>Tax (11%)</span>
                             <span class="font-semibold text-slate-800 dark:text-zinc-200">Rp {{ number_format($taxAmount, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between items-center pt-2 mb-6">
-                            <h5 class="text-base font-serif font-bold text-slate-900 dark:text-white">Total Pembayaran</h5>
+                            <h5 class="text-base font-serif font-bold text-slate-900 dark:text-white">Total Payment</h5>
                             <h4 id="total_display" class="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">Rp {{ number_format($totalAmount, 0, ',', '.') }}</h4>
                         </div>
                     </div>
 
                     <button type="submit" class="w-full py-4 font-semibold text-xs tracking-widest uppercase bg-slate-950 dark:bg-amber-400 text-white dark:text-black rounded-xl hover:bg-amber-500 dark:hover:bg-amber-300 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2">
-                        Lanjutkan Pembayaran <i class="fas fa-lock ml-1"></i>
+                        Proceed to Payment <i class="fas fa-lock ml-1"></i>
                     </button>
                     <p class="text-center text-[10px] text-slate-400 dark:text-zinc-500 mt-4 flex items-center justify-center gap-1.5">
-                        <i class="fas fa-shield-check text-emerald-500"></i> Transaksi diamankan dengan Enkripsi SSL.
+                        <i class="fas fa-shield-check text-emerald-500"></i> Transaction secured with SSL Encryption.
                     </p>
                 </div>
             </div>
 
         </div>
     </form>
+</div>
+
+<!-- Modal Tambah Alamat -->
+<div id="addModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm">
+    <div class="flex h-full items-start justify-center p-4 pt-28 sm:pt-32 pb-8">
+        <div class="bg-white dark:bg-darkcard rounded-3xl border border-slate-200 dark:border-white/10 shadow-2xl w-full max-w-lg flex flex-col overflow-hidden" style="max-height: calc(100dvh - 8rem);">
+            <div class="flex items-center justify-between p-6 pb-4 border-b border-slate-100 dark:border-white/5 shrink-0">
+                <h3 class="text-lg font-serif font-bold text-slate-900 dark:text-white">Add New Address</h3>
+                <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 pt-4 overflow-y-auto flex-1">
+                <form action="{{ route('addresses.store') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <input type="hidden" name="redirect_to" value="checkout">
+                    @include('addresses._form', ['address' => null, 'provinces' => $provinces])
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit" class="flex-1 py-3 bg-slate-950 dark:bg-amber-500 text-white dark:text-black rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-amber-500 dark:hover:bg-amber-400 transition-all">Save</button>
+                        <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="flex-1 py-3 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-zinc-300 rounded-xl font-semibold text-xs uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -282,6 +307,62 @@ document.addEventListener('DOMContentLoaded', function() {
             if (cityId) fetchOngkir(cityId);
         }
     });
+
+    // Modal behavior & Province -> City Select
+    document.getElementById('addModal')?.addEventListener('click', function(e) {
+        if (e.target === this) this.classList.add('hidden');
+    });
+
+    document.querySelector('[name="province_id"]')?.addEventListener('change', function() {
+        const citySelect = document.querySelector('[name="city_id"]');
+        const cityHidden = document.querySelector('[name="city"]');
+        const provinceId = this.value;
+        if (!provinceId) { citySelect.innerHTML = '<option value="">-- Pilih Kota --</option>'; return; }
+        
+        citySelect.innerHTML = '<option>Loading...</option>';
+        fetch(`/api/cities/${provinceId}`)
+            .then(r => r.json())
+            .then(cities => {
+                citySelect.innerHTML = '<option value="">-- Pilih Kota --</option>';
+                cities.forEach(c => {
+                    citySelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+                citySelect.addEventListener('change', function() {
+                    if (cityHidden) cityHidden.value = this.options[this.selectedIndex]?.text || '';
+                });
+            });
+    });
+
+    // Listen for real-time product price updates
+    if (window.Echo) {
+        const cartVariantIds = @json(array_keys($cart));
+        window.Echo.channel('scentify-live')
+            .listen('.product.updated', (e) => {
+                if (e.product && e.product.variants) {
+                    const updatedVariantIds = e.product.variants.map(v => Number(v.id));
+                    const hasCartItemChanged = cartVariantIds.some(id => updatedVariantIds.includes(Number(id)));
+                    
+                    if (hasCartItemChanged) {
+                        Swal.fire({
+                            title: 'Price Updated!',
+                            text: `The price for '${e.product.name}' has been updated by the administrator. Please refresh the page to sync the latest price.`,
+                            icon: 'info',
+                            confirmButtonText: '<i class="fas fa-sync-alt mr-2"></i>Refresh Page',
+                            confirmButtonColor: '#f59e0b',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'rounded-[1.5rem] dark-swal shadow-2xl',
+                                confirmButton: 'rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-widest'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                    }
+                }
+            });
+    }
 });
 </script>
 @endsection

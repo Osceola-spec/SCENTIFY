@@ -40,6 +40,10 @@ class AddressController extends Controller
 
         Address::create($data);
 
+        if ($request->redirect_to === 'checkout') {
+            return redirect()->route('checkout')->with('success', 'Alamat berhasil disimpan.');
+        }
+
         return redirect()->route('addresses.index')->with('success', 'Alamat berhasil disimpan.');
     }
 

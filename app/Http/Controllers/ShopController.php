@@ -20,9 +20,14 @@ class ShopController extends Controller
         $brands = Brand::all();
 
             // ensure variable exists for the view in all code paths
-            $activePromotion = null;
-            $upcomingPromotion = null;
+            $activePromotions = collect();
+            $upcomingPromotions = collect();
 
+            // Auto-disable expired promos
+            Promotion::where('is_active', true)
+                ->whereNotNull('ends_at')
+                ->where('ends_at', '<', now())
+                ->update(['is_active' => false]);
 
         // 1. Mulai query dengan eager loading
         $query = Product::with([
@@ -51,23 +56,23 @@ class ShopController extends Controller
 
                 // include active and upcoming promotions even when returning early from Scout search
                 $now = now();
-                $activePromotion = Promotion::where('is_active', true)
+                $activePromotions = Promotion::where('is_active', true)
                     ->where(function($q) use ($now) {
                         $q->whereNull('starts_at')->orWhere('starts_at', '<=', $now);
                     })
                     ->where(function($q) use ($now) {
                         $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
-                    })->first();
+                    })->get();
 
-                $upcomingPromotion = Promotion::where('is_active', true)
+                $upcomingPromotions = Promotion::where('is_active', true)
                     ->whereNotNull('starts_at')
                     ->where('starts_at', '>', $now)
                     ->orderBy('starts_at', 'asc')
-                    ->first();
+                    ->get();
 
-                Log::debug('ShopController: scout search promotions', ['active_found' => (bool) $activePromotion, 'upcoming_found' => (bool) $upcomingPromotion]);
+                Log::debug('ShopController: scout search promotions', ['active_found' => $activePromotions->count(), 'upcoming_found' => $upcomingPromotions->count()]);
 
-                return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotion', 'upcomingPromotion'));
+                return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotions', 'upcomingPromotions'));
             } catch (\Throwable $e) {
                 // Jika Scout/Meilisearch tidak tersedia, fallback ke query SQL biasa
                 // (log error dan lanjutkan)
@@ -136,21 +141,21 @@ class ShopController extends Controller
 
         // Cari promo aktif berjalan (jika ada)
         $now = now();
-        $activePromotion = Promotion::where('is_active', true)
+        $activePromotions = Promotion::where('is_active', true)
             ->where(function($q) use ($now) {
                 $q->whereNull('starts_at')->orWhere('starts_at', '<=', $now);
             })
             ->where(function($q) use ($now) {
                 $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
-            })->first();
+            })->get();
 
-        $upcomingPromotion = Promotion::where('is_active', true)
+        $upcomingPromotions = Promotion::where('is_active', true)
             ->whereNotNull('starts_at')
             ->where('starts_at', '>', $now)
             ->orderBy('starts_at', 'asc')
-            ->first();
+            ->get();
 
-        return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotion', 'upcomingPromotion'));
+        return view('shop', compact('products', 'brands', 'wishlistedProductIds', 'activePromotions', 'upcomingPromotions'));
     }
 
     public function insert_product()

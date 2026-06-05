@@ -31,7 +31,9 @@ class AdminOrderController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'LIKE', "%{$search}%")
                   ->orWhereHas('user', function ($q2) use ($search) {
-                      $q2->where('name', 'LIKE', "%{$search}%");
+                      $q2->where('username', 'LIKE', "%{$search}%")
+                         ->orWhere('first_name', 'LIKE', "%{$search}%")
+                         ->orWhere('last_name', 'LIKE', "%{$search}%");
                   });
             });
         }

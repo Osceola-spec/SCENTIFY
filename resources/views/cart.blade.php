@@ -406,6 +406,39 @@
         checkoutForm.submit();
     }
 
-    document.addEventListener('DOMContentLoaded', updateOrderSummary);
+    document.addEventListener('DOMContentLoaded', () => {
+        updateOrderSummary();
+
+        // Listen for real-time product price updates
+        if (window.Echo) {
+            const cartVariantIds = @json(array_keys($cart));
+            window.Echo.channel('scentify-live')
+                .listen('.product.updated', (e) => {
+                    if (e.product && e.product.variants) {
+                        const updatedVariantIds = e.product.variants.map(v => Number(v.id));
+                        const hasCartItemChanged = cartVariantIds.some(id => updatedVariantIds.includes(Number(id)));
+                        
+                        if (hasCartItemChanged) {
+                            Swal.fire({
+                                title: 'Price Updated!',
+                                text: `The price for '${e.product.name}' has been updated by the administrator. Please refresh the page to sync the latest price.`,
+                                icon: 'info',
+                                confirmButtonText: '<i class="fas fa-sync-alt mr-2"></i>Refresh Page',
+                                confirmButtonColor: '#f59e0b',
+                                allowOutsideClick: false,
+                                customClass: {
+                                    popup: 'rounded-[1.5rem] dark-swal shadow-2xl',
+                                    confirmButton: 'rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-widest'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    }
+                });
+        }
+    });
 </script>
 @endsection

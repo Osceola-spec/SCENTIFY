@@ -1,16 +1,16 @@
 @extends('admin.layout')
 
-@section('title', 'Tambah Cabang')
+@section('title', 'Add Branch')
 
 @section('content')
 <div class="space-y-6 fade-in pb-10">
     <div class="pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Tambah Cabang</h1>
-                <p class="text-sm text-slate-500 mt-1">Tambahkan lokasi toko baru yang akan ditampilkan ke pelanggan.</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Add Branch</h1>
+                <p class="text-sm text-slate-500 mt-1">Add a new store location to be shown to customers.</p>
             </div>
-            <a href="{{ route('admin.branches.index') }}" class="inline-flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-xl border">Kembali</a>
+            <a href="{{ route('admin.branches.index') }}" class="inline-flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-xl border">Back</a>
         </div>
     </div>
 
@@ -66,7 +66,7 @@
                     <input type="checkbox" name="is_active" value="1" class="form-checkbox" checked>
                     <span class="ml-2">Aktif</span>
                 </label>
-                <button type="submit" class="ml-auto bg-amber-500 text-white px-5 py-2.5 rounded-xl font-semibold">Simpan Cabang</button>
+                <button type="submit" class="ml-auto bg-amber-500 text-white px-5 py-2.5 rounded-xl font-semibold">Save Branch</button>
             </div>
         </form>
     </div>

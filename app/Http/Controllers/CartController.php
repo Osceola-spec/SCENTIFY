@@ -8,10 +8,45 @@ use App\Models\Promotion;
 
 class CartController extends Controller
 {
-    // Menampilkan halaman Keranjang
     public function index()
     {
         $cart = session()->get('cart', []);
+
+        // Sync prices with latest database values
+        if (!empty($cart)) {
+            $variantIds = array_keys($cart);
+            $variants = ProductVariant::with('product')->whereIn('id', $variantIds)->get()->keyBy('id');
+            
+            $now = now();
+            $promo = Promotion::where('is_active', true)
+                ->where(function($q) use ($now) { $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now); })
+                ->first();
+
+            $changed = false;
+            foreach ($cart as $variantId => &$item) {
+                if (isset($variants[$variantId])) {
+                    $variant = $variants[$variantId];
+                    $originalPrice = $variant->price;
+                    $finalPrice = $originalPrice;
+                    
+                    if ($promo && ($promo->applies_to_all || $promo->product_id == $variant->product_id)) {
+                        $dv = (float) $promo->discount_value;
+                        $finalPrice = $promo->discount_type === 'percent'
+                            ? max(0, round($originalPrice * (1 - $dv / 100)))
+                            : max(0, round($originalPrice - $dv));
+                    }
+
+                    if ($item['price'] != $finalPrice || $item['original_price'] != $originalPrice) {
+                        $item['price'] = $finalPrice;
+                        $item['original_price'] = $originalPrice;
+                        $changed = true;
+                    }
+                }
+            }
+            if ($changed) {
+                session()->put('cart', $cart);
+            }
+        }
 
         // Hitung total harga
         $total = 0;

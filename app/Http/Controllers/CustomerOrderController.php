@@ -101,10 +101,13 @@ class CustomerOrderController extends Controller
      */
     public function paymentFinished(Request $request)
     {
-        // Tangkap nomor order dari parameter yang dikirim balik oleh Midtrans (?order_id=ORD-XXXX)
-        $orderNumber = $request->query('order_id');
+        // Tangkap nomor order dari parameter yang dikirim balik oleh Midtrans (?order_id=ORD-XXXX-123456)
+        $rawOrderId = $request->query('order_id');
 
-        if ($orderNumber) {
+        if ($rawOrderId) {
+            $parts = explode('-', $rawOrderId);
+            $orderNumber = count($parts) >= 2 ? $parts[0] . '-' . $parts[1] : $rawOrderId;
+
             // Cari data ordernya di database lengkap dengan data usernya
             $order = Order::with('user')->where('order_number', $orderNumber)->first();
 
@@ -164,7 +167,7 @@ class CustomerOrderController extends Controller
         // 3. Susun parameter transaksi untuk Midtrans
         $params = [
             'transaction_details' => [
-                'order_id' => $order->order_number,
+                'order_id' => $order->order_number . '-' . time(),
                 'gross_amount' => (int) $order->total_amount,
             ],
             'customer_details' => [

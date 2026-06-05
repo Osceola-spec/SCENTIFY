@@ -1,16 +1,16 @@
 @extends('admin.layout')
 
-@section('title', 'Dashboard Admin')
+@section('title', 'Admin Dashboard')
 
 @section('content')
 <div class="space-y-8 fade-in">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Dashboard Manajemen Parfum</h1>
-            <p class="text-sm text-slate-500 mt-1">Panel ringkasan untuk memantau stok, penjualan, pesanan, dan performa operasional.</p>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Perfume Management Dashboard</h1>
+            <p class="text-sm text-slate-500 mt-1">Summary panel to monitor stock, sales, orders, and operational performance.</p>
         </div>
         <a href="{{ route('admin.inventory') }}" class="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
-            <i class="fas fa-boxes text-sm text-amber-400"></i> Lihat Inventori
+            <i class="fas fa-boxes text-sm text-amber-400"></i> View Inventory
         </a>
     </div>
 
@@ -34,7 +34,7 @@
                     @endif
                 </div>
                 <div>
-                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Total Pesanan</h6>
+                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Total Orders</h6>
                     <h2 class="text-3xl font-black text-slate-800">{{ $totalOrders ?? 0 }}</h2>
                 </div>
             </div>
@@ -47,10 +47,10 @@
                     <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <span class="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg uppercase tracking-wider">Perlu Diproses</span>
+                    <span class="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg uppercase tracking-wider">Needs Processing</span>
                 </div>
                 <div>
-                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pesanan Pending</h6>
+                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pending Orders</h6>
                     <h2 class="text-3xl font-black text-slate-800">{{ $pendingOrders ?? 0 }}</h2>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                     @endif
                 </div>
                 <div>
-                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pesanan Selesai</h6>
+                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Completed Orders</h6>
                     <h2 class="text-3xl font-black text-slate-800">{{ $completedOrders ?? 0 }}</h2>
                 </div>
             </div>
@@ -98,7 +98,7 @@
                     @endif
                 </div>
                 <div>
-                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pendapatan Hari Ini</h6>
+                    <h6 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Today's Revenue</h6>
                     <h2 class="text-2xl font-black text-slate-800 truncate" title="Rp {{ number_format($todayRevenue ?? 0, 0, ',', '.') }}">
                         Rp {{ number_format($todayRevenue ?? 0, 0, ',', '.') }}
                     </h2>
@@ -115,7 +115,7 @@
                 <i class="fas fa-chart-line"></i>
             </div>
             <div class="overflow-hidden">
-                <h6 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pendapatan Bulan Ini</h6>
+                <h6 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">This Month's Revenue</h6>
                 <h2 class="text-2xl font-black text-slate-800 truncate">Rp {{ number_format($monthlyRevenue ?? 0, 0, ',', '.') }}</h2>
             </div>
         </div>
@@ -125,7 +125,7 @@
                 <i class="fas fa-coins"></i>
             </div>
             <div class="overflow-hidden">
-                <h6 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pendapatan Total</h6>
+                <h6 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Total Revenue</h6>
                 <h2 class="text-2xl font-black text-slate-800 truncate">Rp {{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</h2>
             </div>
         </div>
@@ -138,7 +138,7 @@
                 <i class="fas fa-spray-can"></i>
             </div>
             <div class="z-10">
-                <h6 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Produk Aktif Katalog</h6>
+                <h6 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Active Catalog Products</h6>
                 <h2 class="text-3xl font-black text-white">{{ $totalProducts ?? 0 }}</h2>
             </div>
         </div>
@@ -149,8 +149,8 @@
         <div class="lg:col-span-2 bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                 <div>
-                    <h5 class="font-bold text-slate-800 text-base">Analisis Grafik Pendapatan</h5>
-                    <p class="text-xs text-slate-400 mt-0.5">Statistik pertumbuhan pendapatan kotor Scentify tahun ini.</p>
+                    <h5 class="font-bold text-slate-800 text-base">Revenue Trend Analysis</h5>
+                    <p class="text-xs text-slate-400 mt-0.5">Scentify's gross revenue growth statistics this year.</p>
                 </div>
                 <span class="text-xs text-amber-500 font-bold bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
                     <i class="fas fa-sync-alt mr-1"></i> Real-time
@@ -164,16 +164,16 @@
         <div class="bg-white rounded-[1.5rem] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
             <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                 <div>
-                    <h5 class="font-bold text-slate-800 text-base">Segmentasi Gender</h5>
-                    <p class="text-xs text-slate-400 mt-0.5">Proporsi penjualan berdasarkan target parfum.</p>
+                    <h5 class="font-bold text-slate-800 text-base">Gender Segmentation</h5>
+                    <p class="text-xs text-slate-400 mt-0.5">Sales proportion based on perfume target.</p>
                 </div>
             </div>
             <div class="w-full h-64 relative flex items-center justify-center">
                 <canvas id="scentCategoryChart"></canvas>
             </div>
             <div class="flex justify-around items-center text-xs font-semibold pt-4 border-t border-slate-50 mt-4">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Pria</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Wanita</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Men</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Women</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> Unisex</span>
             </div>
         </div>
@@ -182,11 +182,11 @@
     <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h5 class="text-lg font-bold text-slate-800">Daftar Pesanan Pending</h5>
-                <p class="text-xs text-slate-500 mt-1">Pesanan masuk yang membutuhkan verifikasi atau konfirmasi tindakan segera.</p>
+                <h5 class="text-lg font-bold text-slate-800">Pending Orders List</h5>
+                <p class="text-xs text-slate-500 mt-1">Incoming orders that require verification or immediate action confirmation.</p>
             </div>
             <a href="{{ route('admin.orders.index') }}" class="text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors flex items-center gap-1">
-                Semua Riwayat Pesanan <i class="fas fa-arrow-right text-[10px]"></i>
+                All Order History <i class="fas fa-arrow-right text-[10px]"></i>
             </a>
         </div>
 
@@ -199,12 +199,12 @@
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
-                            <th class="px-6 py-4 border-b border-slate-100">No. Pesanan</th>
-                            <th class="px-6 py-4 border-b border-slate-100">Pelanggan</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Order No.</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Customer</th>
                             <th class="px-6 py-4 border-b border-slate-100">Status</th>
                             <th class="px-6 py-4 border-b border-slate-100">Total</th>
-                            <th class="px-6 py-4 border-b border-slate-100">Dibuat Pada</th>
-                            <th class="px-6 py-4 border-b border-slate-100 text-center">Aksi</th>
+                            <th class="px-6 py-4 border-b border-slate-100">Created At</th>
+                            <th class="px-6 py-4 border-b border-slate-100 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
@@ -240,8 +240,8 @@
                     <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-4 text-2xl border border-emerald-100">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <h6 class="text-slate-800 font-bold mb-1">Tidak Ada Pesanan Pending</h6>
-                    <p class="text-sm text-slate-500">Bagus! Semua pesanan masuk telah Anda verifikasi atau proses.</p>
+                    <h6 class="text-slate-800 font-bold mb-1">No Pending Orders</h6>
+                    <p class="text-sm text-slate-500">Great! All incoming orders have been verified or processed by you.</p>
                 </div>
             @endif
         </div>
@@ -252,7 +252,7 @@
         <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 bg-rose-50/30">
                 <h5 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fas fa-exclamation-triangle text-rose-500"></i> Varian Stok Rendah
+                    <i class="fas fa-exclamation-triangle text-rose-500"></i> Low Stock Variants
                 </h5>
             </div>
             <div class="p-0 flex-1 overflow-auto max-h-[350px]">
@@ -265,12 +265,12 @@
                                         <i class="fas fa-flask"></i>
                                     </div>
                                     <div>
-                                        <h6 class="font-bold text-sm text-slate-800 line-clamp-1">{{ $variant->product->name ?? 'Produk tidak tersedia' }}</h6>
-                                        <p class="text-xs text-slate-500 mt-0.5">Ukuran: <span class="font-semibold">{{ $variant->size ?? '-' }}ml</span></p>
+                                        <h6 class="font-bold text-sm text-slate-800 line-clamp-1">{{ $variant->product->name ?? 'Product unavailable' }}</h6>
+                                        <p class="text-xs text-slate-500 mt-0.5">Size: <span class="font-semibold">{{ $variant->size ?? '-' }}ml</span></p>
                                     </div>
                                 </div>
                                 <span class="px-3 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold whitespace-nowrap">
-                                    Sisa {{ $variant->stock }}
+                                    Left {{ $variant->stock }}
                                 </span>
                             </li>
                         @endforeach
@@ -278,8 +278,8 @@
                 @else
                     <div class="h-full min-h-[200px] flex flex-col items-center justify-center p-6 text-center">
                         <i class="fas fa-check-circle text-3xl text-emerald-400 mb-3"></i>
-                        <p class="text-sm font-medium text-slate-600">Level Stok Aman</p>
-                        <p class="text-xs text-slate-400 mt-1">Semua varian berada pada kuantitas aman.</p>
+                        <p class="text-sm font-medium text-slate-600">Safe Stock Level</p>
+                        <p class="text-xs text-slate-400 mt-1">All variants are at a safe quantity.</p>
                     </div>
                 @endif
             </div>
@@ -288,11 +288,11 @@
         <div class="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <h5 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fas fa-star text-amber-400"></i> Produk Baru (15 Hari Terakhir)
+                    <i class="fas fa-star text-amber-400"></i> New Products (Last 15 Days)
                 </h5>
                 @if(isset($recentProducts) && $recentProducts->isNotEmpty())
                     <span class="text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200 px-2.5 py-1 rounded-lg">
-                        {{ $recentProducts->count() }} Produk
+                        {{ $recentProducts->count() }} Products
                     </span>
                 @endif
             </div>
@@ -330,8 +330,8 @@
                         <div class="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 mb-3">
                             <i class="fas fa-box-open text-lg"></i>
                         </div>
-                        <p class="text-sm font-semibold text-slate-600">Belum ada produk baru</p>
-                        <p class="text-xs text-slate-400 mt-1">Tidak ada produk yang ditambahkan dalam 15 hari terakhir.</p>
+                        <p class="text-sm font-semibold text-slate-600">No new products yet</p>
+                        <p class="text-xs text-slate-400 mt-1">No products added in the last 15 days.</p>
                     </div>
                 @endif
             </div>

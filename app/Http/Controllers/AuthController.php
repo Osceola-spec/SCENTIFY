@@ -98,8 +98,8 @@ class AuthController extends Controller
             'expires_at' => Carbon::now()->addMinutes(15),
         ]);
 
-        // Kirim email OTP (queued)
-        Mail::to($validated['email'])->queue(new EmailOtpMail((object)$pending, $code));
+        // Kirim email OTP (langsung agar error dari Brevo terlihat)
+        Mail::to($validated['email'])->send(new EmailOtpMail((object)$pending, $code));
 
         // Simpan email sementara di session untuk verifikasi
         $request->session()->put('pending_registration_email', $validated['email']);
@@ -162,7 +162,7 @@ class AuthController extends Controller
             'expires_at' => Carbon::now()->addMinutes(15),
         ]);
 
-        Mail::to($email)->queue(new EmailOtpMail((object)$request->session()->get('pending_registration'), $code));
+        Mail::to($email)->send(new EmailOtpMail((object)$request->session()->get('pending_registration'), $code));
 
         return back()->with('status', 'Kode OTP baru telah dikirimkan.');
     }

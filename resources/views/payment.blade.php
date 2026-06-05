@@ -27,24 +27,24 @@
             <div class="bg-slate-50 dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 rounded-2xl p-6 mb-8 relative overflow-hidden group">
                 <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/10 rounded-full group-hover:scale-150 transition-transform duration-500 pointer-events-none"></div>
                 
-                <p class="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-2 relative z-10">Total Tagihan Pembayaran</p>
+                <p class="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-2 relative z-10">Total Payment Amount</p>
                 <h3 class="text-3xl sm:text-4xl font-black text-amber-600 dark:text-amber-400 relative z-10 tracking-tight">
                     Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                 </h3>
             </div>
 
             <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mb-8 leading-relaxed max-w-sm mx-auto">
-                Silakan selesaikan pembayaran Anda sekarang agar pesanan eksklusif Anda dapat segera kami proses dan kirimkan.
+                Please complete your payment now so that your exclusive order can be processed and shipped immediately.
             </p>
 
             <div class="flex flex-col sm:flex-row gap-4 mt-4">
                 <button id="pay-button" class="flex-1 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-base shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 cursor-pointer">
-                    Bayar Sekarang
+                    Pay Now
                 </button>
                 <a href="{{ route('orders.index') }}"
                    class="flex-1 py-4 rounded-xl border border-amber-400 text-amber-500 bg-white dark:bg-darkcard/80 hover:bg-amber-50 dark:hover:bg-amber-900/10 font-bold text-base shadow-lg transition-all duration-200 text-center flex items-center justify-center"
-                   onclick="return confirm('Apakah Anda yakin ingin membayar pesanan ini nanti? Anda bisa mengakses kembali halaman ini melalui menu My Orders.')">
-                    Bayar Nanti
+                   onclick="return confirm('Are you sure you want to pay for this order later? You can access this page again through the My Orders menu.')">
+                    Pay Later
                 </a>
             </div>
             

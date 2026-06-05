@@ -6,10 +6,10 @@
         <div class="w-16 h-16 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
             <i class="fas fa-heart text-2xl"></i>
         </div>
-        <span class="text-xs font-mono text-rose-500 uppercase tracking-widest font-semibold">Koleksi Pribadi</span>
-        <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Wishlist Saya</h1>
+        <span class="text-xs font-mono text-rose-500 uppercase tracking-widest font-semibold">Personal Collection</span>
+        <h1 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">My Wishlist</h1>
         <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-3 max-w-lg mx-auto">
-            Kurasi parfum pilihan yang sedang menanti untuk menjadi bagian dari kisah Anda.
+            Curated perfume selection waiting to become part of your story.
         </p>
     </div>
 
@@ -24,7 +24,7 @@
                         <img src="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                              alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         
-                        <button type="button" data-remove-wishlist="{{ $product->id }}" class="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white hover:bg-rose-600 flex items-center justify-center transition-all shadow-md z-20 focus:outline-none" title="Hapus dari Wishlist">
+                        <button type="button" data-remove-wishlist="{{ $product->id }}" class="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white hover:bg-rose-600 flex items-center justify-center transition-all shadow-md z-20 focus:outline-none" title="Remove from Wishlist">
                             <i class="fas fa-times text-[10px] sm:text-xs"></i>
                         </button>
                     </div>
@@ -46,11 +46,11 @@
                     <div class="mt-3">
                         @if ($product->variants->isNotEmpty())
                             <a href="{{ route('shop') }}" class="w-full py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-slate-800 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5">
-                                <i class="fas fa-shopping-bag"></i> Beli Sekarang
+                                <i class="fas fa-shopping-bag"></i> Buy Now
                             </a>
                         @else
                             <button class="w-full py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
-                                <i class="fas fa-times-circle"></i> Habis
+                                <i class="fas fa-times-circle"></i> Sold Out
                             </button>
                         @endif
                     </div>
@@ -62,10 +62,10 @@
                 <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-darkcard border border-slate-200 dark:border-white/5 flex items-center justify-center mx-auto mb-4 text-slate-400">
                     <i class="far fa-heart text-xl"></i>
                 </div>
-                <h3 class="font-serif text-lg text-slate-900 dark:text-white">Wishlist Anda masih kosong.</h3>
-                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-2">Jelajahi koleksi parfum kami dan temukan aroma favorit Anda.</p>
+                <h3 class="font-serif text-lg text-slate-900 dark:text-white">Your wishlist is empty.</h3>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-2">Explore our perfume collection and find your favorite scent.</p>
                 <a href="{{ route('shop') }}" class="inline-block mt-6 px-6 py-3 bg-slate-900 dark:bg-amber-500 text-white dark:text-black text-xs font-bold uppercase tracking-wider rounded-xl hover:scale-105 transition-transform shadow-lg shadow-amber-500/10">
-                    Mulai Belanja
+                    Start Shopping
                 </a>
             </div>
         @endforelse
@@ -124,7 +124,7 @@
                 // Tampilkan pesan
                 Swal.fire({
                     toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000,
-                    icon: 'info', title: 'Dihapus dari Wishlist.',
+                    icon: 'info', title: 'Removed from Wishlist.',
                     customClass: { popup: isDark ? 'dark-swal rounded-xl' : 'rounded-xl' }
                 });
             }

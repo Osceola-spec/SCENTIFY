@@ -11,7 +11,7 @@
                 <p class="text-sm text-slate-500 mt-1">Detail informasi cabang.</p>
             </div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('admin.branches.index') }}" class="inline-flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-xl border">Kembali</a>
+                <a href="{{ route('admin.branches.index') }}" class="inline-flex items-center gap-2 bg-white text-slate-700 px-4 py-2 rounded-xl border">Back</a>
                 <a href="{{ route('admin.branches.edit', $branch->id) }}" class="inline-flex items-center gap-2 bg-amber-500 text-white px-4 py-2 rounded-xl">Edit</a>
             </div>
         </div>

@@ -23,7 +23,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'              => 'required|string|max:255',
+            'name'              => 'required|string|max:255|unique:products,name',
             'brand_id'          => 'required|exists:brands,id',
             'category'          => 'required|in:Designer,Niche,Local',
             'gender_type'       => 'required|in:Men,Women,Unisex',
@@ -107,7 +107,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'name'           => 'required|string|max:255',
+            'name'           => 'required|string|max:255|unique:products,name,' . $product->id,
             'brand_id'       => 'required|exists:brands,id',
             'category'       => 'required|in:Designer,Niche,Local',
             'gender_type'    => 'required|in:Men,Women,Unisex',

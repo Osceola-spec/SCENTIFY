@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Manajemen Pelanggan')
+@section('title', 'Customer Management')
 
 @section('content')
 <div class="space-y-6 fade-in pb-10">
@@ -9,8 +9,8 @@
     <div class="sticky top-0 z-30 bg-adminbg/90 backdrop-blur-md pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Pelanggan</h1>
-                <p class="text-sm text-slate-500 mt-1">Daftar seluruh pelanggan Scentify beserta level loyalitas mereka.</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Customers</h1>
+                <p class="text-sm text-slate-500 mt-1">List of all Scentify customers and their loyalty levels.</p>
             </div>
             <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-mono font-semibold text-amber-600">
                 <i class="fas fa-users"></i> Customer Management
@@ -39,7 +39,7 @@
                 <p class="text-xl font-black text-slate-900">
                     {{ isset($allSpending[$levelName]) ? $allSpending[$levelName]->count() : 0 }}
                 </p>
-                <p class="text-[10px] text-slate-400">pelanggan</p>
+                <p class="text-[10px] text-slate-400">customers</p>
             </a>
         @endforeach
     </div>
@@ -53,7 +53,7 @@
                     <i class="fas fa-search text-sm"></i>
                 </div>
                 <input type="text" name="search" value="{{ request('search') }}"
-                       placeholder="Cari nama atau email pelanggan..."
+                       placeholder="Search customer name or email..."
                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
             </div>
             <div class="md:col-span-3 relative">
@@ -62,7 +62,7 @@
                 </div>
                 <select name="level" onchange="this.form.submit()"
                         class="w-full appearance-none bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all cursor-pointer">
-                    <option value="">Semua Level</option>
+                    <option value="">All Levels</option>
                     @foreach (array_keys($levelMeta) as $lvl)
                         <option value="{{ $lvl }}" {{ request('level') === $lvl ? 'selected' : '' }}>{{ $lvl }}</option>
                     @endforeach
@@ -90,12 +90,12 @@
             <table class="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                     <tr class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
-                        <th class="px-6 py-4 border-b border-slate-100">Pelanggan</th>
+                        <th class="px-6 py-4 border-b border-slate-100">Customer</th>
                         <th class="px-6 py-4 border-b border-slate-100">Level</th>
-                        <th class="px-6 py-4 border-b border-slate-100 text-center">Total Order</th>
+                        <th class="px-6 py-4 border-b border-slate-100 text-center">Total Orders</th>
                         <th class="px-6 py-4 border-b border-slate-100">Total Spending</th>
-                        <th class="px-6 py-4 border-b border-slate-100">Bergabung</th>
-                        <th class="px-6 py-4 border-b border-slate-100 text-center">Aksi</th>
+                        <th class="px-6 py-4 border-b border-slate-100">Joined</th>
+                        <th class="px-6 py-4 border-b border-slate-100 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm text-slate-700 divide-y divide-slate-50">
@@ -152,7 +152,7 @@
                             {{-- Total Order --}}
                             <td class="px-6 py-4 text-center">
                                 <span class="font-bold text-slate-900">{{ $customer->orders_count }}</span>
-                                <span class="text-slate-400 text-xs ml-1">pesanan</span>
+                                <span class="text-slate-400 text-xs ml-1">orders</span>
                             </td>
 
                             {{-- Total Spending --}}
@@ -167,10 +167,10 @@
                                                     {{ $level['name'] === 'Bronze' ? 'bg-orange-400' : ($level['name'] === 'Silver' ? 'bg-slate-400' : ($level['name'] === 'Gold' ? 'bg-amber-400' : 'bg-violet-400')) }}"
                                                      style="width: {{ $progress }}%"></div>
                                             </div>
-                                            <p class="text-[10px] text-slate-400 mt-0.5">{{ $progress }}% menuju {{ $nextName }}</p>
+                                            <p class="text-[10px] text-slate-400 mt-0.5">{{ $progress }}% to {{ $nextName }}</p>
                                         </div>
                                     @else
-                                        <p class="text-[10px] text-cyan-500 font-semibold mt-0.5">Level Tertinggi ✦</p>
+                                        <p class="text-[10px] text-cyan-500 font-semibold mt-0.5">Highest Level ✦</p>
                                     @endif
                                 </div>
                             </td>
@@ -194,8 +194,8 @@
                                 <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 text-2xl mx-auto mb-4 border border-slate-100">
                                     <i class="fas fa-users"></i>
                                 </div>
-                                <h5 class="text-base font-bold text-slate-800 mb-1">Tidak Ada Pelanggan</h5>
-                                <p class="text-sm text-slate-500">Coba ubah kata kunci pencarian atau filter level.</p>
+                                <h5 class="text-base font-bold text-slate-800 mb-1">No Customers Found</h5>
+                                <p class="text-sm text-slate-500">Try changing search keywords or level filter.</p>
                             </td>
                         </tr>
                     @endforelse

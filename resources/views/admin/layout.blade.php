@@ -47,7 +47,7 @@
 
         <!-- Sidebar Menu -->
         <nav class="flex-1 overflow-y-auto sidebar-scroll py-6 px-4 space-y-1.5">
-            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3 mt-4">Menu Utama</p>
+            <p class="px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-3 mt-4">Main Menu</p>
             
             <a href="{{ route('admin.dashboard') }}" 
                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.dashboard') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
@@ -58,31 +58,31 @@
             <a href="{{ route('admin.inventory') }}" 
                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.inventory') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fas fa-box-open w-5 text-center {{ request()->routeIs('admin.inventory') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i> 
-                <span class="font-medium text-sm">Inventori Produk</span>
+                <span class="font-medium text-sm">Product Inventory</span>
             </a>
 
             <a href="{{ route('admin.brands.index') }}" 
                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.brands.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fas fa-tags w-5 text-center {{ request()->routeIs('admin.brands.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i> 
-                <span class="font-medium text-sm">Manajemen Brand</span>
+                <span class="font-medium text-sm">Brand Management</span>
             </a>
 
             <a href="{{ route('admin.branches.index') }}" 
                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.branches.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fas fa-store w-5 text-center {{ request()->routeIs('admin.branches.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i> 
-                <span class="font-medium text-sm">Manajemen Cabang</span>
+                <span class="font-medium text-sm">Branch Management</span>
             </a>
 
             <a href="{{ route('admin.orders.index') }}" 
                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.orders.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fas fa-shopping-cart w-5 text-center {{ request()->routeIs('admin.orders.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i> 
-                <span class="font-medium text-sm">Riwayat Pesanan</span>
+                <span class="font-medium text-sm">Order History</span>
             </a>
 
             <a href="{{ route('admin.customers.index') }}"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group {{ request()->routeIs('admin.customers.*') ? 'bg-amber-500/10 text-amber-400' : 'hover:bg-slate-800 hover:text-white' }}">
                 <i class="fas fa-users w-5 text-center {{ request()->routeIs('admin.customers.*') ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300' }}"></i>
-                <span class="font-medium text-sm">Pelanggan</span>
+                <span class="font-medium text-sm">Customers</span>
             </a>
         </nav>
 
@@ -98,7 +98,7 @@
 
             <div class="space-y-2">
                 <a href="{{ route('home') }}" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg border border-slate-700 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
-                    <i class="fas fa-external-link-alt text-xs"></i> Lihat Toko
+                    <i class="fas fa-external-link-alt text-xs"></i> View Store
                 </a>
                 <form action="{{ route('logout') ?? '#' }}" method="POST" class="m-0">
                     @csrf
@@ -125,7 +125,7 @@
                 <!-- Search Box (Optional visual) -->
                 <div class="hidden md:flex items-center bg-slate-100 rounded-full px-4 py-2">
                     <i class="fas fa-search text-slate-400 text-sm"></i>
-                    <input type="text" placeholder="Cari data..." class="bg-transparent border-none focus:outline-none text-sm ml-2 w-48 text-slate-700">
+                    <input type="text" placeholder="Search data..." class="bg-transparent border-none focus:outline-none text-sm ml-2 w-48 text-slate-700">
                 </div>
 
                 <!-- Notifications -->
@@ -167,10 +167,10 @@
 
     <script>
         @if(session('success'))
-            Swal.fire({ icon: 'success', title: 'Berhasil!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
+            Swal.fire({ icon: 'success', title: 'Success!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top-end' });
         @endif
         @if(session('error'))
-            Swal.fire({ icon: 'error', title: 'Gagal!', text: @json(session('error')), toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true });
+            Swal.fire({ icon: 'error', title: 'Failed!', text: @json(session('error')), toast: true, position: 'top-end', showConfirmButton: false, timer: 4000, timerProgressBar: true });
         @endif
     </script>
     @stack('scripts')

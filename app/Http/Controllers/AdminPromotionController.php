@@ -5,11 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Promotion;
 use App\Models\Product;
+use App\Events\PromotionEvent;
 
 class AdminPromotionController extends Controller
 {
     public function index()
     {
+        // Auto-disable expired promos
+        Promotion::where('is_active', true)
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', now())
+            ->update(['is_active' => false]);
+
         $promotions = Promotion::latest()->paginate(20);
         return view('admin.promotions.index', compact('promotions'));
     }
@@ -38,7 +45,30 @@ class AdminPromotionController extends Controller
         $data['applies_to_all'] = $request->has('applies_to_all');
         $data['is_active'] = $request->has('is_active');
 
-        Promotion::create($data);
+        if ($data['is_active']) {
+            $startsAt = $data['starts_at'] ?? null;
+            $endsAt = $data['ends_at'] ?? null;
+
+            $overlap = Promotion::where('is_active', true)
+                ->where(function($q) use ($startsAt, $endsAt) {
+                    $q->where(function($q2) use ($endsAt) {
+                        if ($endsAt) {
+                            $q2->whereNull('starts_at')->orWhere('starts_at', '<=', $endsAt);
+                        }
+                    })->where(function($q2) use ($startsAt) {
+                        if ($startsAt) {
+                            $q2->whereNull('ends_at')->orWhere('ends_at', '>=', $startsAt);
+                        }
+                    });
+                })->exists();
+
+            if ($overlap) {
+                return back()->withErrors(['starts_at' => 'Promo schedule overlaps with another active promotion.'])->withInput();
+            }
+        }
+
+        $promotion = Promotion::create($data);
+        event(new PromotionEvent($promotion, 'created'));
         return redirect()->route('admin.promotions.index')->with('success', 'Promo berhasil dibuat');
     }
 
@@ -65,13 +95,38 @@ class AdminPromotionController extends Controller
         $data['applies_to_all'] = $request->has('applies_to_all');
         $data['is_active'] = $request->has('is_active');
 
+        if ($data['is_active']) {
+            $startsAt = $data['starts_at'] ?? null;
+            $endsAt = $data['ends_at'] ?? null;
+
+            $overlap = Promotion::where('is_active', true)
+                ->where('id', '!=', $promotion->id)
+                ->where(function($q) use ($startsAt, $endsAt) {
+                    $q->where(function($q2) use ($endsAt) {
+                        if ($endsAt) {
+                            $q2->whereNull('starts_at')->orWhere('starts_at', '<=', $endsAt);
+                        }
+                    })->where(function($q2) use ($startsAt) {
+                        if ($startsAt) {
+                            $q2->whereNull('ends_at')->orWhere('ends_at', '>=', $startsAt);
+                        }
+                    });
+                })->exists();
+
+            if ($overlap) {
+                return back()->withErrors(['starts_at' => 'Promo schedule overlaps with another active promotion.'])->withInput();
+            }
+        }
+
         $promotion->update($data);
+        event(new PromotionEvent($promotion, 'updated'));
         return redirect()->route('admin.promotions.index')->with('success', 'Promo berhasil diperbarui');
     }
 
     public function destroy(Promotion $promotion)
     {
         $promotion->delete();
+        event(new PromotionEvent($promotion, 'deleted'));
         return redirect()->route('admin.promotions.index')->with('success', 'Promo dihapus');
     }
 }
