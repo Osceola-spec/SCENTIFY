@@ -36,7 +36,13 @@ Route::get('/', function () {
         ->orderByDesc('order_items_sum_quantity')
         ->take(4)
         ->get();
-    return view('home', compact('bestSellers'));
+    
+    $activePromotions = \App\Models\Promotion::where('is_active', true)
+        ->where(function($q) {
+            $q->whereNull('ends_at')->orWhere('ends_at', '>', now());
+        })->get();
+
+    return view('home', compact('bestSellers', 'activePromotions'));
 })->name('home');
 
 Route::get('/shop', [ShopController::class, 'show'])->name('shop');

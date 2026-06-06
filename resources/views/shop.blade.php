@@ -253,11 +253,47 @@
                             <div
                                 class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative">
 
+                                @php
+                                    $basePrice = $product->variants->first()->price ?? 0;
+                                    $promoApplies = false;
+                                    $discountedPrice = null;
+                                    $appliedPromo = null;
+
+                                    if ($activePromotions->isNotEmpty()) {
+                                        foreach($activePromotions as $promo) {
+                                            if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
+                                                $appliedPromo = $promo;
+                                                break;
+                                            }
+                                        }
+
+                                        if ($appliedPromo) {
+                                            $promoApplies = true;
+                                            $dv = (float) $appliedPromo->discount_value;
+                                            if ($appliedPromo->discount_type === 'percent') {
+                                                $discountedPrice = max(0, round($basePrice * (1 - $dv / 100)));
+                                            } else {
+                                                $discountedPrice = max(0, round($basePrice - $dv));
+                                            }
+                                        }
+                                    }
+                                @endphp
+
                                 <div
                                     class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
                                     <img src="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                    
+                                    @if($appliedPromo)
+                                        <div class="absolute top-2 right-2 bg-rose-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-lg shadow-md z-10">
+                                            @if($appliedPromo->discount_type === 'percent')
+                                                {{ (float) $appliedPromo->discount_value }}% OFF
+                                            @else
+                                                - Rp {{ number_format((float) $appliedPromo->discount_value, 0, ',', '.') }}
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="mt-3 flex-grow flex flex-col justify-start">
@@ -298,29 +334,7 @@
                                     </div>
 
                                     @php
-                                        $basePrice = $product->variants->first()->price ?? 0;
-                                        $promoApplies = false;
-                                        $discountedPrice = null;
-                                        $appliedPromo = null;
-
-                                        if ($activePromotions->isNotEmpty()) {
-                                            foreach($activePromotions as $promo) {
-                                                if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
-                                                    $appliedPromo = $promo;
-                                                    break;
-                                                }
-                                            }
-
-                                            if ($appliedPromo) {
-                                                $promoApplies = true;
-                                                $dv = (float) $appliedPromo->discount_value;
-                                                if ($appliedPromo->discount_type === 'percent') {
-                                                    $discountedPrice = max(0, round($basePrice * (1 - $dv / 100)));
-                                                } else {
-                                                    $discountedPrice = max(0, round($basePrice - $dv));
-                                                }
-                                            }
-                                        }
+                                        // Promo logic moved up
                                     @endphp
 
                                     <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">
@@ -363,7 +377,7 @@
                                                 class="{{ in_array($product->id, $wishlistedProductIds ?? []) ? 'fas text-rose-500' : 'far' }} fa-heart text-[10px] sm:text-xs transition-transform duration-300"></i>
                                         </button>
 
-                                        @if ($product->variants->isNotEmpty())
+                                        @if ($product->variants->isNotEmpty() && $product->variants->sum('stock') > 0)
                                             @auth
                                                 <button type="button"
                                                     class="variant-selector-btn flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
@@ -397,7 +411,7 @@
                                             <button
                                                 class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5"
                                                 disabled>
-                                                <i class="fas fa-times-circle"></i> Sold Out
+                                                <i class="fas fa-times-circle"></i> Stok Habis
                                             </button>
                                         @endif
 
@@ -586,18 +600,19 @@
         @endphp
         const activePromotionsArray = {!! json_encode($promosArray) !!};
 
-        function calcDiscountedPrice(originalPrice, productId) {
+        function getAppliedPromo(productId) {
             if (!activePromotionsArray || activePromotionsArray.length === 0) return null;
-            
-            let appliedPromo = null;
             for (let i = 0; i < activePromotionsArray.length; i++) {
                 let p = activePromotionsArray[i];
                 if (p.applies_to_all || (p.product_id && p.product_id == productId)) {
-                    appliedPromo = p;
-                    break;
+                    return p;
                 }
             }
+            return null;
+        }
 
+        function calcDiscountedPrice(originalPrice, productId) {
+            const appliedPromo = getAppliedPromo(productId);
             if (!appliedPromo) return null;
 
             let dv = parseFloat(appliedPromo.discount_value);
@@ -1113,7 +1128,8 @@
 
                 const escapeHtml = (unsafe) => (unsafe || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
                 const variantsStr = escapeHtml(JSON.stringify(e.product.variants || []));
-                const hasVariants = e.product.variants && e.product.variants.length > 0;
+                const totalStock = (e.product.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0);
+                const hasVariants = e.product.variants && e.product.variants.length > 0 && totalStock > 0;
 
                 let actionButtons = '';
                 if (isAdmin) {
@@ -1156,7 +1172,7 @@
                     } else {
                         buyButton = `
                             <button class="flex-grow py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
-                                <i class="fas fa-times-circle"></i> Sold Out
+                                <i class="fas fa-times-circle"></i> Stok Habis
                             </button>
                         `;
                     }
@@ -1195,11 +1211,19 @@
                         }
                     }
 
+                let promoBadge = '';
+                const promo = typeof getAppliedPromo === 'function' ? getAppliedPromo(e.product.id) : null;
+                if (promo) {
+                    let text = promo.discount_type === 'percent' ? `${parseFloat(promo.discount_value)}% OFF` : `- Rp ${new Intl.NumberFormat('id-ID').format(parseFloat(promo.discount_value))}`;
+                    promoBadge = `<div class="absolute top-2 right-2 bg-rose-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-1 rounded-lg shadow-md z-10">${text}</div>`;
+                }
+
                 newProductDiv.innerHTML = `
                     <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative ring-2 ring-amber-400">
                         <div class="absolute -top-3 -right-3 z-10 bg-amber-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">New!</div>
                         <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
                             <img src="${imgUrl}" alt="${e.product.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            ${promoBadge}
                         </div>
                         <div class="mt-3 flex-grow flex flex-col justify-start">
                             <div>

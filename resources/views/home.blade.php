@@ -218,6 +218,17 @@
             
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 @forelse($bestSellers as $product)
+                @php
+                    $appliedPromo = null;
+                    if (isset($activePromotions) && $activePromotions->isNotEmpty()) {
+                        foreach($activePromotions as $promo) {
+                            if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
+                                $appliedPromo = $promo;
+                                break;
+                            }
+                        }
+                    }
+                @endphp
                 <div class="tilt-container reveal">
                     <a href="{{ route('shop') }}" class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
@@ -229,6 +240,16 @@
                                 </div>
                             @endif
                             <span class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-amber-500 text-black text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">Best Seller</span>
+                            
+                            @if($appliedPromo)
+                                <div class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-rose-500 text-white text-[8px] sm:text-[10px] font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-lg z-10">
+                                    @if($appliedPromo->discount_type === 'percent')
+                                        {{ (float) $appliedPromo->discount_value }}% OFF
+                                    @else
+                                        - Rp {{ number_format((float) $appliedPromo->discount_value, 0, ',', '.') }}
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
                             <div>

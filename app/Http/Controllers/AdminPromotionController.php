@@ -69,6 +69,11 @@ class AdminPromotionController extends Controller
 
         $promotion = Promotion::create($data);
         event(new PromotionEvent($promotion, 'created'));
+        
+        if ($promotion->is_active) {
+            \App\Jobs\NotifyUsersOfPromoJob::dispatch($promotion);
+        }
+
         return redirect()->route('admin.promotions.index')->with('success', 'Promo berhasil dibuat');
     }
 

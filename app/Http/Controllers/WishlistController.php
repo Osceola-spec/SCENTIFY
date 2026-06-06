@@ -16,7 +16,12 @@ class WishlistController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('wishlist', compact('wishlists'));
+        $activePromotions = \App\Models\Promotion::where('is_active', true)
+            ->where(function($q) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>', now());
+            })->get();
+
+        return view('wishlist', compact('wishlists', 'activePromotions'));
     }
 
     // 2. Fungsi Toggle Real-Time (AJAX)
