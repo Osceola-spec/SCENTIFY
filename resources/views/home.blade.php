@@ -30,22 +30,88 @@
             </div>
             
             <div class="flex-1 flex justify-center relative hero-bottle-container will-animate w-full">
-                <div class="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 relative group tilt-container">
-                    <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 to-purple-600/20 blur-3xl opacity-40"></div>
-                    
-                    <div class="tilt-card absolute inset-4 glass-card rounded-[2rem] flex flex-col items-center justify-center border border-white/10 overflow-hidden shadow-2xl p-6 sm:p-8 cursor-pointer">
-                        <div id="perfume-3d-visual" class="relative transition-transform duration-300 ease-out transform group-hover:scale-105 group-hover:rotate-1">
-                            <svg class="w-40 h-48 sm:w-48 sm:h-56 text-amber-500/80 transition-all duration-500" viewBox="0 0 100 120" fill="currentColor">
-                                <rect x="42" y="10" width="16" height="15" rx="3" stroke="currentColor" stroke-width="2" fill="none" class="text-amber-600 dark:text-amber-400"/>
-                                <line x1="50" y1="25" x2="50" y2="35" stroke="currentColor" stroke-width="2" class="opacity-50"/>
-                                <rect x="36" y="32" width="28" height="6" rx="1.5" fill="currentColor"/>
-                                <path d="M22 42 C22 39, 25 36, 29 36 L71 36 C75 36, 78 39, 78 42 L78 105 C78 109, 75 112, 71 112 L29 112 C25 112, 22 109, 22 105 Z" stroke="currentColor" stroke-width="2.5" fill="none" class="text-slate-900 dark:text-white"/>
-                                <path id="liquid-wave" d="M24 60 Q50 63, 76 60 L75 109 C75 110.5, 73.5 110.5, 71 110.5 L29 110.5 C26.5 110.5, 25 110.5, 25 109 Z" fill="currentColor" class="text-amber-500/40 transition-all duration-1000"/>
-                                <rect x="34" y="62" width="32" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="1.5" class="opacity-80"/>
-                                <text x="50" y="76" font-size="7" font-family="Playfair Display" font-weight="bold" text-anchor="middle" fill="currentColor" class="text-slate-900 dark:text-white">SCENTIFY</text>
-                            </svg>
+                <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 to-purple-600/20 blur-3xl opacity-40"></div>
+                
+                <style>
+                    .hero-swiper-container {
+                        position: relative;
+                        width: 100%;
+                        max-width: 500px;
+                        margin: 0 auto;
+                        padding: 0 80px;
+                    }
+                    .hero-swiper {
+                        width: 240px;
+                        height: 340px;
+                        margin: 0 auto;
+                        overflow: visible;
+                    }
+                    .hero-swiper .swiper-slide {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 2rem;
+                        background-color: transparent;
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                    }
+                    .hero-swiper .swiper-slide img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        border-radius: 2rem;
+                        border: 1px solid rgba(255,255,255,0.1);
+                    }
+                    @media (min-width: 640px) {
+                        .hero-swiper { width: 280px; height: 380px; }
+                    }
+                    @media (min-width: 1024px) {
+                        .hero-swiper { width: 320px; height: 440px; }
+                    }
+                    .hero-swiper-container .swiper-button-next,
+                    .hero-swiper-container .swiper-button-prev {
+                        color: #f59e0b;
+                        background: rgba(0,0,0,0.5);
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        border: 1px solid rgba(245,158,11,0.3);
+                        backdrop-filter: blur(4px);
+                    }
+                    .hero-swiper-container .swiper-button-prev {
+                        left: 10px;
+                    }
+                    .hero-swiper-container .swiper-button-next {
+                        right: 10px;
+                    }
+                    .hero-swiper-container .swiper-button-next:after,
+                    .hero-swiper-container .swiper-button-prev:after {
+                        font-size: 18px;
+                        font-weight: bold;
+                    }
+                </style>
+
+                <div class="hero-swiper-container z-10">
+                    <div class="swiper hero-swiper cursor-grab active:cursor-grabbing">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <img src="{{ asset('images/hero-perfumes/bleu_de_chanel.png') }}" alt="Bleu de Chanel">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="{{ asset('images/hero-perfumes/dior_sauvage.png') }}" alt="Dior Sauvage">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="{{ asset('images/hero-perfumes/creed_aventus.png') }}" alt="Creed Aventus">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="{{ asset('images/hero-perfumes/acqua_di_gio.png') }}" alt="Acqua Di Gio">
+                            </div>
+                            <div class="swiper-slide">
+                                <img src="{{ asset('images/hero-perfumes/lv_imagination.png') }}" alt="LV Imagination">
+                            </div>
                         </div>
                     </div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
                 </div>
             </div>
         </div>
@@ -53,14 +119,14 @@
 
     <section id="scent-explorer" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative overflow-hidden">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
-            <div class="text-center mb-12 sm:mb-20">
+            <div class="text-center mb-12 sm:mb-20" data-aos="fade-up">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Interactive Scent Finder</span>
                 <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white">Find Your <span class="text-amber-500 font-normal">Scent Character</span></h2>
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                <div class="lg:col-span-5 flex flex-col justify-between gap-6">
+                <div class="lg:col-span-5 flex flex-col justify-between gap-6" data-aos="fade-right" data-aos-delay="100">
                     <div class="glass-card p-5 sm:p-6 rounded-2xl sm:rounded-3xl">
                         <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
                             <i class="fas fa-sliders text-amber-500"></i> Choose Your Main Mood:
@@ -88,7 +154,7 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-7">
+                <div class="lg:col-span-7" data-aos="fade-left" data-aos-delay="200">
                     <div id="scent-result-card" class="glass-card p-6 sm:p-8 rounded-2xl sm:rounded-3xl h-full flex flex-col justify-between border border-amber-500/20 shadow-xl shadow-amber-500/5 relative overflow-hidden" style="z-index: 1;">
                         <div id="scent-card-ambient" class="absolute -top-10 -right-10 w-32 h-32 sm:w-48 sm:h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none transition-all duration-500" style="z-index: 0;"></div>
                         
@@ -139,14 +205,14 @@
 
     <section id="koleksi" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12 sm:mb-20 reveal">
+            <div class="text-center mb-12 sm:mb-20 reveal" data-aos="fade-up">
                 <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Premium Categories</span>
                 <h2 class="text-3xl md:text-5xl font-serif mt-2 text-slate-950 dark:text-white transition-colors duration-500">Our <span class="text-amber-500 font-normal">Collections</span></h2>
                 <div class="w-12 sm:w-16 h-[2px] bg-amber-500 mx-auto mt-4 sm:mt-6 rounded-full"></div>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
-                <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full">
+                <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full" data-aos="fade-up" data-aos-delay="100">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-amber-500/20 hover:border-amber-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
                         <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
                         <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
@@ -164,7 +230,7 @@
                     </div>
                 </div>
 
-                <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full">
+                <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full" data-aos="fade-up" data-aos-delay="200">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-rose-500/20 hover:border-rose-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
                         <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-orange-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
                         <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
@@ -182,7 +248,7 @@
                     </div>
                 </div>
 
-                <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full sm:col-span-2 lg:col-span-1">
+                <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full sm:col-span-2 lg:col-span-1" data-aos="fade-up" data-aos-delay="300">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-emerald-500/20 hover:border-emerald-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
                         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
                         <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
@@ -205,7 +271,7 @@
 
     <section id="produk-terlaris" class="py-24 sm:py-32 bg-transparent transition-colors duration-500 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 sm:mb-20 reveal">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 sm:mb-20 reveal" data-aos="fade-up">
                 <div>
                     <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">This Season's Best Sellers</span>
                     <h2 class="text-3xl md:text-5xl font-serif mt-1 sm:mt-2 text-slate-950 dark:text-white transition-colors duration-500">Best Selling <span class="text-amber-500 font-normal">Products</span></h2>
@@ -229,7 +295,7 @@
                         }
                     }
                 @endphp
-                <div class="tilt-container reveal">
+                <div class="tilt-container reveal" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
                     <a href="{{ route('shop') }}" class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
                         <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             @if($product->image_url)
@@ -279,7 +345,7 @@
     </section>
 
     <section id="contact" class="py-24 sm:py-32 bg-transparent transition-colors duration-500">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal" data-aos="zoom-in">
             <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Bespoke Consultations</span>
             <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Consult Your <span class="text-amber-500 font-normal">Signature Scent</span></h2>
             <p class="text-slate-600 dark:text-zinc-400 mb-8 sm:mb-10 max-w-lg mx-auto text-sm sm:text-base leading-relaxed transition-colors duration-500">
@@ -299,7 +365,7 @@
     <section class="relative py-24 sm:py-28 bg-slate-900/80 dark:bg-transparent backdrop-blur-md text-white overflow-hidden transition-colors duration-500 border-t border-slate-800 dark:border-white/5">
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal">
+        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal" data-aos="fade-up">
             <h3 class="text-3xl md:text-4xl font-serif mb-3 sm:mb-4">Join the <span class="text-amber-400 font-normal">Scentify Circle</span></h3>
             <p class="text-slate-300 dark:text-zinc-400 max-w-lg mx-auto mb-8 leading-relaxed text-sm sm:text-base transition-colors duration-500">
                 Get special offers, *limited edition* perfume releases, and a 10% membership discount on your first order.
@@ -315,4 +381,24 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Swiper !== 'undefined') {
+                new Swiper('.hero-swiper', {
+                    effect: 'cards',
+                    grabCursor: true,
+                    loop: true,
+                    autoplay: {
+                        delay: 4000,
+                        disableOnInteraction: false,
+                    },
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                });
+            }
+        });
+    </script>
 @endsection

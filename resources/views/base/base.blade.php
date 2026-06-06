@@ -38,6 +38,10 @@
     <script src="/js/sweetalert2.min.js"></script>
     <script src="/js/fuse.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <style>
         :root {
             --accent-primary: #f59e0b;
@@ -64,6 +68,17 @@
 
         .will-animate {
             will-change: transform, opacity;
+        }
+
+        .reveal:not([data-aos]) {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .reveal.active:not([data-aos]) {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         @media (min-width: 1024px) {
@@ -358,6 +373,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({
+                duration: 800,
+                once: true,
+                offset: 100,
+            });
+
             if (document.querySelector(".hero-text-container")) {
                 gsap.from(".hero-text-container", {
                     duration: 1.2,

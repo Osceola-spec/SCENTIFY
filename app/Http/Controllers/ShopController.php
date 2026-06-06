@@ -308,6 +308,9 @@ class ShopController extends Controller
             $request->file('image')->move(public_path('product_image'), $imageUrl);
         }
 
+        // Check old discount
+        $oldDiscount = $product->discount_percent ?? 0;
+
         // 1. Update Data Produk Utama
         $product->update([
             'name' => $request->name,
@@ -320,6 +323,11 @@ class ShopController extends Controller
             'is_new_arrival' => $request->boolean('is_new_arrival'),
             'discount_percent' => $request->discount_percent ?? 0,
         ]);
+
+        $newDiscount = $product->discount_percent ?? 0;
+        if ($newDiscount > 0 && $newDiscount > $oldDiscount) {
+            \App\Jobs\NotifyUsersOfProductDiscountJob::dispatch($product);
+        }
 
         // 2. Hapus semua varian lama dan buat yang baru
         $product->variants()->delete();
