@@ -94,19 +94,19 @@
                     <div class="swiper hero-swiper cursor-grab active:cursor-grabbing">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
-                                <img src="{{ asset('images/hero-perfumes/bleu_de_chanel.png') }}" alt="Bleu de Chanel">
+                                <img src="{{ asset('images/hero-perfumes/bleu_de_chanel.jpg') }}" alt="Bleu de Chanel">
                             </div>
                             <div class="swiper-slide">
-                                <img src="{{ asset('images/hero-perfumes/dior_sauvage.png') }}" alt="Dior Sauvage">
+                                <img src="{{ asset('images/hero-perfumes/dior_sauvage.jpg') }}" alt="Dior Sauvage">
                             </div>
                             <div class="swiper-slide">
-                                <img src="{{ asset('images/hero-perfumes/creed_aventus.png') }}" alt="Creed Aventus">
+                                <img src="{{ asset('images/hero-perfumes/creed_aventus.jpg') }}" alt="Creed Aventus">
                             </div>
                             <div class="swiper-slide">
-                                <img src="{{ asset('images/hero-perfumes/acqua_di_gio.png') }}" alt="Acqua Di Gio">
+                                <img src="{{ asset('images/hero-perfumes/acqua_di_gio.jpg') }}" alt="Acqua Di Gio">
                             </div>
                             <div class="swiper-slide">
-                                <img src="{{ asset('images/hero-perfumes/lv_imagination.png') }}" alt="LV Imagination">
+                                <img src="{{ asset('images/hero-perfumes/lv_imagination.jpg') }}" alt="LV Imagination">
                             </div>
                         </div>
                     </div>
@@ -214,15 +214,15 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-10">
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full" data-aos="fade-up" data-aos-delay="100">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-amber-500/20 hover:border-amber-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
-                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
-                            <i class="fas fa-crown text-8xl sm:text-9xl text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]"></i>
+                        <div class="absolute inset-0 z-0">
+                            <img src="{{ asset('images/hero-perfumes/lv_imagination.jpg') }}" alt="Designer Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60">
                         </div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-900/40 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
                         
-                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 to-transparent">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent">
                             <span class="text-[10px] sm:text-xs font-mono text-amber-400 tracking-wider uppercase">Signature Line</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Designer</h3>
-                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Designer')" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
+                            <a href="{{ route('shop') }}?category[]=Designer" class="inline-flex items-center text-xs sm:text-sm font-medium text-amber-300 hover:text-white transition-colors">
                                 <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
@@ -232,15 +232,15 @@
 
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full" data-aos="fade-up" data-aos-delay="200">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-rose-500/20 hover:border-rose-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
-                        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-orange-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
-                            <i class="fas fa-gem text-8xl sm:text-9xl text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]"></i>
+                        <div class="absolute inset-0 z-0">
+                            <img src="{{ asset('images/hero-perfumes/xerjoff_naxos.jpg') }}" alt="Niche Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60">
                         </div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 via-transparent to-orange-900/40 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
                         
-                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 to-transparent">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent">
                             <span class="text-[10px] sm:text-xs font-mono text-rose-400 tracking-wider uppercase">Artisanal Blends</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Niche</h3>
-                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Niche')" class="inline-flex items-center text-xs sm:text-sm font-medium text-rose-300 hover:text-white transition-colors">
+                            <a href="{{ route('shop') }}?category[]=Niche" class="inline-flex items-center text-xs sm:text-sm font-medium text-rose-300 hover:text-white transition-colors">
                                 <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
@@ -250,15 +250,15 @@
 
                 <div class="tilt-container reveal max-w-sm mx-auto sm:max-w-none w-full sm:col-span-2 lg:col-span-1" data-aos="fade-up" data-aos-delay="300">
                     <div class="tilt-card glass-card relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[4/5] sm:aspect-[3/4] shadow-xl sm:shadow-2xl group border border-emerald-500/20 hover:border-emerald-500/50 transition-colors duration-500 bg-slate-900/50 dark:bg-zinc-900/50">
-                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-900/30 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
-                        <div class="absolute inset-0 flex items-center justify-center z-10 opacity-30 group-hover:opacity-60 transition-all duration-700 group-hover:scale-110 transform">
-                            <i class="fas fa-leaf text-8xl sm:text-9xl text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"></i>
+                        <div class="absolute inset-0 z-0">
+                            <img src="{{ asset('images/hero-perfumes/hmns_orgasm.jpg') }}" alt="Local Premium Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60">
                         </div>
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-900/40 z-10 pointer-events-none group-hover:opacity-80 transition-opacity duration-500"></div>
                         
-                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 to-transparent">
+                        <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent">
                             <span class="text-[10px] sm:text-xs font-mono text-emerald-400 tracking-wider uppercase">Pride of Origin</span>
                             <h3 class="text-2xl sm:text-3xl font-serif text-white mt-1 mb-3 sm:mb-4">Local Premium</h3>
-                            <a href="#" onclick="showDemoAlert(event, 'Koleksi Lokal Premium')" class="inline-flex items-center text-xs sm:text-sm font-medium text-emerald-300 hover:text-white transition-colors">
+                            <a href="{{ route('shop') }}?category[]=Local" class="inline-flex items-center text-xs sm:text-sm font-medium text-emerald-300 hover:text-white transition-colors">
                                 <span>Explore</span>
                                 <i class="fas fa-arrow-right ml-2 text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                             </a>
@@ -340,44 +340,6 @@
                     <p>No products sold yet.</p>
                 </div>
                 @endforelse
-            </div>
-        </div>
-    </section>
-
-    <section id="contact" class="py-24 sm:py-32 bg-transparent transition-colors duration-500">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center reveal" data-aos="zoom-in">
-            <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold">Bespoke Consultations</span>
-            <h2 class="text-3xl md:text-5xl font-serif mt-2 mb-4 sm:mb-6 text-slate-950 dark:text-white transition-colors duration-500">Consult Your <span class="text-amber-500 font-normal">Signature Scent</span></h2>
-            <p class="text-slate-600 dark:text-zinc-400 mb-8 sm:mb-10 max-w-lg mx-auto text-sm sm:text-base leading-relaxed transition-colors duration-500">
-                Contact our perfume curators to formulate your exclusive personal scent and create your own legendary sillage.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
-                <a href="#" onclick="showDemoAlert(event, 'Konsultasi WhatsApp')" class="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 hover:-translate-y-1 inline-flex items-center justify-center gap-3 shadow-lg hover:shadow-emerald-600/20 text-sm">
-                    <i class="fab fa-whatsapp text-lg"></i> WhatsApp Chat
-                </a>
-                <a href="#" onclick="showDemoAlert(event, 'Surat Resmi')" class="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-xl font-semibold transition-all duration-300 hover:-translate-y-1 inline-flex items-center justify-center gap-3 shadow-lg hover:shadow-amber-500/20 text-sm">
-                    <i class="far fa-envelope text-lg"></i> Contact via Email
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section class="relative py-24 sm:py-28 bg-slate-900/80 dark:bg-transparent backdrop-blur-md text-white overflow-hidden transition-colors duration-500 border-t border-slate-800 dark:border-white/5">
-        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-
-        <div class="relative z-10 max-w-4xl mx-auto px-4 text-center reveal" data-aos="fade-up">
-            <h3 class="text-3xl md:text-4xl font-serif mb-3 sm:mb-4">Join the <span class="text-amber-400 font-normal">Scentify Circle</span></h3>
-            <p class="text-slate-300 dark:text-zinc-400 max-w-lg mx-auto mb-8 leading-relaxed text-sm sm:text-base transition-colors duration-500">
-                Get special offers, *limited edition* perfume releases, and a 10% membership discount on your first order.
-            </p>
-            
-            <div class="max-w-md mx-auto">
-                <form onsubmit="subscribeNewsletter(event)" class="flex flex-col sm:flex-row gap-3 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-md">
-                    <input type="email" required placeholder="Your Email Address" class="w-full px-4 sm:px-5 py-3 sm:py-4 bg-transparent text-white placeholder-gray-400 focus:outline-none transition-all duration-300 text-sm text-center sm:text-left">
-                    <button type="submit" class="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 font-semibold text-slate-900 bg-amber-400 rounded-xl transition-all duration-300 hover:bg-amber-300 active:scale-95 whitespace-nowrap shadow-lg text-sm">
-                        Subscribe
-                    </button>
-                </form>
             </div>
         </div>
     </section>

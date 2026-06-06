@@ -102,6 +102,12 @@ class ShopController extends Controller
             $query->whereIn('brand_id', $brandFilter);
         }
 
+        // 3.5 Filter Category
+        if ($request->has('category') && !empty($request->category)) {
+            $categoryFilter = (array) $request->category;
+            $query->whereIn('category', $categoryFilter);
+        }
+
         // 4. Filter Harga
         if ($request->has('max_price')) {
             $query->whereHas('variants', function ($q) use ($request) {

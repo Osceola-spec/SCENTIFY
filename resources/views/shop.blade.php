@@ -136,8 +136,7 @@
                         </div>
 
                         <div class="pb-6 border-b border-slate-200 dark:border-white/5">
-                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Category
-                            </h6>
+                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Gender</h6>
                             <div class="space-y-3">
                                 @foreach (['Men', 'Women', 'Unisex'] as $gender)
                                     <label
@@ -147,6 +146,21 @@
                                             {{ in_array($gender, request('gender', [])) ? 'checked' : '' }}
                                             class="rounded border-slate-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-500 bg-transparent mr-3 w-4 h-4 transition-colors">
                                         <span class="font-medium">{{ $gender }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="pb-6 border-b border-slate-200 dark:border-white/5">
+                            <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Collection Category</h6>
+                            <div class="space-y-3">
+                                @foreach (['Designer', 'Niche', 'Local'] as $cat)
+                                    <label class="flex items-center group cursor-pointer text-sm text-slate-600 dark:text-zinc-300 hover:text-amber-500 transition-colors">
+                                        <input type="checkbox" name="category[]" value="{{ $cat }}"
+                                            id="colcat{{ $cat }}"
+                                            {{ in_array($cat, (array) request('category', [])) ? 'checked' : '' }}
+                                            class="rounded border-slate-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-500 bg-transparent mr-3 w-4 h-4 transition-colors">
+                                        <span class="font-medium">{{ $cat == 'Local' ? 'Local Premium' : $cat }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -206,7 +220,14 @@
                     $reqGenders = (array) request('gender', []);
                     foreach ($reqGenders as $g) {
                         if (!empty($g)) {
-                            $activeFilters[] = ['type' => 'Category', 'label' => $g];
+                            $activeFilters[] = ['type' => 'Gender', 'label' => $g];
+                        }
+                    }
+
+                    $reqCategories = (array) request('category', []);
+                    foreach ($reqCategories as $c) {
+                        if (!empty($c)) {
+                            $activeFilters[] = ['type' => 'Category', 'label' => $c == 'Local' ? 'Local Premium' : $c];
                         }
                     }
 
@@ -440,7 +461,7 @@
 
                 <div
                     class="mt-16 pt-8 border-t border-slate-200 dark:border-white/5 flex justify-center custom-pagination reveal">
-                    {{ $products->links('pagination::bootstrap-5') }}
+                    {{ $products->links() }}
                 </div>
             </main>
         </div>
@@ -720,6 +741,11 @@
             const variantsContainer = document.getElementById('variantsList');
             variantsContainer.innerHTML = '';
 
+            // Sort variants by price ascending to find the cheapest
+            variants.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+
+            let firstAvailableBtn = null;
+
             variants.forEach(v => {
                 const vBtn = document.createElement('button');
                 vBtn.type = 'button';
@@ -777,7 +803,15 @@
                     });
                 }
                 variantsContainer.appendChild(vBtn);
+                
+                if (hasStock && !firstAvailableBtn) {
+                    firstAvailableBtn = vBtn;
+                }
             });
+            
+            if (firstAvailableBtn) {
+                firstAvailableBtn.click();
+            }
 
             document.getElementById('modalReviewCount').textContent = reviews.length;
             const reviewsContainer = document.getElementById('modalReviewsList');
