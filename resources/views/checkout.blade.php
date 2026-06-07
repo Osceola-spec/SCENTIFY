@@ -74,7 +74,7 @@
                                     </div>
                                     <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $addr->first_name }} {{ $addr->last_name }}</p>
                                     <p class="text-xs text-slate-500 dark:text-zinc-400">{{ $addr->phone }}</p>
-                                    <p class="text-xs text-slate-600 dark:text-zinc-300 mt-0.5">{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}</p>
+                                    <p class="text-xs text-slate-600 dark:text-zinc-300 mt-0.5">{{ $addr->address }}, {{ $addr->village ? $addr->village . ', ' : '' }}{{ $addr->subdistrict ? 'Kec. ' . $addr->subdistrict . ', ' : '' }}{{ $addr->city }} {{ $addr->postal_code }}</p>
                                 </div>
                             </label>
                             @endforeach

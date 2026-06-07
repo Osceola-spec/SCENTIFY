@@ -9,11 +9,11 @@ use App\Models\Order;
 class AdminCustomerController extends Controller
 {
     const LEVELS = [
-        'Diamond'  => 10,000,000, // 10 Juta ke atas
-        'Platinum' => 5,000,000,  // 5 Juta ke atas
-        'Gold'     => 2,000,000,  // 2 Juta ke atas
-        'Silver'   => 500,000,    // 500 Ribu ke atas
-        'Bronze'   => 0,          // 0 ke atas
+        'Diamond'  => 10000000, // 10 Juta ke atas
+        'Platinum' => 5000000,  // 5 Juta ke atas
+        'Gold'     => 2000000,  // 2 Juta ke atas
+        'Silver'   => 500000,   // 500 Ribu ke atas
+        'Bronze'   => 0,        // 0 ke atas
     ];
 
     public static function getLevel(int $spending): array

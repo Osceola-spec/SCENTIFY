@@ -385,7 +385,7 @@
 
     <div id="scroll-progress" class="fixed top-0 left-0 h-[3px] bg-gradient-to-r from-amber-400 to-amber-600 z-50 transition-all duration-100 w-0"></div>
 
-    <div id="cursor-glow" class="fixed top-0 left-0 w-80 h-80 bg-amber-500/20 dark:bg-amber-500/30 rounded-full blur-[80px] pointer-events-none z-0 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block mix-blend-multiply dark:mix-blend-screen transition-opacity duration-300"></div>
+    <div id="cursor-glow" class="fixed top-0 left-0 w-80 h-80 bg-amber-500/20 dark:bg-amber-500/30 rounded-full blur-[80px] pointer-events-none z-40 transform -translate-x-1/2 -translate-y-1/2 hidden lg:block mix-blend-multiply dark:mix-blend-screen transition-opacity duration-300"></div>
 
     <!-- AI Chatbot Floating Widget -->
     <!-- AI Chatbot Floating Widget -->
@@ -505,10 +505,10 @@
 
         // Default (fallback) scent data used while API loads or when it fails
         let scentData = {
-            woody: { badge: "Woody Recommendation", title: "Golden Amber", desc: "Warm woody notes.", price: "-", color: "#f59e0b", top: "", heart: "", base: "" },
-            floral: { badge: "Floral & Sweet Recommendation", title: "Velvet Rose", desc: "Soft floral bouquet.", price: "-", color: "#ec4899", top: "", heart: "", base: "" },
-            citrus: { badge: "Citrus & Sporty Recommendation", title: "Ocean Breeze", desc: "Fresh citrusy accord.", price: "-", color: "#10b981", top: "", heart: "", base: "" },
-            oriental: { badge: "Oriental & Exotic Recommendation", title: "Oud Royale", desc: "Deep oriental resin.", price: "-", color: "#8b5cf6", top: "", heart: "", base: "" }
+            woody: { id: "", variant_id: "", badge: "Woody Recommendation", title: "Golden Amber", desc: "Warm woody notes.", price: "-", original_price: null, discount_badge: null, color: "#f59e0b", top: "", heart: "", base: "" },
+            floral: { id: "", variant_id: "", badge: "Floral & Sweet Recommendation", title: "Velvet Rose", desc: "Soft floral bouquet.", price: "-", original_price: null, discount_badge: null, color: "#ec4899", top: "", heart: "", base: "" },
+            citrus: { id: "", variant_id: "", badge: "Citrus & Sporty Recommendation", title: "Ocean Breeze", desc: "Fresh citrusy accord.", price: "-", original_price: null, discount_badge: null, color: "#10b981", top: "", heart: "", base: "" },
+            oriental: { id: "", variant_id: "", badge: "Oriental & Exotic Recommendation", title: "Oud Royale", desc: "Deep oriental resin.", price: "-", original_price: null, discount_badge: null, color: "#8b5cf6", top: "", heart: "", base: "" }
         };
 
         // Try to fetch real recommendations from backend
@@ -520,6 +520,8 @@
                     for (const key of Object.keys(data)) {
                         scentData[key] = Object.assign({}, scentData[key], data[key]);
                     }
+                    // Apply 'woody' (first option) automatically after fetching real data
+                    setScentMood('woody');
                 })
                 .catch(err => console.warn('Scent recommendations API failed:', err));
         });
@@ -541,6 +543,38 @@
                     document.getElementById('note-top').innerText = data.top;
                     document.getElementById('note-heart').innerText = data.heart;
                     document.getElementById('note-base').innerText = data.base;
+
+                    // Update form values
+                    const cartForm = document.getElementById('scent-cart-form');
+                    const productIdInput = document.getElementById('scent-product-id');
+                    const variantIdInput = document.getElementById('scent-variant-id');
+                    if (cartForm && productIdInput && variantIdInput) {
+                        productIdInput.value = data.id || '';
+                        variantIdInput.value = data.variant_id || '';
+                        if (data.variant_id) {
+                            cartForm.action = '/cart/add/' + data.variant_id;
+                        } else {
+                            cartForm.action = '';
+                        }
+                    }
+
+                    // Update original price & discount
+                    const origPriceEl = document.getElementById('scent-original-price');
+                    const discountBadgeEl = document.getElementById('scent-discount-badge');
+                    
+                    if (data.original_price) {
+                        origPriceEl.innerText = data.original_price;
+                        origPriceEl.classList.remove('hidden');
+                    } else {
+                        origPriceEl.classList.add('hidden');
+                    }
+
+                    if (data.discount_badge) {
+                        discountBadgeEl.innerText = data.discount_badge;
+                        discountBadgeEl.classList.remove('hidden');
+                    } else {
+                        discountBadgeEl.classList.add('hidden');
+                    }
 
                     document.getElementById('scent-badge').style.color = data.color;
                     document.getElementById('note-base').style.color = data.color;

@@ -16,6 +16,8 @@ class Address extends Model
         'city',
         'province_id',
         'city_id',
+        'subdistrict',
+        'village',
         'postal_code',
         'is_default',
     ];

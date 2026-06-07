@@ -15,6 +15,14 @@ class ScentController extends Controller
     {
         $moods = ['woody', 'floral', 'citrus', 'oriental'];
         $result = [];
+        $activePromotions = \App\Models\Promotion::where('is_active', true)
+            ->where(function($q) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->where(function($q) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+            })
+            ->get();
 
         foreach ($moods as $mood) {
             $product = Product::whereRaw('LOWER(category) LIKE ?', ["%{$mood}%"])
@@ -29,12 +37,35 @@ class ScentController extends Controller
             }
 
             if ($product) {
+                $variant = $product->variants->first();
+                $originalPrice = $variant ? $variant->price : 0;
+                $price = $originalPrice;
+                $discountBadge = null;
+
+                if ($activePromotions->isNotEmpty() && $variant) {
+                    foreach ($activePromotions as $promo) {
+                        if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
+                            if ($promo->discount_type === 'percent') {
+                                $price = $originalPrice - ($originalPrice * ($promo->discount_value / 100));
+                                $discountBadge = (float) $promo->discount_value . '% OFF';
+                            } else {
+                                $price = $originalPrice - $promo->discount_value;
+                                $discountBadge = '- Rp ' . number_format($promo->discount_value, 0, ',', '.');
+                            }
+                            break;
+                        }
+                    }
+                }
+
                 $result[$mood] = [
                     'id' => $product->id,
+                    'variant_id' => $variant ? $variant->id : null,
                     'badge' => ucfirst($mood) . ' Recommendation',
                     'title' => $product->name,
                     'desc' => strip_tags($product->description ?? ''),
-                    'price' => $product->variants->first() ? 'Rp ' . number_format($product->variants->first()->price,0,',','.') : 'Price Unavailable',
+                    'original_price' => $originalPrice > $price ? 'Rp ' . number_format($originalPrice, 0, ',', '.') : null,
+                    'price' => $variant ? 'Rp ' . number_format($price, 0, ',', '.') : 'Price Unavailable',
+                    'discount_badge' => $discountBadge,
                     'color' => $this->moodColor($mood),
                     'top' => $product->notes->pluck('name')->slice(0,2)->join(', '),
                     'heart' => $product->notes->pluck('name')->slice(2,2)->join(', '),

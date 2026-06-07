@@ -161,7 +161,6 @@
                         <div class="relative z-10">
                             <div class="flex items-center justify-between mb-4 sm:mb-6">
                                 <span class="text-[9px] sm:text-xs font-mono uppercase text-amber-500 font-bold" id="scent-badge">Woody Recommendation</span>
-                                <span class="text-[10px] sm:text-xs text-slate-500 font-semibold" id="scent-compatibility">Match: 98%</span>
                             </div>
 
                             <h3 class="text-2xl sm:text-3xl font-serif mb-2 sm:mb-4 text-slate-950 dark:text-white transition-colors" id="scent-title">Golden Amber</h3>
@@ -189,13 +188,23 @@
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-5 sm:pt-6 border-t border-slate-200 dark:border-white/5 relative z-10">
-                            <div>
+                            <div class="relative">
                                 <span class="text-[10px] sm:text-xs text-slate-500 block">Starts From</span>
-                                <span class="text-xl sm:text-2xl font-bold" id="scent-price">Rp 425.000</span>
+                                <div class="flex items-end gap-2">
+                                    <span class="text-xl sm:text-2xl font-bold" id="scent-price">Rp 425.000</span>
+                                    <span class="text-xs text-slate-400 line-through mb-1 hidden" id="scent-original-price"></span>
+                                    <span class="text-[9px] font-bold text-white bg-rose-500 px-1.5 py-0.5 rounded mb-1.5 hidden" id="scent-discount-badge"></span>
+                                </div>
                             </div>
-                            <button onclick="addToCart()" class="w-full sm:w-auto px-6 py-3 sm:py-3.5 bg-slate-950 dark:bg-amber-400 text-white dark:text-black rounded-xl text-sm font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-300">
-                                <i class="fas fa-cart-plus mr-2"></i>Add to Cart
-                            </button>
+                            <form action="" method="POST" id="scent-cart-form" class="w-full sm:w-auto">
+                                @csrf
+                                <input type="hidden" name="product_id" id="scent-product-id" value="">
+                                <input type="hidden" name="variant_id" id="scent-variant-id" value="">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="w-full sm:w-auto px-6 py-3 sm:py-3.5 bg-slate-950 dark:bg-amber-400 text-white dark:text-black rounded-xl text-sm font-semibold shadow-lg hover:scale-105 active:scale-95 transition-all duration-300">
+                                    <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -296,8 +305,8 @@
                     }
                 @endphp
                 <div class="tilt-container reveal" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
-                    <a href="{{ route('shop') }}#product-card-{{ $product->id }}" class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
-                        <div class="w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
+                    <div class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
+                        <a href="{{ route('shop') }}#product-card-{{ $product->id }}" class="block w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             @if($product->image_url)
                                 <img src="{{ asset('product_image/' . $product->image_url) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             @else
@@ -316,23 +325,47 @@
                                     @endif
                                 </div>
                             @endif
-                        </div>
+                        </a>
                         <div class="mt-2.5 sm:mt-4 flex-grow flex flex-col justify-start">
-                            <div>
+                            <a href="{{ route('shop') }}#product-card-{{ $product->id }}" class="block">
                                 <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">{{ $product->brand->name ?? 'Scentify' }}</small>
                                 <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">{{ $product->name }}</h3>
-                            </div>
+                            </a>
                             <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">{{ $product->description }}</p>
                         </div>
                         <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
                             <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">
                                 Rp {{ number_format(optional($product->variants->first())->price ?? 0, 0, ',', '.') }}
                             </span>
-                            <div class="p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none">
-                                <i class="fas fa-arrow-right text-[10px] sm:text-sm"></i>
-                            </div>
+                            @if($product->variants->isNotEmpty() && $product->variants->sum('stock') > 0)
+                            <button type="button"
+                                class="variant-selector-btn p-2 sm:p-2.5 bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-lg sm:rounded-xl hover:scale-110 transition-transform shadow-md focus:outline-none"
+                                data-product-id="{{ $product->id }}"
+                                data-product-name="{{ $product->name }}"
+                                data-product-brand="{{ $product->brand->name ?? 'Unknown Brand' }}"
+                                data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
+                                data-product-description="{{ $product->description ?? '' }}"
+                                data-product-images="{{ json_encode($product->images->map(fn($img) => $img->url)) }}"
+                                data-variants="{{ json_encode($product->variants) }}"
+                                data-reviews="{{ json_encode(
+                                    $product->reviews->map(
+                                        fn($r) => [
+                                                'rating' => $r->rating,
+                                                'comment' => $r->comment,
+                                                'date' => $r->created_at->format('d M Y'),
+                                                'user_name' => $r->user->name ?? 'Scentify Customer',
+                                            ],
+                                    ),
+                                ) }}">
+                                <i class="fas fa-cart-plus text-[10px] sm:text-sm"></i>
+                            </button>
+                            @else
+                            <button type="button" class="p-2 sm:p-2.5 bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-lg sm:rounded-xl cursor-not-allowed shadow-md focus:outline-none" disabled>
+                                <i class="fas fa-times-circle text-[10px] sm:text-sm"></i>
+                            </button>
+                            @endif
                         </div>
-                    </a>
+                    </div>
                 </div>
                 @empty
                 <div class="col-span-2 lg:col-span-4 text-center py-10 text-slate-500 dark:text-zinc-400">
@@ -363,4 +396,5 @@
             }
         });
     </script>
+    @include('partials.variant_modal')
 @endsection

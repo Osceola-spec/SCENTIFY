@@ -89,14 +89,9 @@
                         </label>
                     </div>
 
-                    <!-- Submit Button -->
                     <button type="submit" class="w-full py-4 mt-2 bg-slate-900 dark:bg-amber-400 text-white dark:text-black font-semibold tracking-wider uppercase rounded-2xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all duration-300 text-sm shadow-lg shadow-amber-500/5">
                         Daftar Sekarang
                     </button>
-
-                    <p class="text-center text-[10px] sm:text-xs text-slate-400 dark:text-zinc-500 leading-relaxed mt-4">
-                        Dengan mendaftar, Anda menyetujui <a href="#" class="underline hover:text-amber-500 transition-colors">Syarat & Ketentuan</a> serta <a href="#" class="underline hover:text-amber-500 transition-colors">Kebijakan Privasi</a> Scentify.
-                    </p>
                 </form>
                 <script>
                     document.addEventListener('DOMContentLoaded', function(){

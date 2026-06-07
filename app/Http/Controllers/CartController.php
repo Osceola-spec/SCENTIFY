@@ -112,6 +112,10 @@ class CartController extends Controller
         // Simpan kembali ke session
         session()->put('cart', $cart);
 
+        if ($request->has('buy_now')) {
+            return redirect()->to('/checkout?checkout_items[]=' . $variantId . '&quantities[' . $variantId . ']=' . $quantityToAdd);
+        }
+
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 

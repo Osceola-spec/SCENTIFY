@@ -60,8 +60,16 @@ class CheckoutController extends Controller
         }
 
         // Tangkap array ID produk yang dicentang oleh user dari halaman keranjang
-        $selectedIds = $request->input('checkout_items', []);
-        $quantities = $request->input('quantities', []);
+        $selectedIds = $request->input('checkout_items');
+        $quantities = $request->input('quantities');
+
+        if ($selectedIds === null) {
+            $checkoutData = session('checkout_data');
+            if (is_array($checkoutData)) {
+                $selectedIds = $checkoutData['checkout_items'] ?? [];
+                $quantities = $checkoutData['quantities'] ?? [];
+            }
+        }
 
         if (empty($selectedIds)) {
             if (empty(session('cart'))) {
@@ -109,6 +117,8 @@ class CheckoutController extends Controller
             'taxAmount' => $taxAmount,
             'totalAmount' => $totalAmount,
             'totalWeight' => $totalWeight, // Simpan info berat
+            'checkout_items' => $selectedIds,
+            'quantities' => $quantities,
         ]);
 
         $provinces = Province::orderBy('name', 'asc')->get();

@@ -125,11 +125,11 @@ class ShopController extends Controller
             ])->orderBy('min_price', 'asc');
         } elseif ($request->sort === 'price_desc') {
             $query->addSelect([
-                'max_price' => ProductVariant::select('price')
+                'min_price' => ProductVariant::select('price')
                     ->whereColumn('product_id', 'products.id')
-                    ->orderBy('price', 'desc')
+                    ->orderBy('price', 'asc')
                     ->limit(1)
-            ])->orderBy('max_price', 'desc');
+            ])->orderBy('min_price', 'desc');
         } else {
             $query->latest();
         }

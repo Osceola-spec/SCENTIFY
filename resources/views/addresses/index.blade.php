@@ -17,7 +17,7 @@
 
     <div class="mb-10 reveal">
         <span class="text-[10px] sm:text-xs font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">Manage Shipping</span>
-        <h1 class="text-3xl md:text-4xl font-serif mt-2 text-slate-950 dark:text-white">Addresses <span class="text-amber-500 font-normal">My</span></h1>
+        <h1 class="text-3xl md:text-4xl font-serif mt-2 text-slate-950 dark:text-white">My <span class="text-amber-500 font-normal">Addresses</span></h1>
     </div>
 
     @if(session('success'))
@@ -49,7 +49,7 @@
                     </div>
                     <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $addr->first_name }} {{ $addr->last_name }}</p>
                     <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{{ $addr->phone }}</p>
-                    <p class="text-xs text-slate-600 dark:text-zinc-300 mt-1">{{ $addr->address }}, {{ $addr->city }} {{ $addr->postal_code }}</p>
+                    <p class="text-xs text-slate-600 dark:text-zinc-300 mt-1">{{ $addr->address }}, {{ $addr->village ? $addr->village . ', ' : '' }}{{ $addr->subdistrict ? 'Kec. ' . $addr->subdistrict . ', ' : '' }}{{ $addr->city }} {{ $addr->postal_code }}</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-white/5 flex-wrap">
@@ -159,6 +159,8 @@ function openEditModal(id) {
     f.querySelector('[name="edit_last_name"]').value = addr.last_name || '';
     f.querySelector('[name="edit_phone"]').value = addr.phone || '';
     f.querySelector('[name="edit_address"]').value = addr.address || '';
+    f.querySelector('[name="edit_subdistrict"]').value = addr.subdistrict || '';
+    f.querySelector('[name="edit_village"]').value = addr.village || '';
     f.querySelector('[name="edit_postal_code"]').value = addr.postal_code || '';
     f.querySelector('[name="edit_is_default"]').checked = addr.is_default == 1;
 
