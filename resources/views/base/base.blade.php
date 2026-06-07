@@ -299,7 +299,7 @@
 <body class="bg-slate-50 text-slate-900 dark:bg-darkbg dark:text-zinc-50 antialiased selection:bg-amber-500 selection:text-black flex flex-col min-h-screen transition-colors duration-500 interactive-cursor-area overflow-x-hidden">
 
     <!-- Global Loading Screen -->
-    <div id="scentify-global-loader" class="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 pointer-events-none" style="z-index: 999999;">
+    <div id="scentify-global-loader" class="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000" style="z-index: 999999;">
         <div class="relative w-32 h-32 mb-8 flex items-center justify-center">
             <!-- Pulsing background glow -->
             <div class="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
@@ -343,6 +343,9 @@
                 return;
             }
 
+            // Lock scroll while loading
+            document.body.style.overflow = 'hidden';
+
             let progress = 0;
             // Fake progress animation while page is loading
             const interval = setInterval(() => {
@@ -353,6 +356,7 @@
                 progressText.innerText = progress + '%';
             }, 100);
 
+            // window.onload guarantees ALL assets (images, CSS, JS) are fully loaded
             window.addEventListener('load', function() {
                 clearInterval(interval);
                 
@@ -363,8 +367,10 @@
                 // Wait for the bar to visually reach 100%, then fade out
                 setTimeout(() => {
                     loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none'; // Allow clicks to pass through during fade
                     setTimeout(() => {
                         loader.remove();
+                        document.body.style.overflow = ''; // Unlock scroll
                         sessionStorage.setItem('scentify_has_loaded', 'true');
                     }, 1000); // Matches CSS transition duration
                 }, 500);
@@ -455,20 +461,44 @@
             });
 
             if (document.querySelector(".hero-text-container")) {
-                gsap.from(".hero-text-container", {
-                    duration: 1.2,
-                    y: 60,
+                // Animate words sequentially
+                gsap.from(".hero-word", {
+                    duration: 0.8,
+                    y: 50,
                     opacity: 0,
-                    ease: "power4.out"
+                    stagger: 0.15,
+                    ease: "back.out(1.7)",
+                    delay: 0.2
+                });
+                
+                // Animate other elements inside the container sequentially
+                gsap.from(".hero-text-container > *:not(h1)", {
+                    duration: 1,
+                    y: 40,
+                    opacity: 0,
+                    stagger: 0.2,
+                    ease: "power3.out",
+                    delay: 0.6
                 });
             }
+            
             if (document.querySelector(".hero-bottle-container")) {
+                // Container fade in
                 gsap.from(".hero-bottle-container", {
-                    duration: 1.5,
-                    scale: 0.9,
+                    duration: 1,
                     opacity: 0,
-                    delay: 0.3,
-                    ease: "power3.out"
+                    delay: 0.2,
+                    ease: "power2.out"
+                });
+                
+                // Swipeable cards drop from top
+                gsap.from(".hero-swiper .swiper-slide", {
+                    duration: 1.2,
+                    y: -200,
+                    opacity: 0,
+                    stagger: 0.15,
+                    ease: "bounce.out",
+                    delay: 0.4
                 });
             }
         });

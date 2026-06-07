@@ -14,8 +14,8 @@
                     <span class="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-amber-600 dark:text-amber-400 font-semibold">Luxury Olfactory Experience</span>
                 </div>
                 <h1 class="text-4xl sm:text-5xl lg:text-7xl font-serif mb-4 sm:mb-6 leading-[1.15] tracking-tight text-slate-950 dark:text-white">
-                    Expression Art <br>
-                    <span class="text-gradient font-bold">Luxurious Scent</span>
+                    <span class="hero-word inline-block">Expression</span> <span class="hero-word inline-block">Art</span> <br>
+                    <span class="hero-word inline-block text-gradient font-bold">Luxurious</span> <span class="hero-word inline-block text-gradient font-bold">Scent</span>
                 </h1>
                 <p class="text-slate-600 dark:text-zinc-400 text-sm sm:text-base lg:text-lg mb-8 sm:mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0">
                     Introducing a curation of world-class designer fragrances, complex niche scents, and premium local blends for your unique aura.                </p>
