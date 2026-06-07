@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class AdminBranchController extends Controller
 {
@@ -22,7 +23,7 @@ class AdminBranchController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:branches,name',
+            'name' => ['required', 'string', 'max:255', Rule::unique('branches')->whereNull('deleted_at')],
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'province' => 'nullable|string|max:100',
@@ -59,7 +60,7 @@ class AdminBranchController extends Controller
     public function update(Request $request, Branch $branch)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:branches,name,' . $branch->id,
+            'name' => ['required', 'string', 'max:255', Rule::unique('branches')->ignore($branch->id)->whereNull('deleted_at')],
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'province' => 'nullable|string|max:100',

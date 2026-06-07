@@ -67,49 +67,99 @@
 
         @if ($upcomingPromotions->isNotEmpty())
             @foreach($upcomingPromotions as $upcomingPromotion)
-            <div class="promo-upcoming-banner mb-6 p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <div class="text-sm font-mono text-amber-600 uppercase">Upcoming Promo</div>
-                    <div class="text-lg font-semibold text-slate-900 dark:text-white">
-                        {{ $upcomingPromotion->title }}</div>
-                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ $upcomingPromotion->description }}
+            <div class="promo-upcoming-banner mb-8 relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-200/20 shadow-2xl group opacity-90 hover:opacity-100 transition-all duration-500" data-aos="fade-up">
+                
+                <!-- Background Glow -->
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-slate-100/10 rounded-full blur-3xl pointer-events-none group-hover:scale-110 transition-transform duration-700"></div>
+                
+                <div class="p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+                    <div class="flex items-start sm:items-center gap-5 sm:gap-6">
+                        <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-slate-800 flex items-center justify-center shrink-0 shadow-inner border border-white/10">
+                            <i class="fas fa-calendar-alt text-2xl sm:text-3xl text-slate-400"></i>
+                        </div>
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-white/10 mb-3">
+                                <i class="fas fa-clock text-[9px] text-slate-400"></i>
+                                <span class="text-[10px] sm:text-xs font-mono font-bold text-slate-300 uppercase tracking-[0.2em]">Upcoming Promo</span>
+                            </div>
+                            <h3 class="text-2xl sm:text-3xl font-serif font-bold text-white mb-2">
+                                {{ $upcomingPromotion->title }}
+                            </h3>
+                            <p class="text-sm sm:text-base text-slate-400 max-w-xl leading-relaxed">
+                                {{ $upcomingPromotion->description }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col items-center sm:items-end justify-between sm:justify-end gap-4 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-xl">
+                        <div class="text-center sm:text-right">
+                            <span class="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-slate-400 block mb-1">Starts in</span>
+                            <div class="promo-starts-countdown text-3xl sm:text-4xl font-mono font-black text-white tracking-widest">--:--:--</div>
+                        </div>
+                        <input type="hidden" class="promo-starts-at"
+                            value="{{ optional($upcomingPromotion->starts_at)->format('Y-m-d\TH:i:s') }}">
                     </div>
                 </div>
-                <div class="text-left sm:text-right w-full sm:w-auto">
-                    <div class="text-xs text-slate-600 dark:text-zinc-300">Starts in:</div>
-                    <div class="promo-starts-countdown text-xl font-mono font-bold text-amber-600">--:--:--</div>
-                </div>
-                <input type="hidden" class="promo-starts-at"
-                    value="{{ optional($upcomingPromotion->starts_at)->format('Y-m-d\TH:i:s') }}">
             </div>
             @endforeach
         @endif
 
         @if ($activePromotions->isNotEmpty())
             @foreach($activePromotions as $activePromotion)
-            <div class="promo-banner mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <div class="text-sm font-mono text-amber-600 uppercase">Active Promo</div>
-                    <div class="text-lg font-semibold text-slate-900 dark:text-white">
-                        {{ $activePromotion->title }}</div>
-                    <div class="text-xs text-slate-700 dark:text-zinc-300">{{ $activePromotion->description }}
-                    </div>
+            <div class="promo-banner mb-8 relative overflow-hidden rounded-3xl bg-slate-900 border border-amber-500/30 shadow-2xl group" data-aos="fade-up">
+                
+                <!-- Background Image (Perfume Graphic) -->
+                <div class="absolute right-0 top-0 bottom-0 w-full sm:w-2/3 lg:w-1/2 opacity-30 group-hover:opacity-50 transition-opacity duration-700 pointer-events-none" style="mask-image: linear-gradient(to right, transparent, black 80%); -webkit-mask-image: linear-gradient(to right, transparent, black 80%);">
+                    <img src="{{ asset('images/hero-perfumes/creed_aventus.jpg') }}" class="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-1000 ease-out" alt="Promo Perfume">
                 </div>
-                <div class="text-left sm:text-right w-full sm:w-auto">
-                    @if ($activePromotion->ends_at)
-                        <div class="text-xs text-slate-600 dark:text-zinc-300">Ends in:</div>
-                        <div class="promo-countdown text-xl font-mono font-bold text-amber-600">--:--:--</div>
-                        @if ($activePromotion->applies_to_all === false && $activePromotion->product)
-                            <a href="#product-card-{{ $activePromotion->product->id }}"
-                                class="text-xs text-slate-700 dark:text-zinc-300 underline">View related product</a>
+                
+                <!-- Ambient Glow -->
+                <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-600/30 rounded-full blur-[80px] pointer-events-none group-hover:bg-amber-500/40 transition-all duration-700"></div>
+                
+                <div class="p-6 sm:p-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
+                    <div class="flex items-start sm:items-center gap-5 sm:gap-6">
+                        <!-- Icon -->
+                        <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/40 relative overflow-hidden">
+                            <div class="absolute inset-0 bg-white/20 -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out"></div>
+                            <i class="fas fa-gem text-2xl sm:text-3xl text-white"></i>
+                        </div>
+                        
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 mb-3 backdrop-blur-sm">
+                                <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                                <span class="text-[10px] sm:text-xs font-mono font-bold text-amber-400 uppercase tracking-[0.2em]">Active Promo</span>
+                            </div>
+                            <h3 class="text-2xl sm:text-3xl font-serif font-bold text-white mb-2 drop-shadow-md">
+                                {{ $activePromotion->title }}
+                            </h3>
+                            <p class="text-sm sm:text-base text-amber-100/70 max-w-xl leading-relaxed drop-shadow">
+                                {{ $activePromotion->description }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-auto flex flex-col sm:flex-row lg:flex-col items-center sm:items-end justify-between sm:justify-end gap-4 bg-black/40 backdrop-blur-xl p-5 rounded-2xl border border-white/10 shadow-xl">
+                        @if ($activePromotion->ends_at)
+                            <div class="text-center sm:text-right">
+                                <span class="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-amber-400/80 block mb-1">Ends in</span>
+                                <div class="promo-countdown text-3xl sm:text-4xl font-mono font-black text-white tracking-widest drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">--:--:--</div>
+                            </div>
+                            @if ($activePromotion->applies_to_all === false && $activePromotion->product)
+                                <a href="#product-card-{{ $activePromotion->product->id }}"
+                                    class="inline-flex items-center gap-2 text-xs font-bold text-amber-950 hover:text-black transition-colors bg-gradient-to-r from-amber-400 to-amber-500 px-5 py-2.5 rounded-xl mt-2 sm:mt-0 lg:mt-3 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40">
+                                    <span>View Product</span> <i class="fas fa-arrow-right text-[10px]"></i>
+                                </a>
+                            @endif
+                            <input type="hidden" class="promo-ends-at"
+                                value="{{ optional($activePromotion->ends_at)->format('Y-m-d\TH:i:s') }}">
+                        @else
+                            <div class="text-center sm:text-right">
+                                <span class="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-amber-400/80 block mb-1">Ends in</span>
+                                <div class="text-2xl sm:text-3xl font-mono font-black text-white tracking-widest drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]">Selamanya</div>
+                            </div>
+                            <input type="hidden" class="promo-ends-at" value="">
                         @endif
-                        <input type="hidden" class="promo-ends-at"
-                            value="{{ optional($activePromotion->ends_at)->format('Y-m-d\TH:i:s') }}">
-                    @else
-                        <div class="text-xs text-slate-600 dark:text-zinc-300">Ends in:</div>
-                        <div class="promo-countdown text-xl font-mono font-bold text-amber-600">Selamanya</div>
-                        <input type="hidden" class="promo-ends-at" value="">
-                    @endif
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -185,19 +235,19 @@
                         <div>
                             <h6 class="text-xs font-mono uppercase tracking-wider text-slate-400 mb-4 font-bold">Max Price</h6>
                             <div class="relative pt-4 px-2 group">
-                                <input type="range" name="max_price" id="priceRange" min="0" max="5000000"
-                                    step="100000" value="{{ request('max_price', 5000000) }}"
+                                <input type="range" name="max_price" id="priceRange" min="0" max="10000000"
+                                    step="100000" value="{{ request('max_price', 10000000) }}"
                                     class="w-full h-1 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
 
                                 <div id="rangeTooltip"
                                     class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-slate-950 dark:bg-amber-500 text-white dark:text-black text-[10px] font-mono font-bold px-2 py-0.5 rounded shadow-lg pointer-events-none hidden group-hover:block group-active:block transition-all duration-150">
-                                    Rp 5.000.000
+                                    Rp 10.000.000
                                 </div>
                             </div>
 
                             <div class="flex justify-between text-xs text-slate-400 font-mono mt-3">
                                 <span>Rp 0</span>
-                                <span id="priceLabel">Rp 5.000.000</span>
+                                <span id="priceLabel">Rp 10.000.000</span>
                             </div>
                         </div>
 
@@ -678,7 +728,7 @@
                 if (rangeTooltip) {
                     rangeTooltip.textContent = formatted;
                     const min = rangeInput.min ? Number(rangeInput.min) : 0;
-                    const max = rangeInput.max ? Number(rangeInput.max) : 5000000;
+                    const max = rangeInput.max ? Number(rangeInput.max) : 10000000;
                     const pct = ((val - min) / (max - min)) * 100;
                     rangeTooltip.style.left = `calc(${pct}% + (${8 - pct * 0.15}px))`;
                 }

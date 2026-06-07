@@ -34,7 +34,7 @@ Route::get('/', function () {
     $bestSellers = \App\Models\Product::with(['brand', 'variants', 'images'])
         ->withSum('orderItems', 'quantity')
         ->orderByDesc('order_items_sum_quantity')
-        ->take(4)
+        ->take(5)
         ->get();
     
     $activePromotions = \App\Models\Promotion::where('is_active', true)
