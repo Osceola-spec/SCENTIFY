@@ -305,7 +305,10 @@
                     }
                 @endphp
                 <div class="tilt-container reveal" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
-                    <div class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative hover:border-amber-500/30">
+                    <div class="block tilt-card glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 border {{ $appliedPromo ? 'border-transparent shadow-amber-500/20 shadow-xl' : 'border-slate-200 dark:border-white/5 shadow-md hover:border-amber-500/30' }} flex flex-col justify-between h-[290px] sm:h-[370px] transition-all duration-300 group relative">
+                        @if($appliedPromo)
+                            <div class="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-400 via-rose-500 to-amber-600 p-[2px] pointer-events-none" style="-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;"></div>
+                        @endif
                         <a href="{{ route('shop') }}#product-card-{{ $product->id }}" class="block w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             @if($product->image_url)
                                 <img src="{{ asset('product_image/' . $product->image_url) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -331,7 +334,7 @@
                                 <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">{{ $product->brand->name ?? 'Scentify' }}</small>
                                 <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">{{ $product->name }}</h3>
                             </a>
-                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-2 leading-relaxed hidden sm:block">{{ $product->description }}</p>
+                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-3 leading-relaxed hidden sm:block">{{ $product->description }}</p>
                         </div>
                         <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
                             <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">

@@ -317,38 +317,41 @@
 
                 <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6" id="product-container">
                     @forelse($products as $product)
+                        @php
+                            $basePrice = $product->variants->first()->price ?? 0;
+                            $promoApplies = false;
+                            $discountedPrice = null;
+                            $appliedPromo = null;
+
+                            if ($activePromotions->isNotEmpty()) {
+                                foreach($activePromotions as $promo) {
+                                    if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
+                                        $appliedPromo = $promo;
+                                        break;
+                                    }
+                                }
+
+                                if ($appliedPromo) {
+                                    $promoApplies = true;
+                                    $dv = (float) $appliedPromo->discount_value;
+                                    if ($appliedPromo->discount_type === 'percent') {
+                                        $discountedPrice = max(0, round($basePrice * (1 - $dv / 100)));
+                                    } else {
+                                        $discountedPrice = max(0, round($basePrice - $dv));
+                                    }
+                                }
+                            }
+                        @endphp
                         <div class="perspective-1000 reveal product-card" id="product-card-{{ $product->id }}"
                             data-id="{{ $product->id }}" data-name="{{ e($product->name) }}"
                             data-brand="{{ e($product->brand->name ?? '') }}"
                             data-description="{{ e(strip_tags($product->description ?? '')) }}">
                             <div
-                                class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative">
-
-                                @php
-                                    $basePrice = $product->variants->first()->price ?? 0;
-                                    $promoApplies = false;
-                                    $discountedPrice = null;
-                                    $appliedPromo = null;
-
-                                    if ($activePromotions->isNotEmpty()) {
-                                        foreach($activePromotions as $promo) {
-                                            if ($promo->applies_to_all || ($promo->product_id && $promo->product_id == $product->id)) {
-                                                $appliedPromo = $promo;
-                                                break;
-                                            }
-                                        }
-
-                                        if ($appliedPromo) {
-                                            $promoApplies = true;
-                                            $dv = (float) $appliedPromo->discount_value;
-                                            if ($appliedPromo->discount_type === 'percent') {
-                                                $discountedPrice = max(0, round($basePrice * (1 - $dv / 100)));
-                                            } else {
-                                                $discountedPrice = max(0, round($basePrice - $dv));
-                                            }
-                                        }
-                                    }
-                                @endphp
+                                class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border {{ $appliedPromo ? 'border-transparent shadow-amber-500/20 shadow-xl' : 'border-slate-200 dark:border-white/5 shadow-md' }} flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative">
+                                
+                                @if($appliedPromo)
+                                    <div class="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-400 via-rose-500 to-amber-600 p-[2px] pointer-events-none" style="-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;"></div>
+                                @endif
 
                                 <div
                                     class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
