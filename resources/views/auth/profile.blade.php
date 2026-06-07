@@ -178,6 +178,7 @@
                         <div>
                             <label for="phone" class="block text-xs font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">Nomor Telepon</label>
                             <input type="tel" id="phone" name="phone" value="{{ old('phone', $user->phone) }}"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                 class="w-full px-4 py-2.5 bg-slate-50 dark:bg-zinc-800/50 border @error('phone') border-rose-500 ring-1 ring-rose-500 @else border-slate-200 dark:border-white/10 @enderror rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-amber-500 transition-all">
                             @error('phone') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>

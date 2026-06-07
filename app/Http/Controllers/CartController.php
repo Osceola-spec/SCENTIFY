@@ -43,6 +43,7 @@ class CartController extends Controller
                     }
                 }
             }
+            unset($item); // Fix PHP reference bug
             if ($changed) {
                 session()->put('cart', $cart);
             }
@@ -125,5 +126,25 @@ class CartController extends Controller
         }
 
         return redirect()->back()->with('success', 'Produk dihapus dari keranjang.');
+    }
+
+    // Menghapus banyak item sekaligus
+    public function bulkRemove(Request $request)
+    {
+        $cartIds = json_decode($request->input('cart_ids'), true);
+        if (!is_array($cartIds) || empty($cartIds)) {
+            return redirect()->back()->with('error', 'Tidak ada item yang dipilih untuk dihapus.');
+        }
+
+        $cart = session()->get('cart', []);
+        foreach ($cartIds as $id) {
+            if (isset($cart[$id])) {
+                unset($cart[$id]);
+            }
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->back()->with('success', count($cartIds) . ' produk berhasil dihapus dari keranjang.');
     }
 }

@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     // Keranjang Belanja (Cart)
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{variantId}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/bulk-remove', [CartController::class, 'bulkRemove'])->name('cart.bulk-remove');
     Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
 
     // Proses Checkout & Pembayaran

@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="/js/sweetalert2.min.css">
     <script src="/js/gsap.min.js"></script>
     <script src="/js/sweetalert2.min.js"></script>
+    <script>window.Swal = Swal.mixin({ showCloseButton: true });</script>
     <script src="/js/fuse.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -296,6 +297,80 @@
 </head>
 
 <body class="bg-slate-50 text-slate-900 dark:bg-darkbg dark:text-zinc-50 antialiased selection:bg-amber-500 selection:text-black flex flex-col min-h-screen transition-colors duration-500 interactive-cursor-area overflow-x-hidden">
+
+    <!-- Global Loading Screen -->
+    <div id="scentify-global-loader" class="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-1000 pointer-events-none" style="z-index: 999999;">
+        <div class="relative w-32 h-32 mb-8 flex items-center justify-center">
+            <!-- Pulsing background glow -->
+            <div class="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
+            <!-- Spinning outer ring -->
+            <div class="absolute inset-0 rounded-full border-2 border-slate-800 border-t-amber-500 animate-spin" style="animation-duration: 2s;"></div>
+            <!-- Inner spinning ring -->
+            <div class="absolute inset-2 rounded-full border-2 border-slate-800 border-b-amber-400 animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
+            
+            <!-- Logo Icon -->
+            <i class="fas fa-crown text-4xl text-amber-500 relative z-10 animate-pulse"></i>
+        </div>
+        
+        <h2 class="text-white font-serif tracking-[0.4em] uppercase text-xl mb-6 relative">
+            Scentify
+        </h2>
+        
+        <!-- Progress Bar Container -->
+        <div class="w-64 flex flex-col items-center">
+            <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden mb-3">
+                <div id="loading-progress-bar" class="h-full bg-gradient-to-r from-amber-600 via-amber-400 to-amber-500 w-0 transition-all duration-300 ease-out"></div>
+            </div>
+            <div class="flex justify-between w-full text-amber-500/70 font-mono text-[10px] uppercase tracking-widest">
+                <span>Preparing Essences</span>
+                <span id="loading-progress-text">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Loading Screen Logic with Fake Progress Bar
+        (function() {
+            const loader = document.getElementById('scentify-global-loader');
+            const progressBar = document.getElementById('loading-progress-bar');
+            const progressText = document.getElementById('loading-progress-text');
+            
+            if (!loader || !progressBar || !progressText) return;
+
+            // Check if user has already seen the loader in this session
+            if (sessionStorage.getItem('scentify_has_loaded')) {
+                loader.style.display = 'none';
+                return;
+            }
+
+            let progress = 0;
+            // Fake progress animation while page is loading
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 10) + 5;
+                if (progress > 90) progress = 90; // Hold at 90% until window.load
+                
+                progressBar.style.width = progress + '%';
+                progressText.innerText = progress + '%';
+            }, 100);
+
+            window.addEventListener('load', function() {
+                clearInterval(interval);
+                
+                // Complete the progress to 100%
+                progressBar.style.width = '100%';
+                progressText.innerText = '100%';
+                
+                // Wait for the bar to visually reach 100%, then fade out
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.remove();
+                        sessionStorage.setItem('scentify_has_loaded', 'true');
+                    }, 1000); // Matches CSS transition duration
+                }, 500);
+            });
+        })();
+    </script>
 
     <div class="cursor-dot hidden lg:block"></div>
     <div class="cursor-outline hidden lg:block"></div>
@@ -847,6 +922,66 @@
     </script>
 
     <script>
+        let chatHistory = JSON.parse(sessionStorage.getItem('scentify_chat_history')) || [];
+
+        function renderChatHistory() {
+            const messages = document.getElementById('chatbot-messages');
+            messages.innerHTML = `
+                <div class="flex gap-2">
+                    <div class="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fas fa-robot text-white text-[9px]"></i>
+                    </div>
+                    <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 max-w-[85%]">
+                        Halo Kak! Saya Scenty. Ada yang bisa saya bantu tentang parfum hari ini?
+                    </div>
+                </div>
+            `;
+
+            if (chatHistory.length === 0) {
+                // Show ready-to-use suggestion buttons
+                messages.innerHTML += `
+                    <div class="flex flex-wrap gap-2 mt-2 ml-8">
+                        <button onclick="sendSuggestedMessage('Apa rekomendasi parfum pria terbaik?')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
+                            Rekomendasi Parfum Pria
+                        </button>
+                        <button onclick="sendSuggestedMessage('Tolong cek status pesanan saya')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
+                            Cek Pesanan Saya
+                        </button>
+                        <button onclick="sendSuggestedMessage('Apa bedanya EDP dan EDT?')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
+                            Beda EDP dan EDT?
+                        </button>
+                    </div>
+                `;
+            } else {
+                chatHistory.forEach(chat => {
+                    if (chat.role === 'user') {
+                        messages.innerHTML += `
+                            <div class="flex gap-2 justify-end">
+                                <div class="bg-amber-500 rounded-2xl rounded-tr-sm px-3 py-2 text-xs text-white max-w-[80%]">${chat.content.replace(/</g,'&lt;')}</div>
+                            </div>`;
+                    } else if (chat.role === 'assistant') {
+                        messages.innerHTML += `
+                            <div class="flex gap-2">
+                                <div class="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fas fa-robot text-white text-[9px]"></i>
+                                </div>
+                                <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 max-w-[80%] whitespace-pre-wrap">${chat.content.replace(/</g,'&lt;')}</div>
+                            </div>`;
+                    }
+                });
+            }
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderChatHistory();
+        });
+
+        function sendSuggestedMessage(text) {
+            const input = document.getElementById('chatbot-input');
+            input.value = text;
+            sendChatMessage();
+        }
         function toggleChatbot() {
             const win     = document.getElementById('chatbot-window');
             const icon    = document.getElementById('chatbot-icon');
@@ -883,6 +1018,14 @@
             const messages = document.getElementById('chatbot-messages');
             const sendBtn = document.getElementById('chatbot-send-btn');
 
+            // Remove suggestions if it's the first message
+            if (chatHistory.length === 0) {
+                renderChatHistory(); // Will reset to just the greeting without buttons since we'll push history later
+            }
+
+            chatHistory.push({ role: 'user', content: msg });
+            sessionStorage.setItem('scentify_chat_history', JSON.stringify(chatHistory));
+
             // Append user bubble
             messages.innerHTML += `
                 <div class="flex gap-2 justify-end">
@@ -913,10 +1056,13 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({ message: msg })
+                    body: JSON.stringify({ message: msg, history: chatHistory })
                 });
                 const data = await res.json();
                 const reply = data.reply || data.message || 'Maaf, terjadi kesalahan.';
+
+                chatHistory.push({ role: 'assistant', content: reply });
+                sessionStorage.setItem('scentify_chat_history', JSON.stringify(chatHistory));
 
                 document.getElementById(loadingId)?.remove();
                 messages.innerHTML += `
@@ -947,6 +1093,12 @@
     @yield('scripts')
 
     <script>
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted && typeof Swal !== 'undefined') {
+                Swal.close();
+            }
+        });
+
         @if(session('success'))
             Swal.fire({ icon: 'success', title: 'Berhasil!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top' });
         @endif

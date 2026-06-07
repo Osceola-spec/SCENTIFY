@@ -53,6 +53,7 @@ class CheckoutController extends Controller
                     }
                 }
             }
+            unset($item); // Fix PHP reference bug
             if ($changed) {
                 session()->put('cart', $cart);
             }

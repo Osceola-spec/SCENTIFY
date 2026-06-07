@@ -13,11 +13,12 @@ class ReviewController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'order_id'   => 'required|exists:orders,id',
-            'product_id' => 'required|exists:products,id',
-            'rating'     => 'required|integer|min:1|max:5',
-            'title'      => 'nullable|string|max:100',
-            'comment'    => 'nullable|string|max:1000',
+            'order_id'      => 'required|exists:orders,id',
+            'order_item_id' => 'required|exists:order_items,id',
+            'product_id'    => 'required|exists:products,id',
+            'rating'        => 'required|integer|min:1|max:5',
+            'title'         => 'nullable|string|max:100',
+            'comment'       => 'nullable|string|max:1000',
         ]);
 
         // Pastikan order milik user yang login
@@ -27,8 +28,8 @@ class ReviewController extends Controller
             ->firstOrFail();
 
         // Pastikan produk ada di dalam order tersebut
-        // Pastikan produk ada di dalam order tersebut
         $productInOrder = $order->items()
+            ->where('id', $request->order_item_id)
             ->whereHas('variant', fn($q) => $q->where('product_id', $request->product_id))
             ->exists();
 
@@ -38,9 +39,8 @@ class ReviewController extends Controller
 
         // Cek sudah pernah review atau belum
         $existing = Review::where([
-            'user_id'    => Auth::id(),
-            'product_id' => $request->product_id,
-            'order_id'   => $request->order_id,
+            'user_id'       => Auth::id(),
+            'order_item_id' => $request->order_item_id,
         ])->first();
 
         if ($existing) {
@@ -48,12 +48,13 @@ class ReviewController extends Controller
         }
 
         $review = Review::create([
-            'user_id'    => Auth::id(),
-            'product_id' => $request->product_id,
-            'order_id'   => $request->order_id,
-            'rating'     => $request->rating,
-            'title'      => $request->title,
-            'comment'    => $request->comment,
+            'user_id'       => Auth::id(),
+            'product_id'    => $request->product_id,
+            'order_id'      => $request->order_id,
+            'order_item_id' => $request->order_item_id,
+            'rating'        => $request->rating,
+            'title'         => $request->title,
+            'comment'       => $request->comment,
         ]);
 
         return response()->json([

@@ -56,19 +56,21 @@
                             </div>
                         @endif
                         
-                        <button type="button" data-remove-wishlist="{{ $product->id }}" class="absolute top-2 left-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-500 text-white hover:bg-rose-600 flex items-center justify-center transition-all shadow-md z-20 focus:outline-none" title="Remove from Wishlist">
-                            <i class="fas fa-times text-[10px] sm:text-xs"></i>
-                        </button>
                     </div>
 
                     <div class="mt-3 flex-grow flex flex-col justify-start">
-                        <div>
-                            <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">
-                                {{ $product->brand->name ?? 'Unknown Brand' }}
-                            </small>
-                            <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1">
-                                {{ $product->name }}
-                            </h5>
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="flex-grow overflow-hidden">
+                                <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block">
+                                    {{ $product->brand->name ?? 'Unknown Brand' }}
+                                </small>
+                                <h5 class="text-sm sm:text-base font-serif font-bold text-slate-900 dark:text-white mt-0.5 group-hover:text-amber-500 transition-colors line-clamp-1">
+                                    {{ $product->name }}
+                                </h5>
+                            </div>
+                            <button type="button" data-remove-wishlist="{{ $product->id }}" class="flex-shrink-0 w-7 h-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white flex items-center justify-center transition-all focus:outline-none mt-1" title="Remove from Wishlist">
+                                <i class="fas fa-times text-[10px]"></i>
+                            </button>
                         </div>
                         <p class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-1">
                             @if ($discountedPrice !== null)

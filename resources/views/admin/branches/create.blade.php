@@ -33,7 +33,7 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700">Telepon</label>
-                <input type="text" name="phone" value="{{ old('phone') }}" class="w-full mt-1 p-3 border rounded-lg">
+                <input type="text" name="phone" value="{{ old('phone') }}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full mt-1 p-3 border rounded-lg">
             </div>
             <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-slate-700">Alamat</label>

@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/js/sweetalert2.min.css">
     <script src="/js/sweetalert2.min.js"></script>
+    <script>window.Swal = Swal.mixin({ showCloseButton: true });</script>
     <script src="/js/chart.umd.js"></script>
     <script src="/js/fuse.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

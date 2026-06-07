@@ -54,6 +54,37 @@
         </div>
     </div>
 </div>
+
+<!-- Scentify Premium Payment Modal -->
+<div id="scentify-payment-modal" class="fixed inset-0 hidden items-center justify-center" style="z-index: 99999;">
+    <!-- Backdrop with blur -->
+    <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 opacity-0" id="scentify-modal-backdrop"></div>
+    
+    <!-- Modal Container -->
+    <div class="relative w-full max-w-md md:max-w-lg lg:max-w-xl bg-white dark:bg-zinc-900 border border-amber-500/30 rounded-3xl shadow-[0_0_50px_-12px_rgba(245,158,11,0.3)] overflow-hidden flex flex-col transform transition-all duration-300 scale-95 opacity-0" id="scentify-modal-content">
+        <!-- Header -->
+        <div class="px-6 py-4 bg-gradient-to-r from-slate-950 to-slate-900 flex justify-between items-center border-b border-amber-500/20">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                    <i class="fas fa-crown text-amber-500 text-sm"></i>
+                </div>
+                <h3 class="text-white font-serif font-bold tracking-wider">Scentify Secure Pay</h3>
+            </div>
+            <button id="close-payment-modal" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-rose-500 transition-colors flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Loading State before Midtrans loads -->
+        <div id="snap-loading" class="absolute inset-0 top-[65px] bg-white dark:bg-zinc-900 z-10 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-500">
+            <div class="w-12 h-12 border-4 border-slate-200 dark:border-zinc-800 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+            <p class="text-sm font-mono text-slate-500 dark:text-zinc-400 uppercase tracking-widest animate-pulse">Menghubungkan ke Gateway...</p>
+        </div>
+
+        <!-- Midtrans Embed Container -->
+        <div id="snap-container" class="w-full bg-slate-50 dark:bg-zinc-900 min-h-[500px] h-[70vh] max-h-[600px] overflow-hidden rounded-b-3xl"></div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
@@ -62,18 +93,21 @@
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function() {
     const payButton = document.getElementById('pay-button');
+    const modal = document.getElementById('scentify-payment-modal');
+    const backdrop = document.getElementById('scentify-modal-backdrop');
+    const content = document.getElementById('scentify-modal-content');
+    const snapLoading = document.getElementById('snap-loading');
+    const closeBtn = document.getElementById('close-payment-modal');
     
     if (payButton) {
         payButton.onclick = function(e) {
             e.preventDefault();
             
-            // 1. Efek loading tombol
             const btn = this;
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin text-lg"></i> Menyiapkan Gateway...';
             btn.classList.add('opacity-75', 'pointer-events-none', 'scale-95');
 
-            // 2. Ambil token Midtrans yang dikirim dari controller
             const snapToken = "{{ $snapToken }}";
             
             if (!snapToken || snapToken === "") {
@@ -83,11 +117,28 @@ document.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
-            // 3. Jalankan Layar Pop-Up SNAP Midtrans
-            snap.pay(snapToken, {
+            // Tampilkan Modal Custom Scentify
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Animasi masuk
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            // Hilangkan loading setelah iframe kemungkinan besar ter-load
+            setTimeout(() => {
+                snapLoading.classList.add('opacity-0');
+            }, 2500);
+
+            // Jalankan Layar Embed SNAP Midtrans
+            snap.embed(snapToken, {
+                embedId: 'snap-container',
                 onSuccess: function(result) {
                     console.log(result);
-                    // Diarahkan ke CustomerOrderController@paymentFinished
                     window.location.href = "{{ route('orders.payment_finished') }}?order_id=" + result.order_id;
                 },
                 onPending: function(result) {
@@ -103,26 +154,42 @@ document.addEventListener("DOMContentLoaded", function() {
                 },
                 onError: function(result) {
                     console.log(result);
+                    closeModal();
                     Swal.fire({
                         icon: 'error',
                         title: 'Pembayaran Gagal!',
                         text: 'Terjadi kesalahan saat memproses pembayaran Anda.',
                         confirmButtonColor: '#ef4444'
                     });
-                    btn.innerHTML = originalText;
-                    btn.classList.remove('opacity-75', 'pointer-events-none', 'scale-95');
-                },
-                onClose: function() {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Dibatalkan',
-                        text: 'Anda menutup layar sebelum menyelesaikan pembayaran.',
-                        confirmButtonColor: '#64748b'
-                    });
-                    btn.innerHTML = originalText;
-                    btn.classList.remove('opacity-75', 'pointer-events-none', 'scale-95');
                 }
             });
+
+            function closeModal() {
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0');
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    modal.classList.remove('flex');
+                    modal.classList.add('hidden');
+                    document.getElementById('snap-container').innerHTML = ''; // Hapus iframe embed
+                    snapLoading.classList.remove('opacity-0'); // Reset loading
+                }, 300);
+                
+                btn.innerHTML = originalText;
+                btn.classList.remove('opacity-75', 'pointer-events-none', 'scale-95');
+            }
+
+            closeBtn.onclick = function() {
+                closeModal();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Dibatalkan',
+                    text: 'Anda menutup layar sebelum menyelesaikan pembayaran.',
+                    confirmButtonColor: '#64748b'
+                });
+            };
         };
     }
 });
