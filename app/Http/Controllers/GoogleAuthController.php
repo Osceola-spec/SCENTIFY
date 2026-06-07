@@ -57,7 +57,7 @@ class GoogleAuthController extends Controller
             }
 
             // Arahkan ke halaman utama toko setelah sukses
-            return redirect()->route('shop')->with('success', 'Berhasil login menggunakan Google!');
+            return redirect()->route('shop')->with('success', 'Successfully logged in with Google!');
 
         } catch (Exception $e) {
             Log::error('Google login callback failed', [
@@ -65,7 +65,7 @@ class GoogleAuthController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->route('login')->with('error', 'Gagal login dengan Google. Silakan coba lagi.');
+            return redirect()->route('login')->with('error', 'Failed to login with Google. Please try again.');
         }
     }
 }

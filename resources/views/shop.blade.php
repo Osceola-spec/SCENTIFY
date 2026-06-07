@@ -871,9 +871,9 @@
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'Produk Baru Tersedia!',
+                    title: 'New Product Available!',
                     // FIX 1: Mengubah e.product.product_name menjadi e.product.name
-                    text: `${e.product.name} telah ditambahkan ke toko.`,
+                    text: `${e.product.name} has been added to the store.`,
                     position: 'top-end',
                     toast: true,
                     showConfirmButton: false,

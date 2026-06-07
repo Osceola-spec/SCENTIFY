@@ -996,7 +996,7 @@
                         <i class="fas fa-robot text-white text-[9px]"></i>
                     </div>
                     <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-700 dark:text-zinc-300 max-w-[85%]">
-                        Halo Kak! Saya Scenty. Ada yang bisa saya bantu tentang parfum hari ini?
+                        Hello! I am Scenty. How can I help you with perfumes today?
                     </div>
                 </div>
             `;
@@ -1005,14 +1005,14 @@
                 // Show ready-to-use suggestion buttons
                 messages.innerHTML += `
                     <div class="flex flex-wrap gap-2 mt-2 ml-8">
-                        <button onclick="sendSuggestedMessage('Apa rekomendasi parfum pria terbaik?')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
-                            Rekomendasi Parfum Pria
+                        <button onclick="sendSuggestedMessage('What are the best perfume recommendations for men?')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
+                            Men's Perfume Recommendations
                         </button>
-                        <button onclick="sendSuggestedMessage('Tolong cek status pesanan saya')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
-                            Cek Pesanan Saya
+                        <button onclick="sendSuggestedMessage('Please check my order status')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
+                            Check My Order
                         </button>
-                        <button onclick="sendSuggestedMessage('Apa bedanya EDP dan EDT?')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
-                            Beda EDP dan EDT?
+                        <button onclick="sendSuggestedMessage('What is the difference between EDP and EDT?')" class="text-[10px] bg-white dark:bg-zinc-900 border border-amber-500/30 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors shadow-sm">
+                            EDP vs EDT?
                         </button>
                     </div>
                 `;
@@ -1106,7 +1106,7 @@
                         <i class="fas fa-robot text-white text-[9px]"></i>
                     </div>
                     <div class="bg-slate-100 dark:bg-zinc-800 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-slate-400 dark:text-zinc-500">
-                        <i class="fas fa-circle-notch fa-spin"></i> Scenty sedang berpikir...
+                        <i class="fas fa-circle-notch fa-spin"></i> Scenty is thinking...
                     </div>
                 </div>`;
             messages.scrollTop = messages.scrollHeight;
@@ -1123,7 +1123,7 @@
                     body: JSON.stringify({ message: msg, history: chatHistory })
                 });
                 const data = await res.json();
-                const reply = data.reply || data.message || 'Maaf, terjadi kesalahan.';
+                const reply = data.reply || data.message || 'Sorry, an error occurred.';
 
                 chatHistory.push({ role: 'assistant', content: reply });
                 sessionStorage.setItem('scentify_chat_history', JSON.stringify(chatHistory));
@@ -1143,7 +1143,7 @@
                         <div class="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center shrink-0 mt-0.5">
                             <i class="fas fa-robot text-white text-[9px]"></i>
                         </div>
-                        <div class="bg-rose-50 dark:bg-rose-500/10 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-rose-600 dark:text-rose-400 max-w-[80%]">Koneksi bermasalah. Coba lagi ya Kak.</div>
+                        <div class="bg-rose-50 dark:bg-rose-500/10 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-rose-600 dark:text-rose-400 max-w-[80%]">Connection problem. Please try again.</div>
                     </div>`;
             } finally {
                 sendBtn.disabled = false;
@@ -1164,13 +1164,13 @@
         });
 
         @if(session('success'))
-            Swal.fire({ icon: 'success', title: 'Berhasil!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top' });
+            Swal.fire({ icon: 'success', title: 'Success!', text: @json(session('success')), timer: 3000, timerProgressBar: true, showConfirmButton: false, toast: true, position: 'top' });
         @endif
         @if(session('error'))
-            Swal.fire({ icon: 'error', title: 'Gagal!', text: @json(session('error')), toast: true, position: 'top', showConfirmButton: false, timer: 4000, timerProgressBar: true });
+            Swal.fire({ icon: 'error', title: 'Failed!', text: @json(session('error')), toast: true, position: 'top', showConfirmButton: false, timer: 4000, timerProgressBar: true });
         @endif
         @if(session('warning'))
-            Swal.fire({ icon: 'warning', title: 'Perhatian!', text: @json(session('warning')), toast: true, position: 'top', showConfirmButton: false, timer: 4000, timerProgressBar: true });
+            Swal.fire({ icon: 'warning', title: 'Warning!', text: @json(session('warning')), toast: true, position: 'top', showConfirmButton: false, timer: 4000, timerProgressBar: true });
         @endif
         @if(session('info'))
             Swal.fire({ icon: 'info', title: 'Info', text: @json(session('info')), toast: true, position: 'top', showConfirmButton: false, timer: 3000, timerProgressBar: true });

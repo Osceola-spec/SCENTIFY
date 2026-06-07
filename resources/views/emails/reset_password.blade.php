@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Scentify - Pemulihan Kata Sandi</title>
+    <title>Scentify - Password Reset</title>
 </head>
 <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #050507; padding: 20px; color: #ffffff; margin: 0;">
     <div style="max-width: 600px; margin: 0 auto; background: #1c1917; padding: 40px 30px; border-radius: 16px; border: 1px solid #3f3f46;">
@@ -14,32 +14,31 @@
 
         <hr style="border: 0; border-top: 1px solid #3f3f46; margin-bottom: 30px;">
 
-        <h2 style="color: #ffffff; font-size: 22px; margin-top: 0; font-family: Georgia, serif; font-weight: normal;">Pemulihan Kata Sandi</h2>
+        <h2 style="color: #ffffff; font-size: 22px; margin-top: 0; font-family: Georgia, serif; font-weight: normal;">Password Reset</h2>
         
         <p style="font-size: 15px; line-height: 1.6; color: #e4e4e7; margin-bottom: 10px;">
-            Halo <strong style="color: #f59e0b;">{{ $user->first_name ?? 'Pelanggan Scentify' }}</strong>,
+            Hello <strong style="color: #f59e0b;">{{ $user->first_name ?? 'Scentify Customer' }}</strong>,
         </p>
         <p style="font-size: 15px; line-height: 1.6; color: #d4d4d8; margin-bottom: 30px;">
-            Kami menerima permintaan untuk mengatur ulang kata sandi akun Scentify Anda. Jika ini memang Anda, silakan klik tombol eksklusif di bawah ini untuk melanjutkan:
+            We received a request to reset your Scentify account password. If this is you, please click the exclusive button below to proceed:
         </p>
         
         <div style="text-align: center; margin: 40px 0;">
             <a href="{{ $url }}" style="display: inline-block; background-color: #f59e0b; color: #050507; text-decoration: none; padding: 16px 36px; font-weight: bold; border-radius: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px;">
-                Atur Ulang Kata Sandi
+                Reset Password
             </a>
         </div>
 
         <div style="background-color: #27272a; padding: 20px; border-radius: 8px; border-left: 3px solid #f59e0b; margin-top: 30px;">
-            <p style="font-size: 13px; line-height: 1.6; color: #a1a1aa; margin: 0;">
-                Tautan pemulihan ini hanya berlaku selama <strong>60 menit</strong>. Jika Anda tidak pernah meminta pengaturan ulang kata sandi, Anda dapat mengabaikan pesan ini dengan aman.
+                This recovery link is only valid for <strong>60 minutes</strong>. If you didn't request a password reset, you can safely ignore this message.
             </p>
         </div>
 
         <hr style="border: 0; border-top: 1px solid #3f3f46; margin: 40px 0 20px 0;">
         <p style="font-size: 11px; color: #71717a; text-align: center; margin: 0; line-height: 1.5;">
-            Email ini dikirim secara otomatis oleh sistem keamanan Scentify.<br>
-            Harap tidak membalas email ini.<br>
-            &copy; {{ date('Y') }} Scentify. Seluruh hak cipta dilindungi.
+            This email is sent automatically by the Scentify security system.<br>
+            Please do not reply to this email.<br>
+            &copy; {{ date('Y') }} Scentify. All rights reserved.
         </p>
     </div>
 </body>

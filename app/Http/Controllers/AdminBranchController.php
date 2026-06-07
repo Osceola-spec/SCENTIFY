@@ -40,7 +40,7 @@ class AdminBranchController extends Controller
 
         try {
             Branch::create($data);
-            return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil ditambahkan.');
+            return redirect()->route('admin.branches.index')->with('success', 'Branch successfully added.');
         } catch (\Exception $e) {
             Log::error('Branch store failed: ' . $e->getMessage());
             return back()->withInput()->withErrors(['error' => 'Gagal menyimpan cabang. Periksa log.']);
@@ -77,12 +77,12 @@ class AdminBranchController extends Controller
 
         $branch->update($data);
 
-        return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil diperbarui.');
+        return redirect()->route('admin.branches.index')->with('success', 'Branch successfully updated.');
     }
 
     public function destroy(Branch $branch)
     {
         $branch->delete();
-        return redirect()->route('admin.branches.index')->with('success', 'Cabang berhasil dihapus.');
+        return redirect()->route('admin.branches.index')->with('success', 'Branch successfully deleted.');
     }
 }

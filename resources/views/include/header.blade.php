@@ -79,7 +79,7 @@
                 @endauth
             </a>
             
-            <!-- Keranjang Belanja -->
+            <!-- Shopping Cart -->
             <a href="{{ route('cart.index') }}" class="relative p-2 text-lg sm:text-xl hover:text-amber-500 transition-transform duration-300 hover:scale-110 focus:outline-none">
                 <i class="fas fa-shopping-bag"></i>
                 @if (session('cart') && count(session('cart')) > 0)

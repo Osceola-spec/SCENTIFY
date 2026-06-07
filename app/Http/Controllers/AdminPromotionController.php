@@ -74,7 +74,7 @@ class AdminPromotionController extends Controller
             \App\Jobs\NotifyUsersOfPromoJob::dispatch($promotion);
         }
 
-        return redirect()->route('admin.promotions.index')->with('success', 'Promo berhasil dibuat');
+        return redirect()->route('admin.promotions.index')->with('success', 'Promo successfully created');
     }
 
     public function edit(Promotion $promotion)
@@ -125,13 +125,13 @@ class AdminPromotionController extends Controller
 
         $promotion->update($data);
         event(new PromotionEvent($promotion, 'updated'));
-        return redirect()->route('admin.promotions.index')->with('success', 'Promo berhasil diperbarui');
+        return redirect()->route('admin.promotions.index')->with('success', 'Promo successfully updated');
     }
 
     public function destroy(Promotion $promotion)
     {
         $promotion->delete();
         event(new PromotionEvent($promotion, 'deleted'));
-        return redirect()->route('admin.promotions.index')->with('success', 'Promo dihapus');
+        return redirect()->route('admin.promotions.index')->with('success', 'Promo deleted');
     }
 }

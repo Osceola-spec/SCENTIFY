@@ -272,13 +272,13 @@ function fetchOngkir(cityId) {
 document.getElementById('checkoutForm').addEventListener('submit', function(e) {
     if (!document.getElementById('address_id').value) {
         e.preventDefault();
-        Swal.fire({ icon: 'warning', title: 'Pilih Alamat', text: 'Silakan pilih alamat pengiriman terlebih dahulu.', confirmButtonColor: '#f59e0b' });
+        Swal.fire({ icon: 'warning', title: 'Select Address', text: 'Please select a shipping address first.', confirmButtonColor: '#f59e0b' });
         return;
     }
     const cost = parseInt(document.getElementById('shipping_cost_input').value);
     if (!cost) {
         e.preventDefault();
-        Swal.fire({ icon: 'warning', title: 'Pilih Layanan Pengiriman', text: 'Silakan pilih layanan pengiriman terlebih dahulu.', confirmButtonColor: '#f59e0b' });
+        Swal.fire({ icon: 'warning', title: 'Select Shipping Service', text: 'Please select a shipping service first.', confirmButtonColor: '#f59e0b' });
     }
 });
 
@@ -317,13 +317,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const citySelect = document.querySelector('[name="city_id"]');
         const cityHidden = document.querySelector('[name="city"]');
         const provinceId = this.value;
-        if (!provinceId) { citySelect.innerHTML = '<option value="">-- Pilih Kota --</option>'; return; }
+        if (!provinceId) { citySelect.innerHTML = '<option value="">-- Select City --</option>'; return; }
         
         citySelect.innerHTML = '<option>Loading...</option>';
         fetch(`/api/cities/${provinceId}`)
             .then(r => r.json())
             .then(cities => {
-                citySelect.innerHTML = '<option value="">-- Pilih Kota --</option>';
+                citySelect.innerHTML = '<option value="">-- Select City --</option>';
                 cities.forEach(c => {
                     citySelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
                 });

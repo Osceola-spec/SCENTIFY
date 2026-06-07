@@ -16,9 +16,9 @@
                 <i class="fas fa-check text-3xl sm:text-4xl text-emerald-500 relative z-10"></i>
             </div>
 
-            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-slate-950 dark:text-white mb-2">Selesaikan Pembayaran</h2>
+            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-slate-950 dark:text-white mb-2">Complete Payment</h2>
             <p class="text-sm text-slate-500 dark:text-zinc-400 mb-8 flex justify-center items-center gap-2">
-                Nomor Pesanan: 
+                Order Number: 
                 <span class="font-mono font-bold text-slate-800 dark:text-zinc-200 px-2.5 py-1 bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-white/5 rounded-md">
                     #{{ $order->order_number }}
                 </span>
@@ -145,8 +145,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.log(result);
                     Swal.fire({
                         icon: 'info',
-                        title: 'Menunggu Pembayaran!',
-                        text: 'Selesaikan instruksi pembayaran pada channel yang Anda pilih.',
+                        title: 'Waiting for Payment!',
+                        text: 'Complete the payment instructions on your selected channel.',
                         confirmButtonColor: '#f59e0b'
                     }).then(() => {
                         window.location.href = "{{ route('orders.index') }}";
@@ -157,8 +157,8 @@ document.addEventListener("DOMContentLoaded", function() {
                     closeModal();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Pembayaran Gagal!',
-                        text: 'Terjadi kesalahan saat memproses pembayaran Anda.',
+                        title: 'Payment Failed!',
+                        text: 'An error occurred while processing your payment.',
                         confirmButtonColor: '#ef4444'
                     });
                 }
@@ -185,8 +185,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 closeModal();
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Dibatalkan',
-                    text: 'Anda menutup layar sebelum menyelesaikan pembayaran.',
+                    title: 'Cancelled',
+                    text: 'You closed the screen before completing the payment.',
                     confirmButtonColor: '#64748b'
                 });
             };

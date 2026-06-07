@@ -40,7 +40,7 @@ class PasswordResetController extends Controller
         );
 
         if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('success', 'Tautan pemulihan kata sandi telah dikirim ke email Anda.');
+            return back()->with('success', 'Password reset link has been sent to your email.');
         }
 
         return back()->withInput($request->only('email'))
@@ -80,7 +80,7 @@ class PasswordResetController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('success', 'Kata sandi berhasil diatur ulang. Silakan masuk dengan kata sandi baru Anda.');
+            return redirect()->route('login')->with('success', 'Password successfully reset. Please log in with your new password.');
         }
 
         return back()->withInput($request->only('email'))

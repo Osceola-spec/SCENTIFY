@@ -100,15 +100,15 @@ class AdminOrderController extends Controller
                 ? 'required|string|max:100'
                 : 'nullable|string|max:100',
         ], [
-            'status.required'           => 'Status wajib dipilih.',
-            'status.in'                 => 'Status tidak valid.',
-            'tracking_number.required'  => 'Nomor resi wajib diisi ketika status diubah menjadi Shipped.',
+            'status.required'           => 'Status is required.',
+            'status.in'                 => 'Invalid status.',
+            'tracking_number.required'  => 'Tracking number is required when status is changed to Shipped.',
         ]);
 
         // 2. Status tidak boleh sama
         if ($newStatus === $order->status) {
             $uiStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
-            return redirect()->back()->with('error', 'Status pesanan sudah ' . $uiStatus . '.');
+            return redirect()->back()->with('error', 'Order status is already ' . $uiStatus . '.');
         }
 
         // 3. Tidak boleh mundur (reverse)
@@ -117,14 +117,14 @@ class AdminOrderController extends Controller
         if (!$isCancelAllowed && $newLevel <= $currentLevel) {
             $uiStatus = $order->status === 'Paid' ? 'Processing' : $order->status;
             return redirect()->back()->with('error',
-                'Status tidak dapat dikembalikan. Pesanan sudah berada di tahap ' . $uiStatus . '.'
+                'Status cannot be reverted. The order is already in the ' . $uiStatus . ' stage.'
             );
         }
 
         // 4. Cancelled tidak boleh dari Shipped/Completed
         if ($newStatus === 'Cancelled' && $currentLevel >= 2) {
             return redirect()->back()->with('error',
-                'Pesanan yang sudah dikirim atau selesai tidak dapat dibatalkan.'
+                'Orders that have been shipped or completed cannot be cancelled.'
             );
         }
 
@@ -136,6 +136,6 @@ class AdminOrderController extends Controller
 
         // Feedback ke user menggunakan nama 'Processing' agar selaras dengan Front End
         $feedbackStatus = $request->status === 'Processing' ? 'Processing' : $newStatus;
-        return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui menjadi ' . $feedbackStatus . '.');
+        return redirect()->back()->with('success', 'Order status successfully updated to ' . $feedbackStatus . '.');
     }
 }

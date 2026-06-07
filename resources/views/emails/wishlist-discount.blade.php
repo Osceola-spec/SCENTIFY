@@ -75,23 +75,23 @@
         <div class="content">
             <p>Hi {{ $user->name }},</p>
             
-            <p>Kabar gembira! Produk impianmu di wishlist kini sedang diskon. Jangan lewatkan kesempatan emas ini untuk membawanya pulang sebelum kehabisan!</p>
+            <p>Great news! Your dream product on your wishlist is now on sale. Don't miss this golden opportunity to bring it home before it runs out!</p>
 
             <div class="product-title">{{ $product->name }}</div>
             
             <div class="discount-badge">
-                Diskon {{ $product->discount_percent }}% OFF!
+                Discount {{ $product->discount_percent }}% OFF!
             </div>
 
-            <p>Segera cek dan amankan pesananmu sekarang juga.</p>
+            <p>Check it out and secure your order right now.</p>
 
             <p style="margin-top: 30px;">
-                <a href="{{ url('/shop') }}" class="btn">Lihat Produk Sekarang</a>
+                <a href="{{ url('/shop') }}" class="btn">View Product Now</a>
             </p>
         </div>
         <div class="footer">
             &copy; {{ date('Y') }} Scentify. All rights reserved.<br>
-            Jika ada pertanyaan, silakan hubungi tim support kami.
+            If you have any questions, please contact our support team.
         </div>
     </div>
 </body>

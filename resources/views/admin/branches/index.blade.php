@@ -8,8 +8,8 @@
     <div class="pt-2 pb-4 border-b border-slate-200/50 mb-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Cabang Toko</h1>
-                <p class="text-sm text-slate-500 mt-1">Kelola lokasi cabang Scentify yang tersedia untuk pelanggan.</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Branches</h1>
+                <p class="text-sm text-slate-500 mt-1">Manage Scentify branch locations available for customers.</p>
             </div>
             <a href="{{ route('admin.branches.create') }}" class="inline-flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/30 active:scale-95 shrink-0">
                 <i class="fas fa-plus"></i> Add Branch
@@ -123,7 +123,7 @@
                     showCancelButton: true,
                     confirmButtonColor: '#ff2a5f',
                     cancelButtonColor: '#0f172a',
-                    confirmButtonText: 'Ya, hapus!',
+                    confirmButtonText: 'Yes, delete!',
                     cancelButtonText: 'Cancel',
                     reverseButtons: true,
                     scrollbarPadding: false,

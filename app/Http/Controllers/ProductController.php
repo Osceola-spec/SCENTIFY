@@ -93,7 +93,7 @@ class ProductController extends Controller
         broadcast(new \App\Events\ProductAdded($product));
 
         return redirect()->route('admin.inventory')
-            ->with('success', 'Produk berhasil ditambahkan ke katalog!');
+            ->with('success', 'Product successfully added to the catalog!');
     }
 
     public function edit(Product $product)
@@ -216,7 +216,7 @@ class ProductController extends Controller
         broadcast(new \App\Events\ProductUpdated($product));
 
         return redirect()->route('admin.inventory')
-            ->with('success', 'Produk berhasil diperbarui!');
+            ->with('success', 'Product successfully updated!');
     }
 
     public function destroy(Product $product)
@@ -226,6 +226,6 @@ class ProductController extends Controller
 
         broadcast(new ProductDeleted($deletedId));
 
-        return redirect()->back()->with('success', 'Produk berhasil dipindahkan ke tempat sampah!');
+        return redirect()->back()->with('success', 'Product successfully moved to trash!');
     }
 }

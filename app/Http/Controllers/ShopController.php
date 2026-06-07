@@ -364,6 +364,6 @@ class ShopController extends Controller
 
         $product->delete();
 
-        return redirect()->route('shop')->with('success', 'Produk berhasil dipindahkan ke tempat sampah!');
+        return redirect()->route('shop')->with('success', 'Product successfully moved to trash!');
     }
 }

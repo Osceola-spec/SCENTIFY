@@ -27,7 +27,7 @@
 </div>
 
 <div>
-    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5 font-bold">Alamat Lengkap <span class="text-rose-500">*</span></label>
+    <label class="block text-[10px] font-mono uppercase tracking-widest text-slate-500 dark:text-zinc-400 mb-1.5 font-bold">Full Address <span class="text-rose-500">*</span></label>
     <textarea name="{{ $p }}address" rows="2" required placeholder="Jalan, No. Rumah, RT/RW"
               class="w-full px-4 py-3 bg-white dark:bg-zinc-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm text-slate-700 dark:text-zinc-300 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all resize-none">{{ old($p.'address', $address->address ?? '') }}</textarea>
 </div>
@@ -76,5 +76,5 @@
 <label class="flex items-center gap-3 cursor-pointer">
     <input type="checkbox" name="{{ $p }}is_default" value="1" {{ old($p.'is_default', $address->is_default ?? false) ? 'checked' : '' }}
            class="w-4 h-4 accent-amber-500 rounded">
-    <span class="text-xs text-slate-600 dark:text-zinc-400 font-medium">Jadikan alamat utama</span>
+    <span class="text-xs text-slate-600 dark:text-zinc-400 font-medium">Set as primary address</span>
 </label>

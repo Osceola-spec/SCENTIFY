@@ -43,17 +43,17 @@ class AddressController extends Controller
         Address::create($data);
 
         if ($request->redirect_to === 'checkout') {
-            return redirect()->route('checkout')->with('success', 'Alamat berhasil disimpan.');
+            return redirect()->route('checkout')->with('success', 'Address saved successfully.');
         }
 
-        return redirect()->route('addresses.index')->with('success', 'Alamat berhasil disimpan.');
+        return redirect()->route('addresses.index')->with('success', 'Address saved successfully.');
     }
 
     public function destroy(Address $address)
     {
         abort_if($address->user_id !== auth()->id(), 403);
         $address->delete();
-        return redirect()->route('addresses.index')->with('success', 'Alamat dihapus.');
+        return redirect()->route('addresses.index')->with('success', 'Address deleted.');
     }
 
     public function update(Request $request, Address $address)
@@ -90,7 +90,7 @@ class AddressController extends Controller
 
         $address->update($data);
 
-        return redirect()->route('addresses.index')->with('success', 'Alamat diperbarui.');
+        return redirect()->route('addresses.index')->with('success', 'Address updated.');
     }
 
     public function setDefault(Address $address)
@@ -98,6 +98,6 @@ class AddressController extends Controller
         abort_if($address->user_id !== auth()->id(), 403);
         Address::where('user_id', auth()->id())->update(['is_default' => false]);
         $address->update(['is_default' => true]);
-        return redirect()->route('addresses.index')->with('success', 'Alamat utama diperbarui.');
+        return redirect()->route('addresses.index')->with('success', 'Primary address updated.');
     }
 }

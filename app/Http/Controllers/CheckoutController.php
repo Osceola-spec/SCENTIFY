@@ -75,7 +75,7 @@ class CheckoutController extends Controller
             if (empty(session('cart'))) {
                 return redirect()->route('orders.index');
             }
-            return redirect()->route('cart.index')->with('error', 'Pilih minimal satu produk untuk di-checkout.');
+            return redirect()->route('cart.index')->with('error', 'Select at least one product to checkout.');
         }
 
         // Filter session cart HANYA untuk item yang dipilih
@@ -366,7 +366,7 @@ class CheckoutController extends Controller
             DB::rollBack();
             \Log::error('CHECKOUT TRANSACTION FAILED: ' . $e->getMessage());
             
-            return redirect()->back()->withInput()->with('error', 'Gagal memproses transaksi: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Failed to process transaction: ' . $e->getMessage());
         }
     }
 
@@ -478,6 +478,6 @@ class CheckoutController extends Controller
 
         \Log::info("User memilih opsi Bayar Nanti untuk Order ID: {$order->order_number}");
 
-        return redirect()->route('orders.index')->with('success', 'Pesanan berhasil disimpan. Silakan lakukan pembayaran sebelum kedaluwarsa di halaman akun Anda.');
+        return redirect()->route('orders.index')->with('success', 'Order saved successfully. Please make payment before it expires in your account page.');
     }
 }

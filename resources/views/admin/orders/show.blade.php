@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('title', 'Detail Pesanan #' . $order->order_number)
+@section('title', 'Order Detail #' . $order->order_number)
 
 @section('content')
 <div class="space-y-6 fade-in pb-10">

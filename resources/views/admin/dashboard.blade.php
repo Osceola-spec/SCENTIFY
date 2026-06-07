@@ -216,7 +216,7 @@
                                         <div class="w-8 h-8 rounded-full bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold uppercase">
                                             {{ substr($order->user?->name ?? 'P', 0, 1) }}
                                         </div>
-                                        {{ $order->user?->username ?? 'Pelanggan' }}
+                                        {{ $order->user?->username ?? 'Customer' }}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -358,7 +358,7 @@
             data: {
                 labels: months,
                 datasets: [{
-                    label: 'Pendapatan Kotor (Rp)',
+                    label: 'Gross Revenue (Rp)',
                     data: revenueData,
                     borderColor: '#f59e0b',
                     backgroundColor: 'rgba(245, 158, 11, 0.05)',

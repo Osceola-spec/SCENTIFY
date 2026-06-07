@@ -16,7 +16,7 @@ class CustomerOrderController extends Controller
     public function index(Request $request)
     {
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login')->with('error', 'Please login first.');
         }
 
         // 1. Tangkap filter status dari URL, jika kosong default ke 'processing'
@@ -56,7 +56,7 @@ class CustomerOrderController extends Controller
     public function show($id)
     {
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login')->with('error', 'Please login first.');
         }
 
         $order = Order::with([
@@ -82,7 +82,7 @@ class CustomerOrderController extends Controller
 
         // Pastikan hanya pesanan berstatus 'Pending' yang bisa dibatalkan
         if ($order->status !== 'Pending') {
-            return back()->with('error', 'Hanya pesanan yang belum dibayar yang dapat dibatalkan.');
+            return back()->with('error', 'Only unpaid orders can be cancelled.');
         }
 
         // Ubah status menjadi Cancelled (Ada di ENUM databasemu)
@@ -93,7 +93,7 @@ class CustomerOrderController extends Controller
                 'updated_at' => now()
             ]);
 
-        return back()->with('success', 'Pesanan Anda berhasil dibatalkan.');
+        return back()->with('success', 'Your order has been cancelled successfully.');
     }
 
     /**
@@ -136,7 +136,7 @@ class CustomerOrderController extends Controller
         }
 
         // Alihkan halaman user ke daftar transaksi mereka dengan pesan sukses
-        return redirect()->route('orders.index')->with('success', 'Pembayaran Anda berhasil diverifikasi! Nota resmi telah dikirim ke email Anda.');
+        return redirect()->route('orders.index')->with('success', 'Your payment has been successfully verified! The official receipt has been sent to your email.');
     }
 
     /**
@@ -145,7 +145,7 @@ class CustomerOrderController extends Controller
     public function payNow($order_number)
     {
         if (!\Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login')->with('error', 'Please login first.');
         }
 
         // 1. Ambil detail order
@@ -155,7 +155,7 @@ class CustomerOrderController extends Controller
             ->firstOrFail();
 
         if ($order->status !== 'Pending') {
-            return redirect()->route('orders.index')->with('error', 'Pesanan ini sudah diproses atau dibatalkan.');
+            return redirect()->route('orders.index')->with('error', 'This order has already been processed or cancelled.');
         }
 
         // 2. Konfigurasi SDK Midtrans (Gunakan Config bawaan atau manually set jika tidak ada class config)
@@ -183,7 +183,7 @@ class CustomerOrderController extends Controller
             // Jika token gagal digenerate karena order_id duplikat di sandbox Midtrans, 
             // Anda bisa mengakali dengan menambahkan suffix timestamp, namun untuk production pastikan order_id unik.
             \Log::error('Midtrans Error: ' . $e->getMessage());
-            return redirect()->route('orders.index')->with('error', 'Gagal terhubung ke gateway pembayaran: ' . $e->getMessage());
+            return redirect()->route('orders.index')->with('error', 'Failed to connect to the payment gateway: ' . $e->getMessage());
         }
 
         // 5. Lempar variabel $order dan $snapToken ke view

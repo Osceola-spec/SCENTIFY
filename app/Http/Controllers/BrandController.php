@@ -74,7 +74,7 @@ class BrandController extends Controller
     {
         $brand->delete();
 
-        return redirect()->back()->with('success', 'Brand berhasil dipindahkan ke tempat sampah!');
+        return redirect()->back()->with('success', 'Brand successfully moved to trash!');
     }
 
     public function publicIndex()

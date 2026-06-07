@@ -66,7 +66,7 @@ class CartController extends Controller
     public function add(Request $request, $variantId)
     {
         if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu untuk menambah produk ke keranjang.');
+            return redirect()->route('login')->with('error', 'You must be logged in to add products to the cart.');
         }
 
         // Tangkap kuantitas dari input form, default 1 jika tidak ada
@@ -116,7 +116,7 @@ class CartController extends Controller
             return redirect()->to('/checkout?checkout_items[]=' . $variantId . '&quantities[' . $variantId . ']=' . $quantityToAdd);
         }
 
-        return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
+        return redirect()->back()->with('success', 'Product successfully added to the cart!');
     }
 
     // Menghapus item dari keranjang
@@ -129,7 +129,7 @@ class CartController extends Controller
             session()->put('cart', $cart);
         }
 
-        return redirect()->back()->with('success', 'Produk dihapus dari keranjang.');
+        return redirect()->back()->with('success', 'Product removed from cart.');
     }
 
     // Menghapus banyak item sekaligus
@@ -137,7 +137,7 @@ class CartController extends Controller
     {
         $cartIds = json_decode($request->input('cart_ids'), true);
         if (!is_array($cartIds) || empty($cartIds)) {
-            return redirect()->back()->with('error', 'Tidak ada item yang dipilih untuk dihapus.');
+            return redirect()->back()->with('error', 'No items selected for removal.');
         }
 
         $cart = session()->get('cart', []);
@@ -149,6 +149,6 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
-        return redirect()->back()->with('success', count($cartIds) . ' produk berhasil dihapus dari keranjang.');
+        return redirect()->back()->with('success', count($cartIds) . ' products successfully removed from the cart.');
     }
 }
