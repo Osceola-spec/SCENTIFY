@@ -354,7 +354,7 @@
                                 @endif
 
                                 <div
-                                    class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
+                                    class="w-full h-32 sm:h-44 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
                                     <img src="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -963,7 +963,7 @@
                 }
 
                 const newProductDiv = document.createElement('div');
-                newProductDiv.className = 'perspective-1000 reveal opacity-0 product-card';
+                newProductDiv.className = 'perspective-1000 opacity-0 product-card';
                 newProductDiv.id = 'product-card-' + e.product.id;
 
                     let basePriceStr = 'Rp 0';
@@ -990,7 +990,7 @@
                 newProductDiv.innerHTML = `
                     <div class="tilt-card bg-white dark:bg-darkcard rounded-2xl sm:rounded-3xl p-3 sm:p-4 border border-slate-200 dark:border-white/5 shadow-md flex flex-col justify-between h-auto min-h-[300px] sm:min-h-[360px] transition-all duration-300 group relative ring-2 ring-amber-400">
                         <div class="absolute -top-3 -right-3 z-10 bg-amber-500 text-black text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">New!</div>
-                        <div class="w-full h-32 sm:h-44 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
+                        <div class="w-full h-32 sm:h-44 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-900 relative">
                             <img src="${imgUrl}" alt="${e.product.name}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             ${promoBadge}
                         </div>
@@ -1010,10 +1010,17 @@
                 `;
 
                 container.insertAdjacentElement('afterbegin', newProductDiv);
-                if (window.gsap) gsap.to(newProductDiv, {
-                    opacity: 1,
-                    duration: 1
-                });
+                if (window.gsap) {
+                    gsap.fromTo(newProductDiv, {
+                        opacity: 0,
+                        y: 30
+                    }, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                }
             });
 
             channel.listen('.product.deleted', (e) => {

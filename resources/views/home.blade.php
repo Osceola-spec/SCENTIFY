@@ -1,11 +1,14 @@
 @extends('base.base')
 
 @section('content')
-    <section id="home" class="min-h-screen flex items-center justify-center relative px-4 sm:px-6 overflow-hidden pt-28 lg:pt-16 bg-transparent">
+    <!-- Global Homepage Background Elements -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
         <div id="glow-orb-1" class="absolute top-[15%] left-[10%] w-[250px] h-[250px] sm:w-[350px] sm:h-[350px] bg-amber-500/20 dark:bg-amber-500/10 rounded-full ambient-glow-orb pointer-events-none"></div>
         <div id="glow-orb-2" class="absolute bottom-[15%] right-[10%] w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] bg-purple-500/10 dark:bg-purple-900/5 rounded-full ambient-glow-orb pointer-events-none"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:30px_30px] opacity-60"></div>
+    </div>
 
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none opacity-60"></div>
+    <section id="home" class="min-h-screen flex items-center justify-center relative px-4 sm:px-6 pt-28 lg:pt-16 bg-transparent">
 
         <div class="max-w-7xl w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-16 z-10">
             <div class="flex-1 text-left sm:text-center lg:text-left hero-text-container will-animate w-full">
@@ -309,7 +312,7 @@
                         @if($appliedPromo)
                             <div class="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-amber-400 via-rose-500 to-amber-600 p-[2px] pointer-events-none" style="-webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;"></div>
                         @endif
-                        <a href="{{ route('shop') }}#product-card-{{ $product->id }}" class="block w-full h-28 sm:h-36 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
+                        <a href="{{ route('shop') }}#product-card-{{ $product->id }}" class="block w-full h-28 sm:h-36 shrink-0 overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-zinc-800 relative">
                             @if($product->image_url)
                                 <img src="{{ asset('product_image/' . $product->image_url) }}" alt="{{ $product->name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             @else
@@ -334,7 +337,7 @@
                                 <small class="text-[9px] sm:text-[10px] font-mono text-amber-600 dark:text-amber-400 uppercase tracking-widest font-semibold block line-clamp-1">{{ $product->brand->name ?? 'Scentify' }}</small>
                                 <h3 class="text-sm sm:text-base font-serif font-bold text-slate-950 dark:text-white mt-0.5 sm:mt-1 group-hover:text-amber-500 transition-colors duration-300 line-clamp-1">{{ $product->name }}</h3>
                             </a>
-                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-3 leading-relaxed hidden sm:block">{{ $product->description }}</p>
+                            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-zinc-400 mt-1 sm:mt-2 line-clamp-3 leading-relaxed hidden sm:block">{{ \Illuminate\Support\Str::limit($product->description, 110, '...') }}</p>
                         </div>
                         <div class="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200 dark:border-white/10 flex items-center justify-between">
                             <span class="text-xs sm:text-sm font-bold text-slate-950 dark:text-white">
@@ -383,18 +386,49 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof Swiper !== 'undefined') {
-                new Swiper('.hero-swiper', {
+                let resumeTimeout;
+                
+                const heroSwiper = new Swiper('.hero-swiper', {
                     effect: 'cards',
                     grabCursor: true,
                     loop: true,
                     autoplay: {
                         delay: 4000,
-                        disableOnInteraction: false,
+                        disableOnInteraction: true, // Matikan autoplay bawaan saat interaksi
                     },
                     navigation: {
                         nextEl: '.swiper-button-next',
                         prevEl: '.swiper-button-prev',
                     },
+                    on: {
+                        // Saat user mulai menyentuh/swipe
+                        touchStart: function () {
+                            this.autoplay.stop();
+                            clearTimeout(resumeTimeout);
+                        },
+                        // Saat user selesai swipe/melepaskan sentuhan
+                        touchEnd: function () {
+                            resumeTimeout = setTimeout(() => {
+                                this.autoplay.start();
+                            }, 2000); // Tunggu 2 detik lalu jalan lagi
+                        },
+                        // Jika user menggunakan tombol panah Next
+                        navigationNext: function () {
+                            this.autoplay.stop();
+                            clearTimeout(resumeTimeout);
+                            resumeTimeout = setTimeout(() => {
+                                this.autoplay.start();
+                            }, 2000);
+                        },
+                        // Jika user menggunakan tombol panah Prev
+                        navigationPrev: function () {
+                            this.autoplay.stop();
+                            clearTimeout(resumeTimeout);
+                            resumeTimeout = setTimeout(() => {
+                                this.autoplay.start();
+                            }, 2000);
+                        }
+                    }
                 });
             }
         });

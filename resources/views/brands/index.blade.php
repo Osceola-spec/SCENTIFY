@@ -1,5 +1,5 @@
 @extends('base.base')
-@section('title', 'Koleksi Brand Resmi Scentify')
+@section('title', 'Scentify Official Brand Collection')
 
 @section('content')
 <div class="w-full bg-transparent pb-24 px-4 max-w-7xl mx-auto min-h-[80vh]" style="margin-top: 140px; padding-top: 20px;">
@@ -8,7 +8,7 @@
         <span class="text-xs font-bold tracking-widest text-amber-500 uppercase block">Scentify Collection</span>
         <h2 class="text-3xl md:text-4xl font-light tracking-tight text-slate-900 dark:text-white block">Our Official Brands</h2>
         <p class="text-sm md:text-base text-slate-500 dark:text-slate-400 font-light leading-relaxed block">
-            Jelajahi berbagai pilihan brand parfum ternama dan eksklusif yang dikurasi khusus untuk melengkapi karakter dan keharuman harian Anda.
+            Explore a wide selection of renowned and exclusive perfume brands curated specially to complement your character and daily scent.
         </p>
         <div class="bg-amber-400 mx-auto rounded-full w-16 h-1 mt-4"></div>
     </div>
@@ -19,7 +19,7 @@
                 
                 <div class="w-24 h-24 md:w-28 md:h-28 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-full p-3 flex items-center justify-center overflow-hidden mb-4 shadow-sm transition-transform duration-300 group-hover:scale-105 mx-auto">
                     @if ($brand->logo_url)
-                        <img src="{{ asset('storage/' . $brand->logo_url) }}" 
+                        <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('storage/' . $brand->logo_url) }}" 
                              alt="{{ $brand->name }}" 
                              class="max-w-[80%] max-h-[80%] object-contain">
                     @else
@@ -43,14 +43,14 @@
                           bg-slate-900 dark:bg-amber-400 text-white dark:text-black 
                           hover:bg-amber-500 dark:hover:bg-amber-300 
                           active:scale-95 active:bg-amber-600 dark:active:bg-amber-500 active:text-white">
-                    Lihat Produk
+                    View Products
                 </a>
             </div>
         @empty
             <div class="col-span-full py-20 text-center text-slate-400 dark:text-slate-600">
                 <div class="flex flex-col items-center justify-center">
                     <i class="fas fa-tags text-4xl mb-3 text-slate-200 dark:text-slate-800"></i>
-                    <p class="text-sm font-medium">Belum ada brand resmi yang tersedia saat ini.</p>
+                    <p class="text-sm font-medium">No official brands available at the moment.</p>
                 </div>
             </div>
         @endforelse

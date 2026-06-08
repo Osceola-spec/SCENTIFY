@@ -6,9 +6,9 @@
         
         <div class="lg:col-span-5 flex flex-col order-2 lg:order-1">
             <div class="mb-6">
-                <h1 class="text-2xl sm:text-3xl font-serif font-bold text-gradient">Toko Scentify</h1>
+                <h1 class="text-2xl sm:text-3xl font-serif font-bold text-gradient">Scentify Stores</h1>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Temukan butik offline premium kami terdekat dari lokasi Anda.
+                    Find our premium offline boutiques nearest to your location.
                 </p>
             </div>
 
@@ -57,7 +57,7 @@
                         @if($branch->opening_hours)
                             <div class="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 text-xs text-slate-600 dark:text-slate-400">
                                 <span class="font-medium text-slate-700 dark:text-zinc-300 flex items-center gap-1.5 mb-1">
-                                    <i class="far fa-clock text-amber-500"></i> Jam Operasional:
+                                    <i class="far fa-clock text-amber-500"></i> Opening Hours:
                                 </span>
                                 <div class="pl-4 leading-relaxed text-[11px]">{!! nl2br(e($branch->opening_hours)) !!}</div>
                             </div>
@@ -65,14 +65,14 @@
 
                         <div class="mt-3 flex justify-end">
                             <span class="text-[11px] font-semibold text-amber-500 group-hover/card:translate-x-1 transition-transform flex items-center gap-1">
-                                Fokus Peta <i class="fas fa-chevron-right text-[9px]"></i>
+                                View on Map <i class="fas fa-chevron-right text-[9px]"></i>
                             </span>
                         </div>
                     </div>
                 @empty
                     <div class="text-center p-8 glass-card bg-white dark:bg-darkcard rounded-xl shadow-sm border border-slate-100 dark:border-white/5">
-                        <h4 class="text-lg font-bold text-slate-900 dark:text-zinc-50">Belum ada toko terdaftar</h4>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Silakan cek kembali nanti.</p>
+                        <h4 class="text-lg font-bold text-slate-900 dark:text-zinc-50">No stores registered yet</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Please check back later.</p>
                     </div>
                 @endforelse
             </div>
@@ -81,7 +81,7 @@
         <div class="lg:col-span-7 sticky top-28 order-1 lg:order-2 mb-6 lg:mb-0">
             <!-- Mobile Map Toggle Button -->
             <button id="toggle-map-btn" class="w-full lg:hidden mb-4 bg-amber-500 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-amber-600 transition-colors">
-                <i class="fas fa-eye-slash"></i> Sembunyikan Peta
+                <i class="fas fa-eye-slash"></i> Hide Map
             </button>
 
             <div id="map-wrapper" class="transition-all duration-300">
@@ -98,12 +98,12 @@
 
                 <div id="map-overlay" class="absolute bottom-4 left-4 right-4 glass-card bg-white/90 dark:bg-darkcard/90 p-4 rounded-xl border border-slate-200 dark:border-white/10 shadow-xl z-20 transform translate-y-2 opacity-0 pointer-events-none transition-all duration-500 flex items-center justify-between gap-4">
                     <div class="min-w-0">
-                        <span class="text-[10px] uppercase tracking-wider text-amber-500 font-bold">Lokasi Terpilih</span>
-                        <h4 id="overlay-title" class="text-sm font-bold text-slate-900 dark:text-zinc-50 truncate mt-0.5">Nama Toko</h4>
-                        <p id="overlay-address" class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">Alamat Lengkap Toko</p>
+                        <span class="text-[10px] uppercase tracking-wider text-amber-500 font-bold">Selected Location</span>
+                        <h4 id="overlay-title" class="text-sm font-bold text-slate-900 dark:text-zinc-50 truncate mt-0.5">Store Name</h4>
+                        <p id="overlay-address" class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">Full Store Address</p>
                     </div>
                     <a id="overlay-route-btn" href="#" target="_blank" class="flex-shrink-0 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
-                        <i class="fas fa-directions"></i> Rute
+                        <i class="fas fa-directions"></i> Directions
                     </a>
                 </div>
                 </div>
@@ -165,13 +165,13 @@
                 isMapVisible = !isMapVisible;
                 if (isMapVisible) {
                     mapWrapper.classList.remove('hidden');
-                    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Sembunyikan Peta';
+                    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Map';
                     toggleBtn.classList.replace('bg-white', 'bg-amber-500');
                     toggleBtn.classList.replace('text-slate-700', 'text-white');
                     toggleBtn.classList.replace('border-slate-200', 'border-transparent');
                 } else {
                     mapWrapper.classList.add('hidden');
-                    toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Tampilkan Peta';
+                    toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Show Map';
                     toggleBtn.classList.replace('bg-amber-500', 'bg-white');
                     toggleBtn.classList.replace('text-white', 'text-slate-700');
                     toggleBtn.classList.replace('border-transparent', 'border-slate-200');

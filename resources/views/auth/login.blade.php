@@ -25,17 +25,17 @@
                 
                 <div class="relative z-10 space-y-4">
                     <span class="text-xs font-mono text-amber-400 uppercase tracking-widest font-semibold">Welcome Back</span>
-                    <h2 class="text-3xl lg:text-4xl font-serif text-white font-bold leading-tight">Selamat Datang Kembali.</h2>
-                    <p class="text-zinc-300 text-sm leading-relaxed">Lanjutkan perjalanan Anda untuk menemukan aroma khas yang mendefinisikan karakter sejati Anda.</p>
+                    <h2 class="text-3xl lg:text-4xl font-serif text-white font-bold leading-tight">Welcome Back.</h2>
+                    <p class="text-zinc-300 text-sm leading-relaxed">Continue your journey to discover the signature scent that defines your true character.</p>
                 </div>
             </div>
 
             <div class="md:col-span-6 p-8 sm:p-12 flex flex-col justify-center bg-white/70 dark:bg-darkcard/70 transition-colors duration-500">
                 <div class="mb-10 text-center sm:text-left">
-                    <h3 class="text-2xl sm:text-3xl font-serif font-bold text-slate-950 dark:text-white">Masuk ke Scentify</h3>
+                    <h3 class="text-2xl sm:text-3xl font-serif font-bold text-slate-950 dark:text-white">Log in to Scentify</h3>
                     <p class="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-2">
-                        Belum memiliki akun? 
-                        <a href="{{ route('register') }}" class="text-amber-600 dark:text-amber-400 font-semibold border-b border-amber-500/30 hover:border-amber-500 transition-colors">Daftar sekarang</a>
+                        Don't have an account? 
+                        <a href="{{ route('register') }}" class="text-amber-600 dark:text-amber-400 font-semibold border-b border-amber-500/30 hover:border-amber-500 transition-colors">Sign up now</a>
                     </p>
                 </div>
 
@@ -46,7 +46,7 @@
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder=" "
                                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-zinc-800/20 border @error('email') border-rose-500 @else border-slate-200 dark:border-white/5 @enderror rounded-2xl text-slate-950 dark:text-white placeholder-transparent peer focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all duration-300">
                         <label for="email" class="absolute left-3 -top-3 text-slate-400 dark:text-zinc-500 text-xs font-medium transition-all pointer-events-none peer-placeholder-shown:text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:left-5 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
-                            <i class="far fa-envelope mr-1.5"></i> Alamat Email
+                            <i class="far fa-envelope mr-1.5"></i> Email Address
                         </label>
                         @error('email')
                             <p class="text-rose-500 text-[10px] sm:text-xs mt-2 pl-2 flex items-center gap-1.5 font-medium">
@@ -59,7 +59,7 @@
                         <input type="password" id="password" name="password" required placeholder=" "
                                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-zinc-800/20 border @error('password') border-rose-500 @else border-slate-200 dark:border-white/5 @enderror rounded-2xl text-slate-950 dark:text-white placeholder-transparent peer focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all duration-300">
                         <label for="password" class="absolute left-3 -top-3 text-slate-400 dark:text-zinc-500 text-xs font-medium transition-all pointer-events-none peer-placeholder-shown:text-sm peer-placeholder-shown:top-4 peer-placeholder-shown:left-5 peer-focus:-top-3 peer-focus:left-3 peer-focus:text-xs peer-focus:text-amber-500 bg-white dark:bg-darkcard px-2 rounded">
-                            <i class="fas fa-lock mr-1.5"></i> Kata Sandi
+                            <i class="fas fa-lock mr-1.5"></i> Password
                         </label>
                         @error('password')
                             <p class="text-rose-500 text-[10px] sm:text-xs mt-2 pl-2 flex items-center gap-1.5 font-medium">
@@ -72,21 +72,21 @@
                         <label class="flex items-center group cursor-pointer text-slate-500 dark:text-zinc-400 hover:text-amber-500 transition-colors">
                             <input type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}
                                    class="rounded border-slate-300 dark:border-zinc-700 text-amber-500 focus:ring-amber-500 bg-transparent mr-2.5 w-4.5 h-4.5 transition-colors cursor-pointer">
-                            <span class="font-medium selection:bg-transparent">Ingat Saya</span>
+                            <span class="font-medium selection:bg-transparent">Remember Me</span>
                         </label>
                         
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="text-slate-400 dark:text-zinc-500 hover:text-amber-500 transition-colors font-medium">Lupa Sandi?</a>
+                            <a href="{{ route('password.request') }}" class="text-slate-400 dark:text-zinc-500 hover:text-amber-500 transition-colors font-medium">Forgot Password?</a>
                         @endif
                     </div>
 
                     <button type="submit" class="w-full py-4 bg-slate-900 dark:bg-amber-400 text-white dark:text-black font-semibold tracking-wider uppercase rounded-2xl hover:bg-amber-500 dark:hover:bg-amber-300 active:scale-95 transition-all duration-300 text-sm shadow-lg shadow-amber-500/5">
-                        Masuk
+                        Log In
                     </button>
 
                     <div class="relative flex py-4 items-center">
                         <div class="flex-grow border-t border-slate-200 dark:border-white/10"></div>
-                        <span class="flex-shrink mx-4 text-xs font-mono uppercase text-slate-400 dark:text-zinc-500">Atau masuk dengan</span>
+                        <span class="flex-shrink mx-4 text-xs font-mono uppercase text-slate-400 dark:text-zinc-500">Or log in with</span>
                         <div class="flex-grow border-t border-slate-200 dark:border-white/10"></div>
                     </div>
 
@@ -107,8 +107,8 @@
         event.preventDefault();
         Swal.fire({
             icon: 'info',
-            title: 'Layanan Eksklusif',
-            text: `Masuk menggunakan ${platform} saat ini sedang dalam proses konfigurasi API keamanan.`,
+            title: 'Exclusive Service',
+            text: `Logging in with ${platform} is currently undergoing security API configuration.`,
             confirmButtonColor: '#f59e0b',
             customClass: { popup: document.documentElement.classList.contains('dark') ? 'dark-swal' : '' }
         });
