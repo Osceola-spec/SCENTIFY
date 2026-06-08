@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
-use Illuminate\Support\Facades\Storage; // Wajib di-import untuk manajemen hapus file
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class BrandController extends Controller
 {
@@ -24,7 +25,9 @@ class BrandController extends Controller
         $logoPath = null;
 
         if ($request->hasFile('logo_image')) {
-            $logoPath = $request->file('logo_image')->store('brands', 'public');
+            $logoName = time() . '_' . $request->file('logo_image')->getClientOriginalName();
+            $request->file('logo_image')->move(public_path('brand_image'), $logoName);
+            $logoPath = $logoName;
         }
 
         Brand::create([
@@ -53,12 +56,16 @@ class BrandController extends Controller
         // Jika user mengunggah file logo baru
         if ($request->hasFile('logo_image')) {
             // Hapus logo lama dari server jika sebelumnya ada
-            if ($brand->logo_url && Storage::disk('public')->exists($brand->logo_url)) {
+            if ($brand->logo_url && file_exists(public_path('brand_image/' . basename($brand->logo_url)))) {
+                unlink(public_path('brand_image/' . basename($brand->logo_url)));
+            } elseif ($brand->logo_url && Storage::disk('public')->exists($brand->logo_url)) {
                 Storage::disk('public')->delete($brand->logo_url);
             }
 
-            // Simpan logo baru ke folder storage
-            $data['logo_url'] = $request->file('logo_image')->store('brands', 'public');
+            // Simpan logo baru ke folder public/brand_image
+            $logoName = time() . '_' . $request->file('logo_image')->getClientOriginalName();
+            $request->file('logo_image')->move(public_path('brand_image'), $logoName);
+            $data['logo_url'] = $logoName;
         }
 
         // Update data ke database
@@ -72,6 +79,12 @@ class BrandController extends Controller
     // ========================================================
     public function destroy(Brand $brand)
     {
+        if ($brand->logo_url && file_exists(public_path('brand_image/' . basename($brand->logo_url)))) {
+            unlink(public_path('brand_image/' . basename($brand->logo_url)));
+        } elseif ($brand->logo_url && Storage::disk('public')->exists($brand->logo_url)) {
+            Storage::disk('public')->delete($brand->logo_url);
+        }
+
         $brand->delete();
 
         return redirect()->back()->with('success', 'Brand successfully moved to trash!');

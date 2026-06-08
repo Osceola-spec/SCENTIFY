@@ -87,7 +87,7 @@
                                         <td class="px-6 py-4">
                                             @if ($brand->logo_url)
                                                 <div class="w-12 h-12 rounded-xl bg-white border border-slate-200 overflow-hidden shadow-sm flex items-center justify-center p-1.5 shrink-0">
-                                                    <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('storage/' . $brand->logo_url) }}" 
+                                                    <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('brand_image/' . basename($brand->logo_url)) }}" 
                                                          alt="{{ $brand->name }}" 
                                                          class="max-w-full max-h-full object-contain transition-transform duration-500 group-hover:scale-110">
                                                 </div>
@@ -160,7 +160,7 @@
                                                         <div class="flex items-center gap-4">
                                                             @if($brand->logo_url)
                                                                 <div class="w-12 h-12 rounded-xl border border-slate-200 p-1 bg-white shrink-0 flex items-center justify-center">
-                                                                    <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('storage/' . $brand->logo_url) }}" alt="Preview" class="max-w-full max-h-full object-contain">
+                                                                    <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('brand_image/' . basename($brand->logo_url)) }}" alt="Preview" class="max-w-full max-h-full object-contain">
                                                                 </div>
                                                             @endif
                                                             <input type="file" name="logo_image" accept="image/*"

@@ -19,7 +19,7 @@
                 
                 <div class="w-24 h-24 md:w-28 md:h-28 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-full p-3 flex items-center justify-center overflow-hidden mb-4 shadow-sm transition-transform duration-300 group-hover:scale-105 mx-auto">
                     @if ($brand->logo_url)
-                        <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('storage/' . $brand->logo_url) }}" 
+                        <img src="{{ strpos($brand->logo_url, 'http') === 0 ? $brand->logo_url : asset('brand_image/' . basename($brand->logo_url)) }}" 
                              alt="{{ $brand->name }}" 
                              class="max-w-[80%] max-h-[80%] object-contain">
                     @else
