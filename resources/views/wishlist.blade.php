@@ -84,9 +84,27 @@
 
                     <div class="mt-3">
                         @if ($product->variants->isNotEmpty() && $product->variants->sum('stock') > 0)
-                            <a href="{{ route('shop') }}" class="w-full py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-slate-800 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md flex items-center justify-center gap-1.5">
+                            <button type="button"
+                                class="variant-selector-btn w-full py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-900 dark:bg-amber-400 text-white dark:text-black rounded-full hover:bg-amber-500 dark:hover:bg-amber-300 transition-colors duration-300 shadow-md focus:outline-none flex items-center justify-center gap-1.5"
+                                data-product-id="{{ $product->id }}"
+                                data-product-name="{{ $product->name }}"
+                                data-product-brand="{{ $product->brand->name ?? 'Unknown Brand' }}"
+                                data-product-image="{{ $product->image_url ? (strpos($product->image_url, 'http') === 0 ? $product->image_url : asset('product_image/' . $product->image_url)) : 'https://placehold.co/400x500?text=Scentify' }}"
+                                data-product-description="{{ $product->description ?? '' }}"
+                                data-product-images="{{ json_encode($product->images->map(fn($img) => $img->url)) }}"
+                                data-variants="{{ json_encode($product->variants) }}"
+                                data-reviews="{{ json_encode(
+                                    $product->reviews->map(
+                                        fn($r) => [
+                                                'rating' => $r->rating,
+                                                'comment' => $r->comment,
+                                                'date' => $r->created_at->format('d M Y'),
+                                                'user_name' => $r->user->name ?? 'Scentify Customer',
+                                            ],
+                                    ),
+                                ) }}">
                                 <i class="fas fa-shopping-bag"></i> Buy Now
-                            </a>
+                            </button>
                         @else
                             <button class="w-full py-2 text-[10px] sm:text-xs font-semibold tracking-wide bg-slate-300 dark:bg-zinc-800 text-slate-500 dark:text-zinc-600 rounded-full cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
                                 <i class="fas fa-times-circle"></i> Stok Habis
@@ -180,4 +198,7 @@
         if (productId) removeFromWishlist(productId);
     });
 </script>
+
+@include('partials.variant_modal')
+
 @endsection
